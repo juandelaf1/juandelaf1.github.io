@@ -78,13 +78,25 @@ The hypothesis-driven approach differentiated this project from exploratory anal
 
 The scissors effect analysis required careful alignment of traffic and revenue time series. Traffic data is reported quarterly by operators; revenue data is annual from regulatory filings. DuckDB's temporal join capabilities made this alignment straightforward.
 
+### Trade-offs
+
+DuckDB was chosen over a cloud data warehouse (Snowflake, BigQuery) despite the latter being more conventional for multi-source analytical workloads. The project had no dedicated database budget or operations team — DuckDB's zero-infrastructure approach made the analysis feasible. However, this decision limits collaboration: the dataset lives on a single machine rather than being accessible to a team. For a one-person analytical project, this is acceptable. For a team environment, a cloud warehouse would be necessary.
+
+The analysis uses publicly available CNMC and Eurostat data rather than proprietary operator data. This means the findings reflect regulatory reporting rather than real-time operational metrics. The trade-off is between data accessibility and data freshness.
+
+### Reliability
+
+All statistical tests were pre-registered before data collection, including acceptance criteria. This prevents p-hacking and ensures that the results are reproducible. The complete analysis pipeline — from raw data ingestion to hypothesis testing — is containerized with Docker and can be re-run by anyone with access to the same public data sources.
+
+Source data integrity is verified at ingestion: row counts and schema checks confirm that the CNMC and Eurostat datasets match their published documentation before any analysis proceeds.
+
 ## Results
 
-- **5 of 6 hypotheses confirmed** on EU telecom market dynamics
-- **Scissors effect quantified**: traffic CAGR +127% vs revenue CAGR -0.4%
-- **41,937 rows** of CNMC regulatory data + **1.8M+** Eurostat macroindicators processed
-- **Market concentration analysis** using Herfindahl-Hirschman Index across 27 EU member states
-- **Global Gini coefficient: 0.974** demonstrating extreme attention concentration (from companion analysis)
+- **5 of 6 hypotheses confirmed** on EU telecom market dynamics. The sixth (market concentration vs pricing) was rejected — finding that competition policy is working.
+- **Scissors effect quantified**: traffic CAGR +127% vs revenue CAGR -0.4%. Calculated from CNMC regulatory filings and Eurostat data, covering 2018-2024.
+- **41,937 rows** of CNMC regulatory data and **1.8M+** Eurostat macroindicators processed through DuckDB in under 30 seconds total query time.
+- **Market concentration analysis** using Herfindahl-Hirschman Index across 27 EU member states.
+- **Global Gini coefficient: 0.974** demonstrating extreme attention concentration (from companion analysis on digital attention data).
 
 ## Lessons Learned
 

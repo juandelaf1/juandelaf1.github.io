@@ -77,12 +77,24 @@ This decoupling prevents a single source failure from blocking the entire pipeli
 
 The data quality layer was essential. Initial attempts to build a unified feature matrix failed repeatedly because NULLs from one source would silently propagate through joins. The validation layer now explicitly checks for completeness before allowing a feature matrix to proceed to the model.
 
+### Trade-offs
+
+XGBoost was chosen over a simpler linear model despite higher implementation complexity. Initial tests with linear regression achieved R² around 0.82 but failed to capture non-linear interactions between features (e.g., the compounding effect of high fuel prices during winter storms). The accuracy gain from XGBoost justified the additional complexity, but it also introduced a maintenance burden: the model requires periodic retraining to adapt to shifting cost patterns.
+
+The system processes data in batch (daily granularity) rather than streaming. Real-time cost prediction could enable same-day route adjustments, but the operational decisions this system supports (contract pricing, fleet allocation) operate on weekly cycles. Batch processing is appropriate for the current use case.
+
+### Reliability
+
+The data quality gate is the most important reliability mechanism. Every source must pass schema validation and completeness checks before its data enters the feature matrix. If a source fails validation twice consecutively, an alert is sent and the system uses the last known values with a confidence penalty.
+
+Model predictions include a confidence score based on feature completeness. When fewer sources than expected are available, the confidence score decreases proportionally, and the dashboard displays predictions with a visual warning.
+
 ## Results
 
-- **R² = 0.987** on cost per mile prediction, enabling precise contract pricing
+- **R² = 0.987** on cost per mile prediction against held-out test data. The model was trained on 80% of historical route data and evaluated on the remaining 20%.
 - **15+ operational KPIs** tracked across 50 states with automated weekly reporting
-- **End-to-end ETL pipeline** from 5+ data sources to production dashboard
-- **Multi-regional adaptability**: the system was designed for US states but the architecture generalizes to any geographic region
+- **End-to-end ETL pipeline** ingests from 5+ data sources (AAA fuel, OpenWeatherMap, US Census, operational databases) into a production Streamlit dashboard
+- **Multi-regional architecture**: designed for US states but generalizes to any geographic region with available data sources
 
 ## Lessons Learned
 

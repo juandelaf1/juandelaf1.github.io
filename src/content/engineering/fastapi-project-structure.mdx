@@ -1,17 +1,17 @@
 ---
-title: "FastAPI Project Structure for Data Products"
-description: "A production-grade project structure for FastAPI-based data products with separation of concerns."
+title: "Organising FastAPI projects for data products"
+description: "Domain-driven project structure that keeps data APIs maintainable as they grow beyond a few endpoints."
 date: 2026-06-15
-tags: ["FastAPI", "Architecture", "Python", "API Design"]
+tags: ["FastAPI", "Architecture", "API Design", "Production"]
 ---
 
-## Problem
+## Context
 
-FastAPI's quick-start examples promote a flat structure where routes, models, and business logic live in the same file. This works for prototypes but breaks down when the system grows to 10+ endpoints with multiple data sources.
+FastAPI documentation promotes a flat structure where routes, Pydantic models, and business logic coexist in the same file. This is acceptable for a two-endpoint prototype, but every data product I have built has grown beyond that. When a system reaches 10+ endpoints with multiple data sources, a flat structure becomes a maintenance bottleneck.
 
-## Approach
+## Structure by domain, not by layer
 
-Organize by domain, not by layer type:
+The approach I use is organising by business domain rather than technical layer:
 
 ```
 src/
@@ -37,14 +37,14 @@ src/
     config.py
 ```
 
-Each domain owns its models, business logic, and validators. The API layer is thin—it parses requests and delegates to domain services.
+Each domain owns its Pydantic models, business logic, and validation rules. The API layer is deliberately thin: it parses the HTTP request, delegates to the domain service, and formats the response. No business logic lives in route handlers.
 
-## Results
+## Why this works for data products
 
-- Adding a new domain requires creating a directory, not modifying existing files
-- Tests map cleanly to domains (one test file per domain)
-- Models are reused across API, background jobs, and dashboard
+Data products differ from standard web applications in one important way: the same data model is frequently consumed by multiple interfaces. The weather domain models in this structure are used by the API, the background ingestion job, and the dashboard. When the model changes, the change is made in one file and all consumers pick it up.
 
-## Key Takeaway
+Testing also improves. With domain-services separated from HTTP concerns, I can unit-test transformation logic without spinning up a test client. Integration tests verify the API layer separately.
 
-The API layer should be the thinnest part of the codebase. Business logic belongs in domain services, not route handlers.
+## The trade-off
+
+Domain-driven structure introduces more files than a flat layout. A new domain requires creating a directory with at least three files (models, service, validators). For very small projects with 2-3 endpoints, this overhead may not be justified. But in my experience, every data product eventually grows — and the cost of refactoring flat code into domain structure is higher than starting with it.

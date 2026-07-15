@@ -74,12 +74,24 @@ Optuna's Bayesian optimization was essential. Manual hyperparameter tuning produ
 
 The Streamlit dashboard includes a confidence indicator. When the model is uncertain (wide prediction interval), the dashboard shows a range rather than a single number. This prevents over-reliance on the model and keeps the human in the loop.
 
+### Trade-offs
+
+Random Forest was chosen over gradient boosting (XGBoost, LightGBM) despite the latter typically achieving higher accuracy on tabular data. The deciding factor was interpretability: feature importance scores from Random Forest are more stable and easier to explain to non-technical stakeholders. In a business context where hotel managers must trust and act on model recommendations, interpretability outweighed a marginal accuracy gain.
+
+The model uses historical booking data without real-time demand signals (e.g., current booking pace, competitor live rates). Incorporating streaming data would improve accuracy during high-demand events but requires integration with OTA APIs and property management systems — a significant engineering investment that makes sense once the batch model has proven value.
+
+### Reliability
+
+The model includes automated retraining triggers. When mean absolute percentage error exceeds 20% on recent predictions, the pipeline triggers a new training cycle with updated data. This compensates for market shifts without manual intervention.
+
+Input validation rejects out-of-range features before they reach the model. If occupancy rate exceeds 100% or price falls below a configured floor, the system logs the anomaly and returns the last known recommendation instead of a potentially incorrect prediction.
+
 ## Results
 
-- **+30% net revenue improvement** compared to the OTA baseline at 30% commission
-- **R² = 0.92** on price prediction, with MAPE of 14.5%
-- **Real-time inference** in under 500ms including feature computation
-- **Commission independence**: the model enables direct booking pricing that competes with OTA rates while retaining full margin
+- **R² = 0.92** on price prediction, with MAPE of 14.5%. Based on historical test data with 200 Optuna hyperparameter trials.
+- **Backtesting simulation** projected a net revenue improvement of approximately 30% over the OTA-baseline scenario (30% commission). This is a modeled estimate, not a measured A/B result — actual performance depends on market conditions and adoption.
+- **Inference latency** under 500ms including feature computation, meeting the real-time requirement for front-desk use.
+- **Direct booking capability**: the model enables competitive direct pricing against OTA rates while retaining full margin — the primary business value.
 
 ## Lessons Learned
 

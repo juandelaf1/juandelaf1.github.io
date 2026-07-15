@@ -8,14 +8,22 @@ import { getCollection } from 'astro:content';
 
 const projects = await getCollection('projects');
 const featured = projects.filter((p) => p.data.featured);
-const schema = {
+const personSchema = {
   '@context': 'https://schema.org',
   '@type': 'Person',
   name: SITE.author,
   url: SITE.url,
   jobTitle: 'Analytics Engineer',
   sameAs: [SITE.links.github, SITE.links.linkedin],
-  knowsAbout: ['Data Engineering', 'Analytics Engineering', 'Data Products', 'Data Architecture'],
+  knowsAbout: ['Analytics Engineering', 'Data Engineering', 'Data Products', 'Data Architecture', 'ETL Pipelines', 'Business Intelligence'],
+};
+const websiteSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: SITE.title,
+  url: SITE.url,
+  description: SITE.description,
+  author: { '@type': 'Person', name: SITE.author },
 };
 ---
 
@@ -25,17 +33,44 @@ const schema = {
   path="/"
   currentPath="/"
 >
-  <script type="application/ld+json" set:html={JSON.stringify(schema, null, 2)} />
+  <script type="application/ld+json" set:html={JSON.stringify(personSchema, null, 2)} />
+  <script type="application/ld+json" set:html={JSON.stringify(websiteSchema, null, 2)} />
 
   <Container>
     <Hero />
 
-    <section class="before-data">
-      <span class="label">Before Data</span>
-      <p class="copy">
-        I ran a business before I built data systems. Spent years making decisions with incomplete information — inventory, costs, logistics, margins. That experience taught me that data is only valuable if it helps someone decide better.
+    <section class="approach">
+      <h2 class="approach-heading">How I approach data problems</h2>
+      <div class="steps">
+        <div class="step">
+          <span class="step-num">01</span>
+          <h3 class="step-title">Understand</h3>
+          <p class="step-desc">Map the business context, identify the decision that needs better information, and define what success looks like.</p>
+        </div>
+        <div class="step">
+          <span class="step-num">02</span>
+          <h3 class="step-title">Model</h3>
+          <p class="step-desc">Design the data architecture. Source ingestion, transformation logic, storage, and access patterns before writing production code.</p>
+        </div>
+        <div class="step">
+          <span class="step-num">03</span>
+          <h3 class="step-title">Build</h3>
+          <p class="step-desc">Implement pipelines, APIs, and interfaces. Prioritize reliability — tests at every layer, validation at every boundary.</p>
+        </div>
+        <div class="step">
+          <span class="step-num">04</span>
+          <h3 class="step-title">Measure</h3>
+          <p class="step-desc">Validate output against the original business problem. A pipeline that runs is not the same as a pipeline that delivers value.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="background">
+      <h2 class="background-heading">Background</h2>
+      <p class="background-copy">
+        I ran a business before I built data systems. Managing inventory, costs, logistics, and margins taught me that data is only valuable when it helps someone make a better decision. That principle guides every system I design.
       </p>
-      <a href="/about" class="read-more">Read the full story &rarr;</a>
+      <a href="/about" class="read-more">Read more &rarr;</a>
     </section>
 
     <SelectedWork projects={featured} />
@@ -43,24 +78,58 @@ const schema = {
 </BaseLayout>
 
 <style>
-  .before-data {
-    padding: 48px 0;
+  .approach {
+    padding: 64px 0;
     border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
     margin-bottom: 48px;
   }
 
-  .label {
+  .approach-heading {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 32px;
+  }
+
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+  }
+
+  .step-num {
     font-family: var(--font-mono);
     font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
     color: var(--accent);
   }
 
-  .copy {
+  .step-title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 8px 0;
+  }
+
+  .step-desc {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+
+  .background {
+    padding-bottom: 48px;
+    margin-bottom: 48px;
+  }
+
+  .background-heading {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+
+  .background-copy {
     color: var(--text-secondary);
     line-height: 1.7;
-    margin-top: 12px;
     max-width: 520px;
   }
 
@@ -75,5 +144,17 @@ const schema = {
 
   .read-more:hover {
     text-decoration: underline;
+  }
+
+  @media (max-width: 768px) {
+    .steps {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .steps {
+      grid-template-columns: 1fr;
+    }
   }
 </style>

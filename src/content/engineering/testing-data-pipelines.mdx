@@ -1,19 +1,23 @@
 ---
-title: "Testing Strategies for Data Pipelines"
-description: "A practical approach to testing ETL pipelines at source, transform, and output layers."
+title: "Testing data pipelines at three layers"
+description: "Source validation, transform testing, and output assertions — a practical strategy for reliable ETL."
 date: 2026-06-01
-tags: ["Testing", "ETL", "CI/CD", "Quality"]
+tags: ["Testing", "ETL", "CI/CD", "Data Quality"]
 ---
 
-## Problem
+## Context
 
-Data pipelines are notoriously hard to test. The data changes daily, the sources have inconsistent schemas, and the output is consumed by systems that expect specific formats. Most teams test at the dashboard level—too late to catch issues cost-effectively.
+Data pipelines are difficult to test for a specific reason: the input changes constantly. Unlike a web application where requests follow predictable formats, a pipeline processing daily data must handle schema drift, missing fields, type changes, and values that fall outside expected ranges.
 
-## Approach
+Most teams catch these issues at the dashboard level — the chart looks wrong, so someone investigates. By that point, bad data has already propagated through the system.
 
-Test at three layers:
+## The three-layer approach
 
-**Source layer**: Validate that input data matches expected schema. Reject malformed records at the boundary.
+I test data pipelines at three distinct layers, each catching a different class of failure.
+
+**Source layer — validate at the boundary**
+
+The most cost-effective test is rejecting malformed data before it enters the pipeline. Every source has a schema contract, and any record that violates it is quarantined:
 
 ```python
 def test_source_schema(df):
@@ -22,7 +26,11 @@ def test_source_schema(df):
     assert df['revenue'].dtype in ('float64', 'int64')
 ```
 
-**Transform layer**: Test specific transformation logic with known inputs and expected outputs. Each transformation function should be independently testable.
+In production, these checks run as part of the ingestion step. Failed records are written to a quarantine table with the rejection reason, enabling later analysis of source quality trends.
+
+**Transform layer — unit test each function**
+
+Every transformation function should be independently testable with known inputs and expected outputs:
 
 ```python
 def test_normalize_region():
@@ -31,14 +39,25 @@ def test_normalize_region():
     assert normalize_region('') is None
 ```
 
-**Output layer**: Test that the final dataset meets business rules. Row counts within expected ranges, no NULLs in key columns, referential integrity maintained.
+The presence of a test for edge cases (empty string, mixed case, abbreviations) forces the implementation to handle them. Functions without such handling are a common source of silent data corruption.
 
-## Results
+**Output layer — assert business rules**
 
-- Pipeline failures detected at commit time instead of dashboard review
-- Data quality checks reduced debugging time by approximately 60%
-- Transformation tests enabled confident refactoring of ETL logic
+The final dataset must satisfy business-level constraints regardless of what the source data looked like:
 
-## Key Takeaway
+- Row counts within expected ranges (not zero, not 10x the weekly average)
+- No NULLs in key columns
+- Referential integrity maintained across joined tables
+- Metric values within physically possible ranges
 
-Invest in source-layer validation first. Most pipeline failures come from unexpected input, not incorrect transformation logic.
+These output-layer tests are the safety net that catches integration issues — cases where individual transformations work correctly but produce incorrect results when combined.
+
+## What this achieves
+
+In the DashLogistics project, this three-layer approach caught a schema change from the AAA fuel API within minutes of it being deployed. The source-layer test failed, the pipeline quarantined the affected records, and the operations team was notified before any dashboard displayed incorrect data.
+
+The same approach enabled confident refactoring of the transformation pipeline from Pandas to Polars — the transform-layer tests validated that the output was identical after the migration.
+
+## Priority order
+
+If resources are limited, invest in source-layer validation first. Most pipeline failures originate from unexpected input. Transform tests are the second priority. Output-layer tests are valuable but tend to be more brittle — they fail when legitimate business changes affect expected ranges, requiring regular maintenance.

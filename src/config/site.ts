@@ -1,7 +1,7 @@
 export const SITE = {
   title: 'Juan de la Fuente — Analytics Engineer',
   description:
-    'I build production-ready data products. End to end. From raw data to APIs and interactive systems.',
+    'Analytics engineer who builds production data systems informed by real business context. Pipelines, APIs, and products that turn data into decisions.',
   tagline: 'Builds data products. End to end.',
   url: 'https://juandelaf1.github.io',
   author: 'Juan de la Fuente Larrocca',

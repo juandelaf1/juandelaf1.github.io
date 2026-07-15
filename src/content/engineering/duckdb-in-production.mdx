@@ -1,21 +1,23 @@
 ---
-title: "DuckDB for Analytical Workloads in Production"
-description: "Why and how to use DuckDB for in-process analytical processing at production scale."
+title: "When to use DuckDB for analytical workloads"
+description: "Production patterns for in-process OLAP: when DuckDB replaces PostgreSQL and when it should not."
 date: 2026-05-20
-tags: ["DuckDB", "OLAP", "Performance", "Architecture"]
+tags: ["DuckDB", "OLAP", "Architecture", "Production"]
 ---
 
-## Problem
+## Context
 
-Analytical workloads often force a tradeoff: use a full PostgreSQL instance (operational overhead) or Pandas (memory constraints). For medium-scale analytical datasets (1M-100M rows), both options are suboptimal.
+Every analytical project faces a decision: where to process the data. The conventional options — PostgreSQL for structured queries, Pandas for flexible analysis — both have known limits. PostgreSQL requires server provisioning and schema management. Pandas crashes on datasets exceeding available memory.
 
-## Approach
+For medium-scale analytical workloads (1M to 100M rows), neither is ideal.
 
-DuckDB fills the gap between in-memory DataFrames and full database deployments. It is an embedded OLAP database that runs in-process, uses columnar storage, and supports SQL.
+## Why DuckDB
 
-## Implementation Pattern
+DuckDB fills the gap between in-memory DataFrames and full database deployments. It runs in-process, uses columnar storage, supports full SQL, and handles datasets larger than available RAM by leveraging disk-based spill-to-storage. No server to configure, no connection pool to manage.
 
-The most effective pattern is using DuckDB as a transformation engine between raw data and the final analysis:
+## Production pattern
+
+The most effective pattern I have used is DuckDB as a transformation engine positioned between raw data storage and the analysis layer:
 
 ```python
 import duckdb
@@ -36,12 +38,22 @@ con.execute("""
 result = con.execute("SELECT * FROM analytics WHERE total_revenue > 100000").fetchdf()
 ```
 
-## Results
+This pattern keeps raw data in Parquet files (cheap storage, portable) and uses DuckDB only for the transformation and query layer. The data never enters a traditional database unless it needs to serve a production API.
 
-- Query times 10-50x faster than Pandas on datasets >1M rows
-- Zero infrastructure: runs in-process, no separate database server
-- Full SQL support with window functions, CTEs, and complex joins
+## When not to use DuckDB
 
-## Key Takeaway
+DuckDB is not a replacement for PostgreSQL. It does not support concurrent writes, has no server mode for network access, and lacks user authentication. If multiple services need to query the same dataset simultaneously, or if the data must be updated transactionally, use PostgreSQL.
 
-DuckDB is not a replacement for PostgreSQL (no concurrent writes, no server mode). It is a replacement for the Pandas-heavy ETL patterns that struggle at scale.
+I use DuckDB for:
+- Analytical pipelines that produce reports or dashboards
+- Exploratory analysis on datasets that exceed Pandas memory limits
+- Transformation layers in batch ETL where the output feeds a serving database
+
+I use PostgreSQL for:
+- Production APIs that serve data to downstream consumers
+- Systems requiring concurrent read/write access
+- Data that must survive process restarts
+
+## Measured impact
+
+In the NetTension project, DuckDB processed 1.8M+ Eurostat indicators joined with 41,937 rows of regulatory data. Total query time for the full analytical pipeline: under 30 seconds on a laptop. Equivalent Pandas operations would have required chunking and manual memory management. Equivalent PostgreSQL would have required provisioning a database instance.

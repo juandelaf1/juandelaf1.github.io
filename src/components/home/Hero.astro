@@ -8,13 +8,15 @@ import { SITE } from '../../config/site';
     <h1 class="name">Juan de la Fuente</h1>
     <p class="position">Analytics Engineer</p>
     <p class="tagline">
-      Builds data products. End to end.<br />
-      From raw data to production APIs and interactive systems.
+      I design and build production data systems. Pipelines, APIs, models, and interactive products that turn data into decisions.
+    </p>
+    <p class="differentiator">
+      Before engineering data, I ran a business. That experience shapes every system I build — from understanding the real problem to shipping something that works.
     </p>
     <div class="actions">
       <Button href="/projects/sky-cast" variant="primary">View Projects &rarr;</Button>
+      <Button href="/about" variant="ghost">About</Button>
       <Button href={SITE.links.github} variant="ghost" external>GitHub</Button>
-      <Button href={SITE.links.linkedin} variant="ghost" external>LinkedIn</Button>
       <Button href="/resume.pdf" variant="ghost" external>Resume</Button>
     </div>
   </div>
@@ -22,7 +24,7 @@ import { SITE } from '../../config/site';
 
 <style>
   .hero {
-    padding: 128px 0 96px;
+    padding: 128px 0 64px;
   }
   .content {
     max-width: 720px;
@@ -41,10 +43,18 @@ import { SITE } from '../../config/site';
   }
   .tagline {
     font-size: 1.25rem;
-    color: var(--text-secondary);
+    color: var(--text-primary);
+    line-height: 1.5;
+    margin-bottom: 16px;
+    max-width: 600px;
+  }
+  .differentiator {
+    font-size: 0.9375rem;
+    color: var(--accent);
     line-height: 1.5;
     margin-bottom: 40px;
     max-width: 560px;
+    font-weight: 400;
   }
   .actions {
     display: flex;
@@ -53,7 +63,7 @@ import { SITE } from '../../config/site';
   }
   @media (max-width: 768px) {
     .hero {
-      padding: 80px 0 64px;
+      padding: 80px 0 48px;
     }
     .name {
       font-size: 2.25rem;

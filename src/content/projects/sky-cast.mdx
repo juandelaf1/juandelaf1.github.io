@@ -78,13 +78,25 @@ Data quality was enforced at the boundary. Every external data source has a dedi
 
 Testing was prioritized from day one. The 158 tests cover ingestion, validation, API endpoints, and dashboard rendering. A CI pipeline runs these tests on every push, and Docker Compose provides a production-like test environment.
 
+### Trade-offs
+
+The ingestion layer runs on a cron-based scheduler (APScheduler) rather than a streaming platform. This means data is at most 15 minutes stale — acceptable for climate monitoring but insufficient for real-time alerting where sub-minute latency matters. A streaming approach (Kafka, Kinesis) would reduce latency but add operational complexity that the project's resource constraints did not justify.
+
+Using PostgreSQL with manual time-series partitioning instead of a dedicated time-series database (TimescaleDB, InfluxDB) was a pragmatic choice. It simplified the stack but required maintaining partitioning logic that a specialized database handles automatically. For the current data volume (~100K records/day), the trade-off is acceptable. At 10x volume, a migration would be warranted.
+
+### Reliability
+
+Each external API has a circuit breaker pattern. If AEMET returns errors for 5 consecutive requests, the ingestion layer stops calling it and logs an alert. The dashboard continues serving cached data. When the API recovers, ingestion resumes automatically.
+
+Data quality checks run at every stage: source validation rejects malformed input, schema checks catch API changes, and range checks flag outliers in temperature and precipitation readings before they reach the dashboard.
+
 ## Results
 
-- **158 automated tests** running in CI/CD pipeline with GitHub Actions
+- **158 automated tests** running in CI/CD pipeline with GitHub Actions — every push runs the full suite
 - **5 data sources** integrated (AEMET OpenData, crowdsourced reports, satellite imagery, pollution sensors, UV index)
-- **Real-time alerts** configured for extreme weather conditions
-- **Docker containerization** enabling one-command deployment to any cloud provider
-- **Automated CI/CD** pipeline reducing deployment time from hours to minutes
+- **Alerts** configured for extreme weather conditions with configurable thresholds per municipality
+- **Docker containerization** enables one-command deployment to any cloud provider
+- **Automated CI/CD** reduces deployment time from manual process to under 2 minutes
 
 ## Lessons Learned
 
