@@ -24,8 +24,19 @@ links:
 ---
 
 import Architecture from '../../components/projects/Architecture.astro';
+import ArchitectureFlow from '../../components/projects/ArchitectureFlow.astro';
 
 ## Context
+
+<ArchitectureFlow stages={[
+  [
+    { label: "Booking History", sub: "18 months data" },
+    { label: "Feature Engineering", sub: "Pandas, 40+ feats" },
+    { label: "Random Forest", sub: "scikit-learn + Optuna" },
+    { label: "Price API", sub: "FastAPI" },
+    { label: "Dashboard", sub: "Streamlit" },
+  ],
+]} />
 
 Hotels typically rely on manual pricing strategies or third-party OTAs (Online Travel Agencies) that charge commissions of 15-30%. Manual pricing is slow, reactive, and cannot process the complex demand signals that determine optimal room rates. OTA-dependent pricing surrenders control—and margin—to intermediaries.
 

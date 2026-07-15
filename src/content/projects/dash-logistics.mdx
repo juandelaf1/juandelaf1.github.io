@@ -25,8 +25,19 @@ links:
 ---
 
 import Architecture from '../../components/projects/Architecture.astro';
+import ArchitectureFlow from '../../components/projects/ArchitectureFlow.astro';
 
 ## Context
+
+<ArchitectureFlow stages={[
+  [
+    { label: "Multi-Source", sub: "AAA + Weather + Census" },
+    { label: "Quality Gate", sub: "Schema Validation" },
+    { label: "Feature Matrix", sub: "ETL Pipeline" },
+    { label: "XGBoost", sub: "Cost Prediction" },
+    { label: "Streamlit", sub: "15+ KPIs" },
+  ],
+]} />
 
 Logistics companies operating across multiple US states face a fundamental problem: costs are driven by factors that change daily—fuel prices, weather conditions, regional demand, and route-specific constraints. Most logistics analytics tools provide descriptive dashboards that show _what happened_ but not _what will happen_.
 

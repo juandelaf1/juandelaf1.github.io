@@ -1,0 +1,51 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Container from '../../components/ui/Container.astro';
+import Tag from '../../components/ui/Tag.astro';
+import { SITE } from '../../config/site';
+import { getCollection } from 'astro:content';
+import { formatDate } from '../../lib/utils';
+
+const experiments = await getCollection('experiments');
+---
+
+<BaseLayout
+  title={`Experiments — ${SITE.author}`}
+  description="Small investigations exploring data, tools, and ideas."
+  path="/experiments"
+>
+  <Container>
+    <section style="padding: 48px 0 96px;">
+      <h1 style="font-size: 2rem; font-weight: 800; margin-bottom: 8px;">Experiments</h1>
+      <p style="color: var(--text-secondary); margin-bottom: 12px; max-width: 560px;">
+        Small investigations where I explore data, tools, and ideas.
+      </p>
+      <p style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 48px; max-width: 480px;">
+        Not production systems. Not polished case studies. Just learning through building.
+      </p>
+
+      {experiments.length > 0 ? (
+        <div style="display: flex; flex-direction: column; gap: 2px; border: 1px solid var(--border); border-radius: 12px; overflow: hidden;">
+          {experiments.sort((a, b) => b.data.date.getTime() - a.data.date.getTime()).map((exp) => (
+            <a href={`/experiments/${exp.id}`} style="display: block; padding: 24px 32px; background: var(--bg-primary); text-decoration: none; transition: background 150ms ease;">
+              <div style="margin-bottom: 8px;">
+                <time datetime={exp.data.date.toISOString()} style="font-family: var(--font-mono); font-size: 0.8125rem; color: var(--text-secondary);">
+                  {formatDate(exp.data.date)}
+                </time>
+              </div>
+              <h3 style="font-size: 1.125rem; font-weight: 700; margin-bottom: 8px; color: var(--text-primary);">{exp.data.title}</h3>
+              <p style="font-size: 0.875rem; color: var(--text-secondary); line-height: 1.5; margin-bottom: 12px;">{exp.data.description}</p>
+              <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                {exp.data.tech.map((t) => (
+                  <span style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-secondary); padding: 4px 10px; border-radius: 100px; border: 1px solid var(--border); background: var(--bg-tertiary);">{t}</span>
+                ))}
+              </div>
+            </a>
+          ))}
+        </div>
+      ) : (
+        <p style="color: var(--text-secondary);">No experiments yet.</p>
+      )}
+    </section>
+  </Container>
+</BaseLayout>

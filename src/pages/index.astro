@@ -73,7 +73,41 @@ const websiteSchema = {
       <a href="/about" class="read-more">Read more &rarr;</a>
     </section>
 
+    <section class="outcomes">
+      <h2 class="outcomes-heading">Selected engineering outcomes</h2>
+      <div class="outcomes-list">
+        <div class="outcome">
+          <span class="outcome-marker"></span>
+          <span>Built production-style data pipelines with automated validation and monitoring.</span>
+        </div>
+        <div class="outcome">
+          <span class="outcome-marker"></span>
+          <span>Designed APIs and analytical systems from ingestion to serving layer.</span>
+        </div>
+        <div class="outcome">
+          <span class="outcome-marker"></span>
+          <span>Applied testing and reliability practices to data workflows.</span>
+        </div>
+        <div class="outcome">
+          <span class="outcome-marker"></span>
+          <span>Created reproducible environments with Docker and CI/CD.</span>
+        </div>
+      </div>
+    </section>
+
     <SelectedWork projects={featured} />
+
+    <section class="cta">
+      <h2 class="cta-heading">Interested in building reliable data systems close to business decisions?</h2>
+      <p class="cta-text">
+        I'm open to Analytics Engineer opportunities where engineering quality and business context matter.
+      </p>
+      <div class="cta-actions">
+        <a href={SITE.links.email} class="cta-primary">Contact me</a>
+        <a href={SITE.links.linkedin} target="_blank" rel="noopener noreferrer" class="cta-secondary">LinkedIn</a>
+        <a href="/resume.pdf" target="_blank" rel="noopener noreferrer" class="cta-secondary">Resume</a>
+      </div>
+    </section>
   </Container>
 </BaseLayout>
 
@@ -146,6 +180,92 @@ const websiteSchema = {
     text-decoration: underline;
   }
 
+  .outcomes {
+    padding: 48px 0;
+    margin-bottom: 48px;
+  }
+  .outcomes-heading {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--accent);
+    margin-bottom: 20px;
+  }
+  .outcomes-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .outcome {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.9375rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+  .outcome-marker {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    flex-shrink: 0;
+  }
+  .cta {
+    padding: 64px 0;
+    border-top: 1px solid var(--border);
+    text-align: center;
+  }
+  .cta-heading {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+    max-width: 560px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .cta-text {
+    color: var(--text-secondary);
+    margin-bottom: 32px;
+    font-size: 1rem;
+  }
+  .cta-actions {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .cta-primary {
+    display: inline-flex;
+    align-items: center;
+    padding: 12px 28px;
+    border-radius: 8px;
+    background: var(--accent);
+    color: white;
+    text-decoration: none;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    transition: background var(--transition);
+  }
+  .cta-primary:hover {
+    background: var(--accent-hover);
+    color: white;
+  }
+  .cta-secondary {
+    display: inline-flex;
+    align-items: center;
+    padding: 12px 28px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    transition: border-color var(--transition), color var(--transition);
+  }
+  .cta-secondary:hover {
+    border-color: var(--text-secondary);
+    color: var(--text-primary);
+  }
   @media (max-width: 768px) {
     .steps {
       grid-template-columns: 1fr 1fr;

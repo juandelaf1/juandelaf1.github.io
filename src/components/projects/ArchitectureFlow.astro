@@ -1,0 +1,66 @@
+---
+export interface Stage {
+  label: string;
+  sub?: string;
+}
+
+export interface Props {
+  stages: Stage[][];
+}
+
+const { stages } = Astro.props;
+const boxW = 140;
+const boxH = 52;
+const gap = 40;
+const arrLen = 20;
+const padX = 16;
+const padY = 20;
+const rowGap = 24;
+
+function rowHeight(rows: Stage[]): number {
+  const hasSub = rows.some((r) => r.sub);
+  return hasSub ? boxH + 18 : boxH;
+}
+
+const rowHs = stages.map(rowHeight);
+const totalH = rowHs.reduce((a, b) => a + b, 0) + padY * 2 + rowGap * (stages.length - 1);
+
+const colCount = Math.max(...stages.map((r) => r.length));
+const totalW = padX * 2 + colCount * boxW + (colCount - 1) * (gap + arrLen);
+
+function cx(ci: number): number {
+  return padX + ci * (boxW + gap + arrLen) + boxW / 2;
+}
+function cy(rowIdx: number): number {
+  let y = padY;
+  for (let i = 0; i < rowIdx; i++) y += rowHs[i] + rowGap;
+  return y + rowHs[rowIdx] / 2;
+}
+---
+
+<svg viewBox={`0 0 ${totalW} ${totalH}`} xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto;">
+  {stages.map((row, ri) => (
+    row.map((stage, ci) => {
+      const x = padX + ci * (boxW + gap + arrLen);
+      const y = (() => {
+        let yy = padY;
+        for (let i = 0; i < ri; i++) yy += rowHs[i] + rowGap;
+        return yy;
+      })();
+      const h = rowHs[ri];
+      return (
+        <g>
+          <rect x={x} y={y} width={boxW} height={h} rx="8" fill="#1A1A1A" stroke="#232323" stroke-width="1.5" />
+          <text x={x + boxW / 2} y={y + h / 2} fill="#EDEDEF" font-family="Inter, sans-serif" font-size="13" font-weight="600" text-anchor="middle" dominant-baseline="central">{stage.label}</text>
+          {stage.sub && <text x={x + boxW / 2} y={y + h - 8} fill="#9CA3AF" font-family="JetBrains Mono, monospace" font-size="10" text-anchor="middle">{stage.sub}</text>}
+          {ci < row.length - 1 && (
+            <g transform={`translate(${x + boxW}, ${y + h / 2})`}>
+              <line x1="0" y1="0" x2={gap + arrLen} y2="0" stroke="#232323" stroke-width="1.5" />
+              <polygon points={`${gap + arrLen - 6},-5 ${gap + arrLen + 2},0 ${gap + arrLen - 6},5`} fill="#232323" />
+            </g>
+          )}
+        </g>
+      );
+    })
+  ))}
+</svg>

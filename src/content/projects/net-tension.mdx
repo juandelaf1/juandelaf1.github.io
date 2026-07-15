@@ -27,8 +27,19 @@ links:
 ---
 
 import Architecture from '../../components/projects/Architecture.astro';
+import ArchitectureFlow from '../../components/projects/ArchitectureFlow.astro';
 
 ## Context
+
+<ArchitectureFlow stages={[
+  [
+    { label: "CNMC", sub: "41,937 rows" },
+    { label: "DuckDB", sub: "In-Process OLAP" },
+    { label: "Analysis", sub: "6 Hypotheses" },
+    { label: "Power BI", sub: "Interactive Viz" },
+    { label: "Findings", sub: "5/6 Confirmed" },
+  ],
+]} />
 
 European telecommunications markets are characterized by massive infrastructure investment paired with declining revenue per bit. Operators face a structural challenge: traffic grows exponentially while revenue grows linearly or declines. This phenomenon—the "scissors effect"—threatens the sustainability of EU telecom networks.
 

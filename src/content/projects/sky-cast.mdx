@@ -24,7 +24,19 @@ links:
   github: "https://github.com/juandelaf1/SkyCast"
 ---
 
+import ArchitectureFlow from '../../components/projects/ArchitectureFlow.astro';
+
 ## Context
+
+<ArchitectureFlow stages={[
+  [
+    { label: "AEMET", sub: "OpenData API" },
+    { label: "Ingestion", sub: "Pydantic" },
+    { label: "PostgreSQL", sub: "TimescaleDB" },
+    { label: "FastAPI", sub: "REST API" },
+    { label: "Streamlit", sub: "Dashboard + Alerts" },
+  ],
+]} />
 
 Municipalities and regional governments across Spain lack a unified system for monitoring local climate conditions. Official data from AEMET (Agencia Estatal de Meteorología) provides authoritative measurements, but it is not always real-time and does not cover hyper-local microclimates. Meanwhile, unofficial crowdsourced reports from residents contain valuable ground-level observations that never reach decision-makers.
 
