@@ -1,0 +1,136 @@
+---
+import Badge from '../ui/Badge.astro';
+
+export interface Props {
+  title: string;
+  description: string;
+  status: 'planning' | 'building' | 'testing' | 'live';
+  milestones: Array<{ title: string; completed: boolean }>;
+  nextMilestone: string;
+  repo?: string;
+}
+---
+
+<article class="building-card">
+  <div class="header">
+    <h3 class="title">{Astro.props.title}</h3>
+    <Badge variant={Astro.props.status === 'live' ? 'success' : Astro.props.status === 'testing' ? 'warning' : 'default'}>
+      {Astro.props.status}
+    </Badge>
+  </div>
+  <p class="description">{Astro.props.description}</p>
+
+  <div class="milestones">
+    <h4 class="milestones-heading">Milestones</h4>
+    <ul class="milestone-list">
+      {Astro.props.milestones.map((m) => (
+        <li class:list={{ milestone: true, completed: m.completed }}>
+          <span class="check">{m.completed ? '✓' : '○'}</span>
+          {m.title}
+        </li>
+      ))}
+    </ul>
+  </div>
+
+  <div class="next">
+    <span class="next-label">Next:</span>
+    <span class="next-value">{Astro.props.nextMilestone}</span>
+  </div>
+
+  {Astro.props.repo && (
+    <a href={Astro.props.repo} target="_blank" rel="noopener noreferrer" class="repo-link">
+      View Repository &rarr;
+    </a>
+  )}
+</article>
+
+<style>
+  .building-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .title {
+    font-size: 1.25rem;
+    font-weight: 700;
+  }
+  .description {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+  .milestones-heading {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 8px;
+  }
+  .milestone-list {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .milestone {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .completed {
+    color: var(--metric);
+    text-decoration: line-through;
+    text-decoration-color: var(--metric);
+  }
+  .check {
+    flex-shrink: 0;
+    width: 16px;
+    text-align: center;
+  }
+  .next {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+  }
+  .next-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .next-value {
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    color: var(--text-primary);
+  }
+  .repo-link {
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    color: var(--accent);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .repo-link:hover {
+    color: var(--accent-hover);
+  }
+</style>

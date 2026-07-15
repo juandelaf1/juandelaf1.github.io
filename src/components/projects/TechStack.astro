@@ -1,0 +1,62 @@
+---
+export interface Props {
+  tech: Array<{ name: string; icon?: string }>;
+}
+---
+
+<div class="tech-stack">
+  <h4 class="heading">Tech Stack</h4>
+  <div class="grid">
+    {Astro.props.tech.map((t) => (
+      <div class="item">
+        {t.icon && (
+          <img
+            src={`/icons/${t.icon}.svg`}
+            alt=""
+            class="icon"
+            width="20"
+            height="20"
+            loading="lazy"
+          />
+        )}
+        <span class="name">{t.name}</span>
+      </div>
+    ))}
+  </div>
+</div>
+
+<style>
+  .tech-stack {
+    margin: 32px 0;
+  }
+  .heading {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 16px;
+  }
+  .grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .item {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--bg-tertiary);
+  }
+  .icon {
+    flex-shrink: 0;
+  }
+  .name {
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+    color: var(--text-primary);
+  }
+</style>

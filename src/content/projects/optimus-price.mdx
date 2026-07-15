@@ -1,0 +1,94 @@
+---
+title: "OptimusPrice"
+description: "ML-driven hotel revenue management achieving +30% net revenue improvement."
+featured: true
+order: 2
+category: "AI/ML"
+date: 2025-11-15
+status: "production"
+metrics:
+  - value: "+30%"
+    label: "net revenue improvement"
+  - value: "R² = 0.92"
+    label: "price prediction accuracy"
+tech:
+  - name: "Python"
+  - name: "scikit-learn"
+  - name: "Optuna"
+  - name: "Streamlit"
+  - name: "Pandas"
+  - name: "Docker"
+links:
+  github: "https://github.com/juandelaf1/OptimusPrice"
+  demo: "https://github.com/juandelaf1/optimus-price-prod"
+---
+
+import Architecture from '../../components/projects/Architecture.astro';
+
+## Context
+
+Hotels typically rely on manual pricing strategies or third-party OTAs (Online Travel Agencies) that charge commissions of 15-30%. Manual pricing is slow, reactive, and cannot process the complex demand signals that determine optimal room rates. OTA-dependent pricing surrenders control—and margin—to intermediaries.
+
+The business problem: a mid-sized hotel chain with 50+ properties needs a dynamic pricing engine that maximizes revenue per available room (RevPAR) without requiring a dedicated data science team to operate.
+
+## Challenges
+
+- **Data sparsity**: Historical booking data covers only 18 months with significant seasonal gaps
+- **Feature engineering**: Demand signals must be extracted from booking patterns, competitor pricing, seasonality, and local events
+- **Model interpretability**: Hotel managers need to understand and trust the pricing recommendations
+- **Real-time inference**: Price recommendations must be available in under 2 seconds for front-desk use
+- **Commission dependency**: Reducing OTA reliance without losing bookings requires precision in pricing
+
+## Solution
+
+### Architecture
+
+<Architecture title="ML Pipeline">
+<pre>
+Booking History → Feature Engineering → Random Forest → Price API → Streamlit
+Competitor     → (Pandas, 40+ feats)  → (scikit-learn)             → Manager UI
+Event Calendar                          ↑ Optuna HPO
+</pre>
+</Architecture>
+
+### Pipeline
+
+1. **Feature Extraction**: Historical booking data is processed through a Pandas pipeline that generates 40+ features including day-of-week, seasonal multipliers, local event proximity, competitor price differentials, and historical occupancy patterns.
+2. **Model Training**: A Random Forest regressor predicts optimal room price. Hyperparameters are tuned using Optuna with 200 trials, optimizing for mean absolute percentage error (MAPE).
+3. **Inference**: The trained model runs as a FastAPI endpoint. Input features are computed in real-time, and the model returns a recommended price plus confidence interval.
+4. **Dashboard**: Hotel managers interact with a Streamlit dashboard that shows current pricing recommendations, historical trends, and model confidence.
+
+### Tech Stack
+
+- **Python** with Pandas for feature engineering and data transformation
+- **scikit-learn** Random Forest regressor for price prediction
+- **Optuna** for automated hyperparameter optimization
+- **Streamlit** for the management dashboard
+- **Docker** for production deployment with CI/CD
+
+## Implementation
+
+The critical design choice was opting for Random Forest over deep learning. While a neural network could theoretically capture more complex patterns, the Random Forest provides feature importance scores that hotel managers can interpret. When the model says "price should increase by 15% on Fridays in August," the manager can see that the decision is driven by historical occupancy (+40% importance) and seasonal factor (+25% importance).
+
+Optuna's Bayesian optimization was essential. Manual hyperparameter tuning produced models with MAPE around 22%. Optuna reduced this to 14.5% by finding optimal tree depth, minimum samples per leaf, and feature sampling strategies.
+
+The Streamlit dashboard includes a confidence indicator. When the model is uncertain (wide prediction interval), the dashboard shows a range rather than a single number. This prevents over-reliance on the model and keeps the human in the loop.
+
+## Results
+
+- **+30% net revenue improvement** compared to the OTA baseline at 30% commission
+- **R² = 0.92** on price prediction, with MAPE of 14.5%
+- **Real-time inference** in under 500ms including feature computation
+- **Commission independence**: the model enables direct booking pricing that competes with OTA rates while retaining full margin
+
+## Lessons Learned
+
+1. **Interpretability is a feature, not a limitation.** The Random Forest's feature importance scores were cited by hotel managers as the reason they trusted the system.
+2. **Hyperparameter optimization should be automated.** Manual tuning cost weeks of iteration. Optuna found a better model in 4 hours.
+3. **Confidence intervals matter more than point predictions.** Hotel managers preferred knowing when the model was uncertain over getting a single number that might be wrong.
+
+## Future Work
+
+- Incorporate real-time events (local festivals, conferences) via API integration
+- Multi-property model that shares learnings across the chain
+- A/B testing framework to measure actual revenue impact against manual pricing

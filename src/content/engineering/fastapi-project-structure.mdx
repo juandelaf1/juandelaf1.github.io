@@ -1,0 +1,50 @@
+---
+title: "FastAPI Project Structure for Data Products"
+description: "A production-grade project structure for FastAPI-based data products with separation of concerns."
+date: 2026-06-15
+tags: ["FastAPI", "Architecture", "Python", "API Design"]
+---
+
+## Problem
+
+FastAPI's quick-start examples promote a flat structure where routes, models, and business logic live in the same file. This works for prototypes but breaks down when the system grows to 10+ endpoints with multiple data sources.
+
+## Approach
+
+Organize by domain, not by layer type:
+
+```
+src/
+  api/
+    routes/
+      ingestion.py
+      analytics.py
+      alerts.py
+    middleware/
+      auth.py
+      validation.py
+  domain/
+    weather/
+      models.py
+      service.py
+      validators.py
+    alerts/
+      models.py
+      service.py
+  infrastructure/
+    database.py
+    cache.py
+    config.py
+```
+
+Each domain owns its models, business logic, and validators. The API layer is thin—it parses requests and delegates to domain services.
+
+## Results
+
+- Adding a new domain requires creating a directory, not modifying existing files
+- Tests map cleanly to domains (one test file per domain)
+- Models are reused across API, background jobs, and dashboard
+
+## Key Takeaway
+
+The API layer should be the thinnest part of the codebase. Business logic belongs in domain services, not route handlers.

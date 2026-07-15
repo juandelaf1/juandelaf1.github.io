@@ -1,0 +1,25 @@
+---
+import EngineeringLayout from '../../layouts/EngineeringLayout.astro';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const notes = await getCollection('engineering');
+  return notes.map((note) => ({
+    params: { slug: note.id },
+    props: { note },
+  }));
+}
+
+const { note } = Astro.props;
+const { Content } = await render(note);
+---
+
+<EngineeringLayout
+  title={note.data.title}
+  description={note.data.description}
+  date={note.data.date}
+  tags={note.data.tags}
+  path={`/engineering/${note.id}`}
+>
+  <Content />
+</EngineeringLayout>

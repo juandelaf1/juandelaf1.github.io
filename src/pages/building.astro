@@ -1,0 +1,47 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Container from '../components/ui/Container.astro';
+import BuildingCard from '../components/building/BuildingCard.astro';
+import { SITE } from '../config/site';
+import { getCollection } from 'astro:content';
+
+const buildingProjects = await getCollection('building');
+---
+
+<BaseLayout
+  title={`Currently Building — ${SITE.author}`}
+  description="Projects currently in development. Live status, milestones, and roadmaps."
+  path="/building"
+  currentPath="/building"
+>
+  <Container>
+    <section style="padding:48px 0 96px;">
+      <h1 style="font-size:2rem;font-weight:800;margin-bottom:8px;">Currently Building</h1>
+      <p style="color:var(--text-secondary);margin-bottom:48px;max-width:560px;">
+        Projects in active development. Status, milestones, and what is being built next.
+      </p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(400px,1fr));gap:24px;">
+        {buildingProjects
+          .sort((a, b) => b.data.started.getTime() - a.data.started.getTime())
+          .map((p) => (
+            <BuildingCard
+              title={p.data.title}
+              description={p.data.description}
+              status={p.data.status}
+              milestones={p.data.milestones}
+              nextMilestone={p.data.nextMilestone}
+              repo={p.data.repo}
+            />
+          ))}
+      </div>
+    </section>
+  </Container>
+</BaseLayout>
+
+<style>
+  @media (max-width: 768px) {
+    div[style*="grid-template-columns"] {
+      grid-template-columns: 1fr !important;
+    }
+  }
+</style>

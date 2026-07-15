@@ -1,0 +1,207 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import Container from '../components/ui/Container.astro';
+import Tag from '../components/ui/Tag.astro';
+import Button from '../components/ui/Button.astro';
+import { SITE } from '../config/site';
+
+export interface Props {
+  title: string;
+  description: string;
+  category: string;
+  date: Date;
+  tech: Array<{ name: string; icon?: string }>;
+  links: { github?: string; demo?: string; docs?: string };
+  image?: string;
+}
+
+const { title, description, category, date, tech, links, image } = Astro.props;
+const techList = tech.map((t) => t.name);
+---
+
+<BaseLayout
+  title={`${title} — ${SITE.author}`}
+  {description}
+  image={image}
+  path={`/projects/${Astro.params.slug}`}
+>
+  <Container>
+    <article class="case-study">
+      <header class="header">
+        <a href="/" class="back">&larr; Back</a>
+        <div class="meta">
+          <Tag text={category} />
+          <time datetime={date.toISOString()} class="date">
+            {new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'long' }).format(date)}
+          </time>
+        </div>
+        <h1 class="title">{title}</h1>
+        <p class="description">{description}</p>
+        <div class="actions">
+          {links.github && (
+            <Button href={links.github} variant="primary" external>View Repository</Button>
+          )}
+          {links.demo && (
+            <Button href={links.demo} variant="ghost" external>Live Demo</Button>
+          )}
+          {links.docs && (
+            <Button href={links.docs} variant="ghost" external>Documentation</Button>
+          )}
+        </div>
+        <div class="tech-row">
+          {techList.map((t) => (
+            <span class="tech-item">{t}</span>
+          ))}
+        </div>
+      </header>
+
+      <div class="content">
+        <aside class="sidebar">
+          <nav class="toc">
+            <a href="#context" class="toc-link">Context</a>
+            <a href="#challenges" class="toc-link">Challenges</a>
+            <a href="#solution" class="toc-link">Solution</a>
+            <a href="#implementation" class="toc-link">Implementation</a>
+            <a href="#results" class="toc-link">Results</a>
+            <a href="#lessons" class="toc-link">Lessons Learned</a>
+          </nav>
+        </aside>
+
+        <div class="body">
+          <slot />
+        </div>
+      </div>
+    </article>
+  </Container>
+</BaseLayout>
+
+<style>
+  .case-study {
+    padding: 48px 0 96px;
+  }
+  .header {
+    margin-bottom: 64px;
+  }
+  .back {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-bottom: 24px;
+    text-decoration: none;
+  }
+  .back:hover {
+    color: var(--accent);
+  }
+  .meta {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  .date {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+  }
+  .title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 16px;
+  }
+  .description {
+    font-size: 1.125rem;
+    color: var(--text-secondary);
+    max-width: 640px;
+    margin-bottom: 32px;
+  }
+  .actions {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .tech-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .tech-item {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    padding: 4px 10px;
+    border-radius: 100px;
+    border: 1px solid var(--border);
+    background: var(--bg-tertiary);
+  }
+  .content {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 64px;
+  }
+  .sidebar {
+    position: sticky;
+    top: 96px;
+    align-self: start;
+  }
+  .toc {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .toc-link {
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: color var(--transition);
+  }
+  .toc-link:hover {
+    color: var(--text-primary);
+  }
+  .body {
+    min-width: 0;
+  }
+  .body :global(h2) {
+    margin-top: 48px;
+    margin-bottom: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+  }
+  .body :global(h3) {
+    margin-top: 32px;
+    margin-bottom: 12px;
+  }
+  .body :global(p) {
+    margin-bottom: 16px;
+  }
+  .body :global(ul) {
+    margin-bottom: 16px;
+    padding-left: 20px;
+  }
+  .body :global(li) {
+    margin-bottom: 8px;
+  }
+  .body :global(pre) {
+    margin: 24px 0;
+  }
+  .body :global(blockquote) {
+    border-left: 2px solid var(--accent);
+    padding-left: 16px;
+    margin: 24px 0;
+    color: var(--text-secondary);
+    font-style: normal;
+  }
+  @media (max-width: 768px) {
+    .title {
+      font-size: 1.75rem;
+    }
+    .content {
+      grid-template-columns: 1fr;
+      gap: 32px;
+    }
+    .sidebar {
+      display: none;
+    }
+  }
+</style>

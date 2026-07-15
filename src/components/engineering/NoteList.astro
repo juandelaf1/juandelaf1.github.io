@@ -1,0 +1,76 @@
+---
+import Tag from '../ui/Tag.astro';
+import { formatDate } from '../../lib/utils';
+import type { CollectionEntry } from 'astro:content';
+
+export interface Props {
+  notes: CollectionEntry<'engineering'>[];
+}
+---
+
+<div class="note-list">
+  {Astro.props.notes
+    .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
+    .map((note) => (
+      <a href={`/engineering/${note.id}`} class="note-card">
+        <div class="meta">
+          <time datetime={note.data.date.toISOString()} class="date">
+            {formatDate(note.data.date)}
+          </time>
+        </div>
+        <h3 class="title">{note.data.title}</h3>
+        <p class="description">{note.data.description}</p>
+        <div class="tags">
+          {note.data.tags.map((tag) => (
+            <Tag text={tag} />
+          ))}
+        </div>
+      </a>
+    ))}
+</div>
+
+<style>
+  .note-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .note-card {
+    display: block;
+    padding: 24px 32px;
+    background: var(--bg-primary);
+    text-decoration: none;
+    transition: background var(--transition);
+  }
+  .note-card:hover {
+    background: var(--bg-secondary);
+  }
+  .meta {
+    margin-bottom: 8px;
+  }
+  .date {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+  }
+  .title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: var(--text-primary);
+  }
+  .description {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin-bottom: 12px;
+  }
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+</style>

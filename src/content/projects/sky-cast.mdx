@@ -1,0 +1,99 @@
+---
+title: "SkyCast"
+description: "Enterprise climate intelligence platform integrating 5 data sources with real-time monitoring."
+featured: true
+order: 1
+category: "Climate"
+date: 2026-04-15
+status: "production"
+metrics:
+  - value: "158"
+    label: "automated tests"
+  - value: "CI/CD"
+    label: "pipeline"
+  - value: "5"
+    label: "data sources"
+tech:
+  - name: "FastAPI"
+  - name: "PostgreSQL"
+  - name: "Streamlit"
+  - name: "Docker"
+  - name: "Python"
+  - name: "AEMET API"
+links:
+  github: "https://github.com/juandelaf1/SkyCast"
+---
+
+## Context
+
+Municipalities and regional governments across Spain lack a unified system for monitoring local climate conditions. Official data from AEMET (Agencia Estatal de Meteorología) provides authoritative measurements, but it is not always real-time and does not cover hyper-local microclimates. Meanwhile, unofficial crowdsourced reports from residents contain valuable ground-level observations that never reach decision-makers.
+
+The business problem is clear: emergency management teams need accurate, real-time weather data to issue alerts, allocate resources, and respond to incidents. Without it, responses are reactive rather than preventive.
+
+## Challenges
+
+- **Data fragmentation**: AEMET OpenData uses different endpoints with inconsistent schemas across stations
+- **Real-time requirements**: Weather changes fast; stale data is dangerous for alert systems
+- **Scalability**: The system must handle concurrent requests from multiple municipalities
+- **Data quality**: Crowdsourced reports require validation before being used in decision-making
+- **Infrastructure**: Must run on minimal cloud resources without dedicated ops support
+
+import Architecture from '../../components/projects/Architecture.astro';
+
+## Solution
+
+### Architecture
+
+The system is built as a modular pipeline: data ingestion → processing → storage → API → visualization. Each component runs independently and communicates through well-defined interfaces.
+
+<Architecture title="Data Pipeline">
+<pre>
+AEMET OpenData → Ingestion → PostgreSQL → FastAPI → Streamlit
+Crowdsourced   → Validation                       → Alert Engine → Web/Mobile
+</pre>
+</Architecture>
+
+### Pipeline
+
+1. **Ingestion**: A scheduled job fetches AEMET OpenData every 15 minutes. Concurrent requests are batched to respect API rate limits.
+2. **Validation**: Crowdsourced reports pass through a Pydantic validation layer. Malformed data is rejected with structured error messages.
+3. **Storage**: PostgreSQL stores historical data with time-series partitioning. Recent data is cached in-memory for fast dashboard queries.
+4. **API**: FastAPI endpoints serve filtered data by municipality, date range, and metric type. JWT authentication for protected endpoints.
+5. **Dashboard**: Streamlit frontend provides real-time monitoring, historical trends, and alert configuration.
+
+### Tech Stack
+
+- **FastAPI** for the REST API layer with automatic OpenAPI documentation
+- **PostgreSQL** with TimescaleDB extensions for time-series optimization
+- **Streamlit** for the interactive dashboard with real-time updates
+- **Docker** for containerized deployment with docker-compose orchestration
+- **APScheduler** for cron-based data ingestion jobs
+- **JWT** for API authentication
+
+## Implementation
+
+The most significant architectural decision was separating the ingestion layer from the API layer. This allows the system to continue serving data even when upstream sources are temporarily unavailable. If AEMET goes down, the dashboard still shows the last known data.
+
+Data quality was enforced at the boundary. Every external data source has a dedicated validator that rejects malformed records before they enter the database. This prevents garbage-in-garbage-out scenarios that plague many climate data projects.
+
+Testing was prioritized from day one. The 158 tests cover ingestion, validation, API endpoints, and dashboard rendering. A CI pipeline runs these tests on every push, and Docker Compose provides a production-like test environment.
+
+## Results
+
+- **158 automated tests** running in CI/CD pipeline with GitHub Actions
+- **5 data sources** integrated (AEMET OpenData, crowdsourced reports, satellite imagery, pollution sensors, UV index)
+- **Real-time alerts** configured for extreme weather conditions
+- **Docker containerization** enabling one-command deployment to any cloud provider
+- **Automated CI/CD** pipeline reducing deployment time from hours to minutes
+
+## Lessons Learned
+
+1. **Schema-first design prevents integration pain.** Defining the data model before building the ingestion layer would have saved two weeks of refactoring when AEMET changed their API.
+2. **Crowdsourced data needs more validation than official sources.** The signal-to-noise ratio is lower, but the coverage is higher. A reputation system for reporters would improve data quality.
+3. **Time-series partitioning is essential for query performance.** Without it, dashboard queries over 6+ months of data became unusably slow.
+
+## Future Work
+
+- Machine learning models for short-term weather prediction using historical patterns
+- Mobile push notifications for critical weather alerts
+- Integration with additional European meteorological agencies (Météo-France, DWD, Met Office)

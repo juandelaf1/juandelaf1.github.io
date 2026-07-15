@@ -1,0 +1,63 @@
+---
+export interface Props {
+  href: string;
+  variant?: 'primary' | 'ghost' | 'icon';
+  external?: boolean;
+  class?: string;
+}
+
+const { href, variant = 'ghost', external = false } = Astro.props;
+---
+
+<a
+  href={href}
+  class:list={['button', variant]}
+  {...(external && { target: '_blank', rel: 'noopener noreferrer' })}
+>
+  <slot />
+</a>
+
+<style>
+  .button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1;
+    border-radius: 8px;
+    transition: all var(--transition);
+    cursor: pointer;
+    text-decoration: none;
+  }
+  .primary {
+    background: var(--accent);
+    color: white;
+    border: 1px solid var(--accent);
+  }
+  .primary:hover {
+    background: var(--accent-hover);
+    border-color: var(--accent-hover);
+    color: white;
+  }
+  .ghost {
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+  }
+  .ghost:hover {
+    border-color: var(--text-secondary);
+    color: var(--text-primary);
+  }
+  .icon {
+    padding: 8px;
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+  }
+  .icon:hover {
+    color: var(--text-primary);
+  }
+</style>

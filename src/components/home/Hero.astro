@@ -1,0 +1,65 @@
+---
+import Button from '../ui/Button.astro';
+import { SITE } from '../../config/site';
+---
+
+<section class="hero">
+  <div class="content">
+    <h1 class="name">Juan de la Fuente</h1>
+    <p class="position">Analytics Engineer</p>
+    <p class="tagline">
+      Builds data products. End to end.<br />
+      From raw data to production APIs and interactive systems.
+    </p>
+    <div class="actions">
+      <Button href="/projects/sky-cast" variant="primary">View Projects &rarr;</Button>
+      <Button href={SITE.links.github} variant="ghost" external>GitHub</Button>
+      <Button href={SITE.links.linkedin} variant="ghost" external>LinkedIn</Button>
+      <Button href="/resume.pdf" variant="ghost" external>Resume</Button>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    padding: 128px 0 96px;
+  }
+  .content {
+    max-width: 720px;
+  }
+  .name {
+    font-size: 3.5rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 8px;
+  }
+  .position {
+    font-family: var(--font-mono);
+    font-size: 1rem;
+    color: var(--accent);
+    margin-bottom: 24px;
+  }
+  .tagline {
+    font-size: 1.25rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin-bottom: 40px;
+    max-width: 560px;
+  }
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  @media (max-width: 768px) {
+    .hero {
+      padding: 80px 0 64px;
+    }
+    .name {
+      font-size: 2.25rem;
+    }
+    .tagline {
+      font-size: 1.125rem;
+    }
+  }
+</style>

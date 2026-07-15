@@ -1,0 +1,44 @@
+---
+title: "Testing Strategies for Data Pipelines"
+description: "A practical approach to testing ETL pipelines at source, transform, and output layers."
+date: 2026-06-01
+tags: ["Testing", "ETL", "CI/CD", "Quality"]
+---
+
+## Problem
+
+Data pipelines are notoriously hard to test. The data changes daily, the sources have inconsistent schemas, and the output is consumed by systems that expect specific formats. Most teams test at the dashboard level—too late to catch issues cost-effectively.
+
+## Approach
+
+Test at three layers:
+
+**Source layer**: Validate that input data matches expected schema. Reject malformed records at the boundary.
+
+```python
+def test_source_schema(df):
+    expected_columns = {'date', 'revenue', 'customer_id', 'region'}
+    assert expected_columns.issubset(set(df.columns))
+    assert df['revenue'].dtype in ('float64', 'int64')
+```
+
+**Transform layer**: Test specific transformation logic with known inputs and expected outputs. Each transformation function should be independently testable.
+
+```python
+def test_normalize_region():
+    assert normalize_region('NY') == 'New York'
+    assert normalize_region('ny') == 'New York'
+    assert normalize_region('') is None
+```
+
+**Output layer**: Test that the final dataset meets business rules. Row counts within expected ranges, no NULLs in key columns, referential integrity maintained.
+
+## Results
+
+- Pipeline failures detected at commit time instead of dashboard review
+- Data quality checks reduced debugging time by approximately 60%
+- Transformation tests enabled confident refactoring of ETL logic
+
+## Key Takeaway
+
+Invest in source-layer validation first. Most pipeline failures come from unexpected input, not incorrect transformation logic.

@@ -1,0 +1,26 @@
+---
+export interface Props {
+  width?: 'default' | 'wide';
+  class?: string;
+}
+
+const { width = 'default' } = Astro.props;
+---
+
+<div class:list={['container', width, Astro.props.class]}>
+  <slot />
+</div>
+
+<style>
+  .container {
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 var(--content-padding);
+  }
+  .default {
+    max-width: var(--max-width);
+  }
+  .wide {
+    max-width: calc(var(--max-width) * 1.2);
+  }
+</style>

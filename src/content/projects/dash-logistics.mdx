@@ -1,0 +1,97 @@
+---
+title: "DashLogistics"
+description: "Multi-market logistics intelligence platform with ML cost prediction achieving R² = 0.987."
+featured: true
+order: 3
+category: "Logistics"
+date: 2025-09-01
+status: "production"
+metrics:
+  - value: "R² = 0.987"
+    label: "cost prediction accuracy"
+  - value: "15+"
+    label: "KPIs tracked"
+  - value: "50"
+    label: "US states covered"
+tech:
+  - name: "Python"
+  - name: "Pandas"
+  - name: "Streamlit"
+  - name: "Plotly"
+  - name: "PostgreSQL"
+  - name: "Docker"
+links:
+  github: "https://github.com/juandelaf1/DashLogistics"
+---
+
+import Architecture from '../../components/projects/Architecture.astro';
+
+## Context
+
+Logistics companies operating across multiple US states face a fundamental problem: costs are driven by factors that change daily—fuel prices, weather conditions, regional demand, and route-specific constraints. Most logistics analytics tools provide descriptive dashboards that show _what happened_ but not _what will happen_.
+
+The business problem: a mid-market logistics provider needs to predict route-level costs with enough accuracy to price contracts profitably, optimize fleet allocation, and identify inefficiencies before they impact margins.
+
+## Challenges
+
+- **Data heterogeneity**: Combining population data, live fuel prices (AAA API), weather (OpenWeatherMap), and internal operational data across 50 states
+- **State-level variability**: Each state has different regulations, fuel taxes, and infrastructure quality that affect costs
+- **Prediction accuracy**: Cost predictions must be within 5% of actuals to be useful for contract pricing
+- **Multi-source ETL**: Data arrives in different formats and schedules—fuel prices update daily, weather hourly, operational data in batch
+- **Scalability**: The pipeline must process 50 states without manual intervention for each region
+
+## Solution
+
+### Architecture
+
+<Architecture title="Multi-Source Pipeline">
+<pre>
+AAA Fuel API ──┐
+OpenWeatherMap ┤→ Ingestion → Quality Gate → Feature Matrix → XGBoost → Streamlit
+Population     ┤                                         ↓
+Operational  ──┘                                   PostgreSQL (Historical Store)
+</pre>
+</Architecture>
+
+### Pipeline
+
+1. **Multi-source ingestion**: Independent data collectors pull from AAA fuel prices (daily), OpenWeatherMap (hourly), US Census population data (static, quarterly updates), and internal operational databases (continuous).
+2. **Data quality layer**: Each source passes through validation checks—missing values, outliers, schema conformance. Failed records are quarantined for review.
+3. **Feature engineering**: The validated data is joined into a unified feature matrix indexed by route-state-week. Features include fuel cost per mile, weather severity index, population density, distance, and historical cost per mile.
+4. **ML prediction**: An XGBoost regression model predicts cost per mile for each route-state-week combination. Hyperparameters tuned via Optuna.
+5. **Dashboard**: Streamlit frontend with 15+ KPIs, chloropleth maps, regional efficiency comparisons, and what-if scenario analysis.
+
+### Tech Stack
+
+- **Python** with Pandas for ETL and feature engineering
+- **XGBoost** for cost prediction (selected for performance on tabular data with mixed feature types)
+- **Streamlit** with Plotly for interactive visualization
+- **PostgreSQL** for historical data storage
+- **Docker** with CI/CD pipeline
+
+## Implementation
+
+The key architectural decision was the separation of ingestion from prediction. Ingestion runs on its own schedule (fuel prices daily, weather hourly, etc.) and writes to staging tables. A separate pipeline triggers feature computation and model inference when all required source data is available.
+
+This decoupling prevents a single source failure from blocking the entire pipeline. If the weather API is down, the system still processes fuel and operational data, and the model runs with partial features (with reduced confidence).
+
+The data quality layer was essential. Initial attempts to build a unified feature matrix failed repeatedly because NULLs from one source would silently propagate through joins. The validation layer now explicitly checks for completeness before allowing a feature matrix to proceed to the model.
+
+## Results
+
+- **R² = 0.987** on cost per mile prediction, enabling precise contract pricing
+- **15+ operational KPIs** tracked across 50 states with automated weekly reporting
+- **End-to-end ETL pipeline** from 5+ data sources to production dashboard
+- **Multi-regional adaptability**: the system was designed for US states but the architecture generalizes to any geographic region
+
+## Lessons Learned
+
+1. **Data quality gates prevent debugging nightmares.** Every source has a test that must pass before its data enters the feature matrix. This caught schema changes from external APIs multiple times.
+2. **Model accuracy is easier than data availability.** The XGBoost model converged quickly. Getting complete, aligned data from 5 sources was the real engineering challenge.
+3. **Visualization drives adoption.** The operations team started trusting the system when they could see state-level cost maps that matched their ground experience.
+
+## Future Work
+
+- Real-time cost prediction using streaming data for same-day route adjustments
+- Automated contract pricing tool that uses predicted costs to suggest profitable rates
+- Integration with routing software for dynamic re-routing based on predicted costs

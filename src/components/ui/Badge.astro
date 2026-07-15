@@ -1,0 +1,43 @@
+---
+export interface Props {
+  variant?: 'default' | 'success' | 'warning' | 'accent';
+  class?: string;
+}
+
+const { variant = 'default' } = Astro.props;
+---
+
+<span class:list={['badge', variant]}>
+  <slot />
+</span>
+
+<style>
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    font-weight: 500;
+    line-height: 1;
+    border-radius: 100px;
+    border: 1px solid var(--border);
+    background: var(--bg-tertiary);
+    color: var(--text-secondary);
+  }
+  .success {
+    border-color: var(--metric);
+    color: var(--metric);
+    background: color-mix(in srgb, var(--metric) 10%, transparent);
+  }
+  .warning {
+    border-color: #F59E0B;
+    color: #F59E0B;
+    background: color-mix(in srgb, #F59E0B 10%, transparent);
+  }
+  .accent {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 10%, transparent);
+  }
+</style>

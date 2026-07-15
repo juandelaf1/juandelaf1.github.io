@@ -1,0 +1,79 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Container from '../components/ui/Container.astro';
+import Hero from '../components/home/Hero.astro';
+import SelectedWork from '../components/home/SelectedWork.astro';
+import { SITE } from '../config/site';
+import { getCollection } from 'astro:content';
+
+const projects = await getCollection('projects');
+const featured = projects.filter((p) => p.data.featured);
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: SITE.author,
+  url: SITE.url,
+  jobTitle: 'Analytics Engineer',
+  sameAs: [SITE.links.github, SITE.links.linkedin],
+  knowsAbout: ['Data Engineering', 'Analytics Engineering', 'Data Products', 'Data Architecture'],
+};
+---
+
+<BaseLayout
+  title={SITE.title}
+  description={SITE.description}
+  path="/"
+  currentPath="/"
+>
+  <script type="application/ld+json" set:html={JSON.stringify(schema, null, 2)} />
+
+  <Container>
+    <Hero />
+
+    <section class="before-data">
+      <span class="label">Before Data</span>
+      <p class="copy">
+        I ran a business before I built data systems. Spent years making decisions with incomplete information — inventory, costs, logistics, margins. That experience taught me that data is only valuable if it helps someone decide better.
+      </p>
+      <a href="/about" class="read-more">Read the full story &rarr;</a>
+    </section>
+
+    <SelectedWork projects={featured} />
+  </Container>
+</BaseLayout>
+
+<style>
+  .before-data {
+    padding: 48px 0;
+    border-top: 1px solid var(--border);
+    margin-bottom: 48px;
+  }
+
+  .label {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--accent);
+  }
+
+  .copy {
+    color: var(--text-secondary);
+    line-height: 1.7;
+    margin-top: 12px;
+    max-width: 520px;
+  }
+
+  .read-more {
+    display: inline-block;
+    margin-top: 12px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  .read-more:hover {
+    text-decoration: underline;
+  }
+</style>

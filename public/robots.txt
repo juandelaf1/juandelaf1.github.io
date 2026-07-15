@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://juandelaf1.github.io/sitemap-index.xml

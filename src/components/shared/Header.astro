@@ -1,0 +1,82 @@
+---
+import { NAVIGATION } from '../../config/site';
+
+export interface Props {
+  currentPath?: string;
+}
+---
+
+<header class="header">
+  <nav class="nav">
+    <a href="/" class="logo" aria-label="Home">
+      juandelaf1
+    </a>
+    <div class="links">
+      {NAVIGATION.map((item) => (
+        <a
+          href={item.href}
+          class:list={{
+            link: true,
+            active: item.href === '/'
+              ? Astro.props.currentPath === '/'
+              : Astro.props.currentPath?.startsWith(item.href),
+          }}
+        >
+          {item.label}
+        </a>
+      ))}
+    </div>
+  </nav>
+</header>
+
+<style>
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--bg-primary);
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+  .nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 16px var(--content-padding);
+  }
+  .logo {
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    text-decoration: none;
+  }
+  .logo:hover {
+    color: var(--accent);
+  }
+  .links {
+    display: flex;
+    gap: 32px;
+  }
+  .link {
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: color var(--transition);
+  }
+  .link:hover {
+    color: var(--text-primary);
+  }
+  .active {
+    color: var(--text-primary);
+  }
+  @media (max-width: 768px) {
+    .links {
+      gap: 20px;
+    }
+  }
+</style>

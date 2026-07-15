@@ -1,0 +1,40 @@
+---
+export interface Props {
+  title: string;
+  description: string;
+  image?: string;
+  path?: string;
+  type?: 'website' | 'article';
+}
+
+const { title, description, image, path = '', type = 'website' } = Astro.props;
+const canonical = new URL(path, 'https://juandelaf1.github.io').href;
+---
+
+<title>{title}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={canonical} />
+
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonical} />
+<meta property="og:type" content={type} />
+{image && <meta property="og:image" content={new URL(image, 'https://juandelaf1.github.io').href} />}
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+{image && <meta name="twitter:image" content={new URL(image, 'https://juandelaf1.github.io').href} />}
+
+<script type="application/ld+json" set:html={JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': type === 'article' ? 'Article' : 'WebPage',
+  name: title,
+  description,
+  url: canonical,
+  author: {
+    '@type': 'Person',
+    name: 'Juan de la Fuente Larrocca',
+    url: 'https://github.com/juandelaf1',
+  },
+})} />

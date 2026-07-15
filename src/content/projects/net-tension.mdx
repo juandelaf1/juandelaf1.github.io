@@ -1,0 +1,99 @@
+---
+title: "NetTension"
+description: "EU telecom network stress simulation validating 5/6 hypotheses on market dynamics."
+featured: true
+order: 4
+category: "Analytics"
+date: 2026-05-15
+status: "production"
+metrics:
+  - value: "5/6"
+    label: "hypotheses confirmed"
+  - value: "+127%"
+    label: "traffic CAGR"
+  - value: "-0.4%"
+    label: "revenue CAGR"
+  - value: "41,937"
+    label: "data points analyzed"
+tech:
+  - name: "Python"
+  - name: "Pandas"
+  - name: "DuckDB"
+  - name: "Power BI"
+  - name: "Docker"
+  - name: "CNMC Data"
+links:
+  github: "https://github.com/juandelaf1/NetTension"
+---
+
+import Architecture from '../../components/projects/Architecture.astro';
+
+## Context
+
+European telecommunications markets are characterized by massive infrastructure investment paired with declining revenue per bit. Operators face a structural challenge: traffic grows exponentially while revenue grows linearly or declines. This phenomenon—the "scissors effect"—threatens the sustainability of EU telecom networks.
+
+The business problem: EU regulators and telecom operators need quantitative evidence of market stress to inform infrastructure policy, investment decisions, and regulatory frameworks. Without this analysis, policy decisions are based on anecdote rather than data.
+
+## Challenges
+
+- **Multi-source data alignment**: Combining 41,937 rows of CNMC regulatory data with 1.8M+ Eurostat macroeconomic indicators across different granularities and time periods
+- **Hypothesis formulation**: Translating qualitative market knowledge into testable quantitative hypotheses
+- **Temporal analysis**: Traffic and revenue trends must be analyzed at matching time scales to identify divergence
+- **Regulatory context**: The analysis must be rigorous enough to inform policy discussions at the EU level
+
+## Solution
+
+### Architecture
+
+<Architecture title="Analytics Pipeline">
+<pre>
+CNMC (41,937 rows) ──┐
+                      ├──→ DuckDB Processing → Metrics → Hypothesis Testing → Power BI
+Eurostat (1.8M+)   ──┘                                     ↓
+                                                      6 Hypotheses
+                                                      (5 confirmed)
+</pre>
+</Architecture>
+
+### Pipeline
+
+1. **Data acquisition**: CNMC regulatory data (41,937 rows covering bandwidth, pricing, market share) and Eurostat macrodata (1.8M+ indicators across EU economies) are ingested into DuckDB.
+2. **Data transformation**: DuckDB processes the multi-source data in- process, aligning temporal granularities and joining on region-time keys.
+3. **Feature computation**: Key metrics are calculated: traffic CAGR, revenue CAGR, price per Mbps, Herfindahl-Hirschman Index for market concentration.
+4. **Statistical validation**: Six hypotheses on market dynamics are tested using regression analysis and time-series decomposition.
+5. **Visualization**: Power BI dashboard presents findings with interactive drill-down by country, operator, and time period.
+
+### Tech Stack
+
+- **Python** with Pandas for data transformation and analysis
+- **DuckDB** for in-process analytical processing of large datasets
+- **Power BI** for interactive visualization and stakeholder communication
+- **Docker** for reproducible analysis environment
+
+## Implementation
+
+The most impactful decision was using DuckDB instead of a traditional database. The 1.8M+ Eurostat indicators would have required significant infrastructure to load into PostgreSQL. DuckDB processed everything in-process with sub-second query times, eliminating the need for database provisioning.
+
+The hypothesis-driven approach differentiated this project from exploratory analysis. Each of the six hypotheses was formulated before data collection began, preventing confirmation bias and ensuring statistical rigor. The one unconfirmed hypothesis (that market concentration correlates with higher prices) was as informative as the five confirmed ones—it showed that competition policy was working.
+
+The scissors effect analysis required careful alignment of traffic and revenue time series. Traffic data is reported quarterly by operators; revenue data is annual from regulatory filings. DuckDB's temporal join capabilities made this alignment straightforward.
+
+## Results
+
+- **5 of 6 hypotheses confirmed** on EU telecom market dynamics
+- **Scissors effect quantified**: traffic CAGR +127% vs revenue CAGR -0.4%
+- **41,937 rows** of CNMC regulatory data + **1.8M+** Eurostat macroindicators processed
+- **Market concentration analysis** using Herfindahl-Hirschman Index across 27 EU member states
+- **Global Gini coefficient: 0.974** demonstrating extreme attention concentration (from companion analysis)
+
+## Lessons Learned
+
+1. **Hypothesis-first analysis prevents wandering.** Each hypothesis had a pre-registered test and acceptance criteria. This kept the analysis focused and defensible.
+2. **DuckDB is underrated for analytical workloads.** Processing 1.8M+ rows on a laptop without infrastructure was transformative for iteration speed.
+3. **The unconfirmed hypothesis was the most valuable finding.** Knowing that market concentration does not predict pricing is actionable for regulators.
+
+## Future Work
+
+- Real-time monitoring dashboard for EU telecom market indicators
+- Predictive model for operator financial stress based on traffic-revenue divergence
+- Expansion to include non-EU markets for comparative analysis

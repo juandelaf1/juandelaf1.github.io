@@ -1,0 +1,26 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Container from '../../components/ui/Container.astro';
+import NoteList from '../../components/engineering/NoteList.astro';
+import { SITE } from '../../config/site';
+import { getCollection } from 'astro:content';
+
+const notes = await getCollection('engineering');
+---
+
+<BaseLayout
+  title={`Engineering — ${SITE.author}`}
+  description="Technical documentation on data engineering, architecture decisions, and production patterns."
+  path="/engineering"
+  currentPath="/engineering"
+>
+  <Container>
+    <section style="padding: 48px 0 96px;">
+      <h1 style="font-size:2rem;font-weight:800;margin-bottom:8px;">Engineering</h1>
+      <p style="color:var(--text-secondary);margin-bottom:48px;max-width:560px;">
+        Technical notes on building data products. Architecture decisions, production patterns, and lessons from shipping data systems.
+      </p>
+      <NoteList notes={notes} />
+    </section>
+  </Container>
+</BaseLayout>

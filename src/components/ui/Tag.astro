@@ -1,0 +1,26 @@
+---
+export interface Props {
+  text: string;
+  class?: string;
+}
+---
+
+<span class:list={['tag', Astro.props.class]}><span class="dot"></span>{Astro.props.text}</span>
+
+<style>
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+  }
+  .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    flex-shrink: 0;
+  }
+</style>

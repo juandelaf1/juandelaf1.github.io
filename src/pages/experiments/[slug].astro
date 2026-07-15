@@ -1,0 +1,60 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Container from '../../components/ui/Container.astro';
+import Tag from '../../components/ui/Tag.astro';
+import { SITE } from '../../config/site';
+import { getCollection, render } from 'astro:content';
+import { formatDate } from '../../lib/utils';
+
+export async function getStaticPaths() {
+  const experiments = await getCollection('experiments');
+  return experiments.map((exp) => ({
+    params: { slug: exp.id },
+    props: { experiment: exp },
+  }));
+}
+
+const { experiment } = Astro.props;
+const { Content } = await render(experiment);
+---
+
+<BaseLayout
+  title={`${experiment.data.title} — ${SITE.author}`}
+  description={experiment.data.description}
+  path={`/experiments/${experiment.id}`}
+  currentPath={`/experiments/${experiment.id}`}
+>
+  <Container>
+    <article style="padding:48px 0 96px;max-width:720px;">
+      <a href="/" style="display:inline-block;font-family:var(--font-mono);font-size:0.875rem;color:var(--text-secondary);margin-bottom:24px;text-decoration:none;">
+        &larr; Back
+      </a>
+      <time datetime={experiment.data.date.toISOString()} style="display:block;font-family:var(--font-mono);font-size:0.8125rem;color:var(--text-secondary);margin-bottom:16px;">
+        {formatDate(experiment.data.date)}
+      </time>
+      <h1 style="font-size:2rem;font-weight:800;margin-bottom:12px;">{experiment.data.title}</h1>
+      <p style="color:var(--text-secondary);margin-bottom:24px;">{experiment.data.description}</p>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:48px;">
+        {experiment.data.tech.map((t) => (
+          <Tag text={t} />
+        ))}
+      </div>
+      <div class="content">
+        <Content />
+      </div>
+    </article>
+  </Container>
+</BaseLayout>
+
+<style>
+  .content :global(h2) {
+    margin-top: 40px;
+    margin-bottom: 16px;
+  }
+  .content :global(p) {
+    margin-bottom: 16px;
+  }
+  .content :global(pre) {
+    margin: 24px 0;
+  }
+</style>

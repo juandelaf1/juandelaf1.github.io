@@ -1,0 +1,23 @@
+---
+export interface Props {
+  id?: string;
+  class?: string;
+}
+
+const { id } = Astro.props;
+---
+
+<section {id} class:list={['section', Astro.props.class]}>
+  <slot />
+</section>
+
+<style>
+  .section {
+    padding: 96px 0;
+  }
+  @media (max-width: 768px) {
+    .section {
+      padding: 64px 0;
+    }
+  }
+</style>

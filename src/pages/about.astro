@@ -1,0 +1,70 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Container from '../components/ui/Container.astro';
+import GitHubActivity from '../components/shared/GitHubActivity.astro';
+import { SITE } from '../config/site';
+---
+
+<BaseLayout
+  title={`About — ${SITE.author}`}
+  description="Why I build data products. The story behind the work."
+  path="/about"
+>
+  <Container>
+    <article style="padding: 64px 0 96px; max-width: 640px;">
+      <h1 style="font-size: 2rem; font-weight: 800; margin-bottom: 8px;">Why I Build Data Products</h1>
+      <p style="color: var(--text-secondary); margin-bottom: 48px; font-size: 1.125rem;">
+        Not another "I love data" story.
+      </p>
+
+      <section style="margin-bottom: 48px;">
+        <h2 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 12px;">
+          <span style="font-family: var(--font-mono); font-size: 0.875rem; color: var(--accent);">01</span>
+          Before Data
+        </h2>
+        <p style="color: var(--text-secondary); line-height: 1.7; margin-bottom: 16px;">
+          Before I wrote my first Python script, I spent years running a business. Inventory planning. Cost analysis. Sales forecasting. Margin optimization. Logistics coordination. Customer decisions.
+        </p>
+        <p style="color: var(--text-secondary); line-height: 1.7; margin-bottom: 16px;">
+          Every day meant making decisions with incomplete information. I learned what happens when data is missing — and what happens when it arrives too late.
+        </p>
+        <p style="color: var(--text-secondary); line-height: 1.7;">
+          That experience taught me something no course can: data is only valuable if it helps someone make a better decision. Everything else is noise.
+        </p>
+      </section>
+
+      <section style="margin-bottom: 48px;">
+        <h2 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 12px;">
+          <span style="font-family: var(--font-mono); font-size: 0.875rem; color: var(--accent);">02</span>
+          Today
+        </h2>
+        <p style="color: var(--text-secondary); line-height: 1.7; margin-bottom: 16px;">
+          I build data products. End to end. From raw data to production APIs and interactive systems. I design pipelines, build models, deploy APIs, and create interfaces that turn data into decisions.
+        </p>
+        <p style="color: var(--text-secondary); line-height: 1.7;">
+          Every project I ship is informed by the time I spent on the other side — understanding what business operators actually need, and how data should serve them.
+        </p>
+      </section>
+
+      <section style="margin-bottom: 48px;">
+        <h2 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 12px;">
+          <span style="font-family: var(--font-mono); font-size: 0.875rem; color: var(--accent);">03</span>
+          What I'm looking for
+        </h2>
+        <p style="color: var(--text-secondary); line-height: 1.7; margin-bottom: 16px;">
+          I want to work on products where data is the core value proposition. Engineering teams that treat data infrastructure as a product. Problems that require both business judgment and technical rigor.
+        </p>
+        <p style="color: var(--text-secondary); line-height: 1.7;">
+          Not interested in building dashboards that nobody uses. Interested in building systems that change how decisions are made.
+        </p>
+      </section>
+
+      <div style="display: flex; gap: 16px; padding-top: 32px; border-top: 1px solid var(--border); margin-bottom: 48px;">
+        <a href={SITE.links.linkedin} target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 8px; background: var(--accent); color: white; text-decoration: none; font-size: 0.875rem; font-weight: 500;">LinkedIn</a>
+        <a href={SITE.links.github} target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 8px; border: 1px solid var(--border); color: var(--text-secondary); text-decoration: none; font-size: 0.875rem; font-weight: 500;">GitHub</a>
+      </div>
+
+      <GitHubActivity />
+    </article>
+  </Container>
+</BaseLayout>
