@@ -1,0 +1,52 @@
+---
+export interface Props {
+  nodes: string[];
+  class?: string;
+}
+
+const { nodes, class: className } = Astro.props;
+const nodeW = 80;
+const nodeH = 26;
+const gap = 12;
+const arrowW = 10;
+const padX = 8;
+const padY = 6;
+
+const totalW = padX * 2 + nodes.length * nodeW + (nodes.length - 1) * (gap + arrowW);
+const totalH = padY * 2 + nodeH;
+---
+
+<svg
+  viewBox={`0 0 ${totalW} ${totalH}`}
+  xmlns="http://www.w3.org/2000/svg"
+  class:list={['mini-flow', className]}
+  aria-hidden="true"
+>
+  {nodes.map((node, i) => {
+    const x = padX + i * (nodeW + gap + arrowW);
+    return (
+      <g>
+        <rect x={x} y={padY} width={nodeW} height={nodeH} rx="4" fill="#1A1A1A" stroke="#2A2A2A" stroke-width="1" />
+        <text x={x + nodeW / 2} y={padY + nodeH / 2} fill="#9CA3AF" font-family="JetBrains Mono, monospace" font-size="8" font-weight="500" text-anchor="middle" dominant-baseline="central">{node}</text>
+        {i < nodes.length - 1 && (
+          <g transform={`translate(${x + nodeW}, ${padY + nodeH / 2})`}>
+            <line x1="0" y1="0" x2={gap + arrowW} y2="0" stroke="#2A2A2A" stroke-width="1" />
+            <polygon points={`${gap + arrowW - 4},-3 ${gap + arrowW},0 ${gap + arrowW - 4},3`} fill="#2A2A2A" />
+          </g>
+        )}
+      </g>
+    );
+  })}
+</svg>
+
+<style>
+  .mini-flow {
+    width: 100%;
+    height: auto;
+    opacity: 0.7;
+    transition: opacity var(--transition);
+  }
+  .card:hover .mini-flow {
+    opacity: 1;
+  }
+</style>

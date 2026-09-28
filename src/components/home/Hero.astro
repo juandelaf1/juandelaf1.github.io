@@ -1,12 +1,18 @@
 ---
 import Button from '../ui/Button.astro';
+import Monogram from '../ui/Monogram.astro';
 import { SITE } from '../../config/site';
 ---
 
 <section class="hero">
   <div class="content">
-    <h1 class="name">Juan de la Fuente</h1>
-    <p class="position">Analytics Engineer</p>
+    <div class="name-row">
+      <Monogram size={48} />
+      <div>
+        <h1 class="name">Juan de la Fuente</h1>
+        <p class="position">Analytics Engineer</p>
+      </div>
+    </div>
     <p class="tagline">
       I design and build production data systems. Pipelines, APIs, models, and interactive products that turn data into decisions.
     </p>
@@ -29,17 +35,25 @@ import { SITE } from '../../config/site';
   .content {
     max-width: 720px;
   }
+  .name-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
   .name {
     font-size: 3.5rem;
     font-weight: 800;
     letter-spacing: -0.02em;
-    margin-bottom: 8px;
+    margin-bottom: 0;
+    line-height: 1.1;
   }
   .position {
     font-family: var(--font-mono);
     font-size: 1rem;
     color: var(--accent);
-    margin-bottom: 24px;
+    margin-bottom: 0;
+    margin-top: 4px;
   }
   .tagline {
     font-size: 1.25rem;
@@ -64,6 +78,9 @@ import { SITE } from '../../config/site';
   @media (max-width: 768px) {
     .hero {
       padding: 80px 0 48px;
+    }
+    .name-row {
+      gap: 12px;
     }
     .name {
       font-size: 2.25rem;

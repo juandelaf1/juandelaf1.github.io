@@ -1,6 +1,7 @@
 ---
 import type { CollectionEntry } from 'astro:content';
 import Metric from '../ui/Metric.astro';
+import MiniFlow from '../projects/MiniFlow.astro';
 
 export interface Props {
   projects: CollectionEntry<'projects'>[];
@@ -8,6 +9,14 @@ export interface Props {
 
 const { projects } = Astro.props;
 const sorted = projects.sort((a, b) => (a.data.order ?? 99) - (b.data.order ?? 99));
+
+const flowMap: Record<string, string[]> = {
+  case: ['Input', 'Prompt', 'LLM', 'Validate', 'Decide'],
+  'sky-cast': ['AEMET', 'Ingest', 'Store', 'API', 'Dashboard'],
+  'optimus-price': ['Bookings', 'Features', 'RF Model', 'Price API', 'UI'],
+  'dash-logistics': ['Sources', 'ETL', 'XGBoost', 'KPIs', 'Dashboard'],
+  'net-tension': ['CNMC', 'DuckDB', 'Metrics', 'Hypotheses', 'Power BI'],
+};
 ---
 
 <section class="selected-work">
@@ -19,6 +28,11 @@ const sorted = projects.sort((a, b) => (a.data.order ?? 99) - (b.data.order ?? 9
           <div class="card-header">
             <span class="category">{project.data.category}</span>
           </div>
+          {flowMap[project.id] && (
+            <div class="card-flow">
+              <MiniFlow nodes={flowMap[project.id]} />
+            </div>
+          )}
           <h3 class="card-title">{project.data.title}</h3>
           <p class="card-description">{project.data.description}</p>
           {project.data.metrics.length > 0 && (
@@ -77,6 +91,9 @@ const sorted = projects.sort((a, b) => (a.data.order ?? 99) - (b.data.order ?? 9
     font-family: var(--font-mono);
     font-size: 0.75rem;
     color: var(--accent);
+  }
+  .card-flow {
+    margin: 4px 0;
   }
   .card-title {
     font-size: 1.25rem;

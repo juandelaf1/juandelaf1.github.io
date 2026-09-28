@@ -1,5 +1,6 @@
 ---
 import { NAVIGATION } from '../../config/site';
+import Monogram from '../ui/Monogram.astro';
 
 export interface Props {
   currentPath?: string;
@@ -9,7 +10,8 @@ export interface Props {
 <header class="header">
   <nav class="nav">
     <a href="/" class="logo" aria-label="Home">
-      juandelaf1
+      <Monogram size={24} />
+      <span>juandelaf1</span>
     </a>
     <div class="links">
       {NAVIGATION.map((item) => (
@@ -53,6 +55,9 @@ export interface Props {
     font-weight: 500;
     color: var(--text-primary);
     text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
   }
   .logo:hover {
     color: var(--accent);
