@@ -1,0 +1,156 @@
+---
+title: "CASE"
+description: "Domain-agnostic AI decision orchestration platform with human oversight, reliability pipeline, and multi-provider support."
+featured: true
+order: 0
+category: "AI/ML"
+date: 2026-09-28
+status: "portfolio"
+metrics:
+  - value: "813"
+    label: "tests passing"
+  - value: "5"
+    label: "domains"
+  - value: "4"
+    label: "LLM providers"
+tech:
+  - name: "Python"
+  - name: "Pydantic v2"
+  - name: "FastAPI"
+  - name: "Streamlit"
+  - name: "SQLite"
+links:
+  github: "https://github.com/juandelaf1/CASE"
+---
+
+import ArchitectureFlow from '../../components/projects/ArchitectureFlow.astro';
+
+## Context
+
+<ArchitectureFlow stages={[
+  [
+    { label: "Case Input", sub: "Unstructured" },
+    { label: "PromptBuilder", sub: "Structured" },
+    { label: "LLMProvider", sub: "Any provider" },
+    { label: "ReliabilityPipeline", sub: "Validate" },
+    { label: "Domain + Risk", sub: "Policy" },
+    { label: "Decision", sub: "Auditable" },
+  ],
+]} />
+
+Large language models are probabilistic systems. Their output can be inconsistent, hallucinated, or subtly wrong in ways that are difficult to detect automatically. Directly routing raw LLM output to operational decisions introduces unacceptable risk.
+
+The business problem: operational teams need AI-assisted decision-making that is auditable, domain-aware, and safe. The system must never trust raw model output, must enforce human oversight when risk is high, and must work with any LLM provider without code changes.
+
+CASE addresses this by introducing a structured orchestration layer that sits between the LLM and the decision. The LLM proposes. CASE validates, evaluates, and governs the decision.
+
+## Challenges
+
+- **Raw LLM output cannot be trusted**: Schema violations, semantic inconsistencies, and domain rule breaches must be caught before any decision is persisted
+- **Provider lock-in**: Tying the system to a single LLM provider creates fragility and limits cost optimization
+- **Domain agnosticism**: The core pipeline must work for urban infrastructure, logistics, seismic risk, and real estate without `if domain ==` checks
+- **Human oversight**: Risk increases human involvement, not decreases. Low confidence or high urgency must route to humans automatically
+- **Auditability**: Every decision must be traceable — who proposed it, what validation passed, what risk was assessed, what action was taken
+
+import Architecture from '../../components/projects/Architecture.astro';
+
+## Solution
+
+### Architecture
+
+The system follows hexagonal architecture (Ports & Adapters). Core logic depends on abstract interfaces, not implementations.
+
+<Architecture title="Decision Pipeline">
+<pre>
+Streamlit UI / FastAPI
+       |
+TriageEngine (orchestrator)
+       |
+PromptBuilder → LLMProvider (any) → ReliabilityPipeline
+                                          |
+                              Domain Policy + Risk Evaluator
+                                          |
+                                    Decision + Audit
+                                          |
+                              Human Oversight (HITL)
+</pre>
+</Architecture>
+
+### Pipeline
+
+1. **Input**: An operational case arrives with report text, domain, urgency, and optional evidence
+2. **Prompt Construction**: PromptBuilder creates a structured prompt with domain context and constraints
+3. **LLM Generation**: Any configured provider (Mock, Groq, Ollama, Cloud) generates a structured proposal
+4. **Reliability Pipeline**: Four-stage validation — parse → schema → semantic → domain. Failures trigger retries with exponential backoff
+5. **Risk Assessment**: AutomationEvaluator determines routing: auto-approve, human review, or mandatory escalation
+6. **Human Oversight**: When risk is high, the case enters the HITL cycle (approve/reject/modify/escalate)
+7. **Persistence**: Decision and full audit trail stored in SQLite with lifecycle tracking
+
+### Tech Stack
+
+- **Python 3.11+** with type hints and mypy strict mode
+- **Pydantic v2** for all data contracts at public boundaries
+- **FastAPI** for the REST API layer with 15+ endpoints
+- **Streamlit** for the interactive control room UI
+- **SQLite** for decision persistence and audit trail
+- **4 LLM Providers**: Mock (testing), Groq (cloud), Ollama (local), Cloud (OpenAI-compatible)
+
+### Key Design Decisions
+
+**Frozen Invariants (I01-I15)**: The architecture has 15 immutable rules. Domain logic never leaks into core. Provider-specific code stays behind interfaces. Raw output is never trusted. These invariants are enforced by tests.
+
+**Reliability Pipeline**: Every LLM response passes through four validation stages. Schema validation catches structural errors. Semantic validation checks internal consistency. Domain validation enforces policy-specific rules. Each failure is classified as recoverable (retry) or terminal (reject).
+
+**Risk-Based Routing**: Three automation thresholds — `AUTO_APPROVE` for low-risk cases, `HUMAN_REVIEW` for medium risk, `MANDATORY_HUMAN` for critical cases. Risk increases human involvement, never decreases.
+
+**Provider Abstraction**: All providers implement `LLMProvider` ABC. Switching from Groq to Ollama requires zero changes to TriageEngine, ReliabilityPipeline, or any domain policy.
+
+## Implementation
+
+The most significant architectural decision was the reliability pipeline. Raw LLM output is structured JSON, but structural correctness does not mean semantic correctness. A proposal can be valid JSON with the wrong domain, impossible urgency, or evidence that contradicts the report text. The four-stage pipeline catches these issues systematically.
+
+The domain policy system was designed to be extensible. Adding a new domain (Real Estate was added in V3) requires implementing `DomainPolicy` and `AutomationPolicy`, registering in `composition.py`, and writing tests. Zero changes to core logic.
+
+Provider neutrality was tested by running the same 813 test suite against Mock, Groq, and Ollama providers. The pipeline produces identical governance behavior regardless of which provider generates the proposal.
+
+### Trade-offs
+
+SQLite was chosen for persistence over PostgreSQL to keep the deployment simple. This limits concurrent write performance but is acceptable for a portfolio project where the primary goal is demonstrating architecture, not handling production load.
+
+The reliability pipeline uses synchronous validation. An async pipeline could parallelize validation stages, but the added complexity was not justified for the current scope.
+
+### Reliability
+
+- **813 automated tests** covering contracts, pipelines, domains, providers, security, and integration
+- **Circuit breaker pattern** on all external providers — if a provider fails 5 times, it is temporarily disabled
+- **Rate limiting** on the API layer — per-IP sliding window with configurable limits
+- **Constant-time token comparison** for authentication — no timing attacks via query strings
+- **Full audit trail** for every decision — who proposed, what validated, what risk was assessed, what action was taken
+
+## Results
+
+- **813 tests passing** across unit, integration, and release gate suites
+- **5 domains registered**: Urban Operations, Logistics, Infrastructure, Seismic Risk, Real Estate
+- **4 LLM providers**: Mock (deterministic), Groq (cloud), Ollama (local), Cloud (OpenAI-compatible)
+- **15 API endpoints** including seismic data, health checks, rate limiting
+- **12 Streamlit views** with bilingual support (EN/ES)
+- **15 frozen architectural invariants** enforced by automated tests
+- **Zero provider-specific imports** in core logic — true provider neutrality
+
+## Lessons Learned
+
+1. **Frozen invariants prevent architectural drift.** Defining immutable rules early and enforcing them with tests eliminated the need for architectural review on every change. The system stayed coherent as it grew from V1 to V4.
+
+2. **Raw output validation is the critical safety layer.** The reliability pipeline catches more issues than most teams expect. Schema violations, semantic contradictions, and domain rule breaches occur regularly in LLM output — even from capable models.
+
+3. **Risk-based routing is more valuable than accuracy metrics.** The system's value is not in being right 100% of the time. It is in knowing when it is uncertain and routing to humans accordingly.
+
+4. **Provider neutrality is achievable but requires discipline.** The temptation to add provider-specific logic in core is constant. The `LLMProvider` ABC and the no-imports-in-core rule (I13) were essential.
+
+## Future Work
+
+- Real-time streaming decisions for time-sensitive operational cases
+- Multi-model consensus — route critical decisions to multiple providers and compare
+- Webhook integration for external system notifications
+- Automated evaluation framework with real-world datasets (currently MockProvider-only)
+- RBAC and compliance governance (implemented but isolated)
