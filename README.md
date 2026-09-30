@@ -1,43 +1,93 @@
-# Astro Starter Kit: Minimal
+# CASE Portfolio — Juan de la Fuente Larrocca
+
+## English
+
+Personal portfolio website built with [Astro](https://astro.build).
+
+### Tech Stack
+
+- [Astro](https://astro.build) — static site generator
+- [TypeScript](https://www.typescriptlang.org/) — content schema validation
+- Markdown/MDX — project documentation
+
+### Getting Started
 
 ```sh
-npm create astro@latest -- --template minimal
+npm install
+npm run dev       # Local dev server
+npm run build     # Production build to dist/
+npm run preview   # Preview production build
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+### Project Structure
 
-## 🚀 Project Structure
-
-Inside of your Astro project, you'll see the following folders and files:
-
-```text
-/
-├── public/
-├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
+```
+src/
+├── components/    # Reusable UI components
+│   ├── home/      # Homepage sections
+│   ├── projects/  # Architecture diagrams, metrics
+│   ├── shared/    # Header, Footer
+│   └── ui/        # Buttons, badges, metrics
+├── content/       # Content collections (projects, engineering, etc.)
+│   ├── projects/  # Project case studies (MDX)
+│   ├── engineering/
+│   ├── building/
+│   └── experiments/
+├── pages/         # Routes
+├── layouts/       # Page layouts
+├── styles/        # Global CSS
+└── config/        # Site configuration
 ```
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+### Content Collections
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+Content is defined in `src/content.config.ts` with Zod schemas. Each project is an MDX file in `src/content/projects/`.
 
-Any static assets, like images, can be placed in the `public/` directory.
+---
 
-## 🧞 Commands
+## Español
 
-All commands are run from the root of the project, from a terminal:
+Portfolio personal construido con [Astro](https://astro.build).
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
+### Stack Tecnológico
 
-## 👀 Want to learn more?
+- [Astro](https://astro.build) — generador de sitios estáticos
+- [TypeScript](https://www.typescriptlang.org/) — validación de schemas
+- Markdown/MDX — documentación de proyectos
 
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+### Puesta en Marcha
+
+```sh
+npm install
+npm run dev       # Servidor de desarrollo local
+npm run build     # Build de producción en dist/
+npm run preview   # Vista previa del build
+```
+
+### Estructura
+
+```
+src/
+├── components/    # Componentes reutilizables
+│   ├── home/      # Secciones de la homepage
+│   ├── projects/  # Diagramas de arquitectura, métricas
+│   ├── shared/    # Header, Footer
+│   └── ui/        # Botones, badges, métricas
+├── content/       # Colecciones de contenido
+│   ├── projects/  # Estudios de caso (MDX)
+│   ├── engineering/
+│   ├── building/
+│   └── experiments/
+├── pages/         # Rutas
+├── layouts/       # Layouts
+├── styles/        # CSS global
+└── config/        # Configuración del sitio
+```
+
+### Colecciones de Contenido
+
+El contenido se define en `src/content.config.ts` con schemas Zod. Cada proyecto es un archivo MDX en `src/content/projects/`.
+
+---
+
+© 2026 Juan de la Fuente Larrocca
