@@ -7,14 +7,17 @@ See `DECISIONS.md` for the technical foundation.
 ### Content at Launch
 
 **Case Studies (8 total)**
-1. SkyCast — Enterprise Climate Intelligence Platform
-2. OptimusPrice — ML Hotel Revenue Management
-3. DashLogistics — Multi-Market Logistics Intelligence
-4. NetTension — EU Telecom Network Stress Simulation
-5. Attention Observatory — Digital Attention Economics
-6. Devera_DS — AI-Powered Life Cycle Assessment
-7. EnRuta — Collaborative Rural Logistics Platform
-8. RASPAL_SCRAPER — Local AI Web Scraper
+
+| # | Project | Status |
+|---|---|---|
+| 1 | SkyCast — Enterprise Climate Intelligence Platform | ✅ Published |
+| 2 | OptimusPrice — ML Hotel Revenue Management | ✅ Published |
+| 3 | DashLogistics — Multi-Market Logistics Intelligence | ✅ Published |
+| 4 | NetTension — EU Telecom Network Stress Simulation | ✅ Published |
+| 5 | Attention Observatory — Digital Attention Economics | ⏳ Pending (repo has uncommitted changes) |
+| 6 | Devera_DS — AI-Powered Life Cycle Assessment | ⏳ Pending |
+| 7 | EnRuta — Collaborative Rural Logistics Platform | ⏳ Pending |
+| 8 | RASPAL_SCRAPER — Local AI Web Scraper | ✅ Published (2026-10-14) |
 
 **Engineering Notes (3-4)**
 1. Designing ETL Pipelines with Quality Checks
