@@ -1,0 +1,129 @@
+---
+title: "RASPAL Scraper"
+description: "Web scraping with local AI extraction. URL in, structured JSON out. No API keys. No data leaving your machine."
+featured: false
+category: "AI/ML"
+date: 2026-06-19
+status: "production"
+metrics:
+  - value: "81"
+    label: "passing unit tests"
+  - value: "3"
+    label: "scraping engines"
+  - value: "10"
+    label: "pipeline templates"
+  - value: "16"
+    label: "CLI commands"
+tech:
+  - name: "Python"
+  - name: "Playwright"
+  - name: "Scrapling"
+  - name: "Ollama"
+  - name: "Docker"
+  - name: "Pydantic"
+links:
+  github: "https://github.com/juandelaf1/RASPAL_SCRAPER"
+---
+
+import Architecture from '../../components/projects/Architecture.astro';
+import ArchitectureFlow from '../../components/projects/ArchitectureFlow.astro';
+
+## Context
+
+<ArchitectureFlow stages={[
+  [
+    { label: "URL", sub: "Any website" },
+    { label: "Fetcher", sub: "3 engines" },
+    { label: "Extractor", sub: "trafilatura" },
+    { label: "Ollama", sub: "Local LLM" },
+    { label: "JSON", sub: "Structured" },
+  ],
+]} />
+
+Web scraping tools force a trade-off. SaaS APIs (Firecrawl, Apify, Browse.ai) send page content to third-party servers and charge per request. Self-hosted frameworks (Scrapy) require significant setup and do not handle anti-bot protections out of the box. For a developer who needs structured data from a handful of pages — without paying API fees or sending potentially sensitive content to external services — neither option fits.
+
+The business problem: extract structured data from arbitrary websites using only local infrastructure. No API keys. No data leaving the machine. One command from URL to structured JSON.
+
+## Challenges
+
+- **Anti-bot protections**: Cloudflare, Turnstile, and fingerprinting systems block naive HTTP clients. A production scraper must handle these without maintaining custom evasion code.
+- **JavaScript-rendered content**: Many modern sites render data client-side. Static HTML fetching returns empty shells.
+- **Local AI constraints**: Running LLM extraction locally means working with smaller models (3B parameters) that have lower accuracy than hosted alternatives like GPT-4 or Claude.
+- **Legal compliance**: robots.txt parsing, crawl-delay respect, and sensitive-domain detection are often treated as afterthoughts. They need to be first-class features.
+- **Fragmented tooling**: Speed, JS rendering, and stealth are typically solved by three different tools. Users must choose or integrate manually.
+
+## Solution
+
+### Architecture
+
+<Architecture title="Scraping Pipeline">
+<pre>
+URL ──→ Fetcher ──→ Extractor ──→ LLM (Ollama) ──→ Structured JSON
+        │            │              │
+   scrapling     trafilatura    llama3.2:3b
+   playwright    CSS selectors   6 templates
+   stealth       metadata        chains
+        │
+   SQLite cache + priority queue + auto-throttle
+</pre>
+</Architecture>
+
+### Pipeline
+
+1. **Fetch**: Three engine options behind a unified interface. `scrapling` (curl_cffi-based) for static HTML with TLS fingerprint spoofing. `playwright` for JavaScript-rendered pages. `stealth` (browserforge + apify-fingerprint-datapoints) for pages behind Cloudflare or Turnstile. An `auto` mode defaults to scrapling and escalates when blocked.
+2. **Extract**: trafilatura extracts readable text and metadata. CSS selectors pull structured fields (title, price, availability) directly from HTML.
+3. **Transform**: Ollama runs a local LLM (default llama3.2:3b) to convert unstructured text into structured JSON. Six prompt templates cover common patterns (products, articles, reviews, jobs, real estate, crypto). Chain-step pipelines support multi-pass extraction.
+4. **Cache and queue**: SQLite-backed TTL cache prevents redundant fetches. A priority queue with retry logic handles batch workloads. An adaptive throttle adjusts request delays based on response status codes.
+5. **Output**: Pipeline module serializes results to JSON or CSV. A FastAPI dashboard (optional) provides real-time monitoring.
+
+### Tech Stack
+
+- **Python** 3.11+ with Pydantic v2 for all data contracts
+- **Playwright** for browser automation and JS rendering
+- **Scrapling** for fast HTTP with TLS fingerprint management
+- **Ollama** for local LLM inference — no API calls
+- **Docker** with multi-stage builds and docker-compose for one-command setup
+
+## Implementation
+
+The three-engine design emerged from real-world friction. Static fetching fails on Cloudflare-protected sites. Full browser automation is slow for simple pages. Stealth mode solves both but consumes more resources. By exposing all three behind a single `--engine` flag with sensible defaults, the tool adapts to the target without forcing the user to make the decision upfront.
+
+Local LLM extraction was the defining architectural choice. Hosted APIs (OpenAI, Anthropic) produce higher-quality structured output, but they require sending page content to external servers. For the stated use case — data that should not leave the machine — this was non-negotiable. llama3.2:3b handles product and article extraction adequately. Complex multi-entity extraction degrades, which the chain-step pipeline partially compensates for by decomposing the task.
+
+The compliance module parses robots.txt for real (urllib.robotparser), checks can_fetch rules, respects crawl-delay directives, and flags sensitive domains (social media, health, finance). It runs as a pre-flight check before any fetch, not as documentation advice.
+
+### Trade-offs
+
+Local LLM extraction trades accuracy for privacy. A hosted GPT-4 call would produce more reliable structured output for complex schemas. The decision to stay local reflects the project's core premise: data sovereignty over marginal accuracy. For use cases where content is public and non-sensitive, a hosted LLM backend would be a reasonable alternative — but that would break the "no data leaving your machine" guarantee.
+
+SQLite for cache and queue was chosen over Redis or PostgreSQL. The tool targets single-machine use. SQLite's zero-configuration, zero-infrastructure model matches the Docker-compose deployment. For multi-machine coordination, an external queue would be necessary — out of scope for the current design.
+
+### Reliability
+
+All 81 unit tests pass locally and in CI (verified: pytest run completed with 81 passed in 14.14s). CI runs on Python 3.11 and 3.12 with ruff lint and format checks on every push and pull request. Five GitHub Actions workflows cover CI, PyPI trusted publishing, Docker Hub multi-arch publishing (amd64 + arm64), weekly integration tests, and docs deployment.
+
+The exception hierarchy (11 classes under RaspalError) provides granular error handling. CLI errors include actionable suggestions in Spanish. The `raspal doctor` command runs system diagnostics (Python version, Ollama connectivity, Playwright browser state).
+
+## Results
+
+- **81 unit tests passing** across 13 test modules. Verified locally: `pytest tests/` completed in 14.14s with 0 failures.
+- **3 scraping engines** behind a unified interface: scrapling (static), playwright (JS-rendered), stealth (anti-bot). Auto-escalation included.
+- **10 YAML pipeline templates** covering ecommerce, competitor pricing, news, jobs, real estate, crypto, academic research, and more.
+- **16 CLI commands** covering setup, diagnostics, compliance, fetch, async batch, pipeline, queue, report, and dashboard.
+- **Published to PyPI** (`pip install raspal`) and Docker Hub with trusted publishing and multi-arch builds (amd64 + arm64).
+- **CI/CD**: 5 GitHub Actions workflows. Tests run on Python 3.11 + 3.12. Ruff lint and format checks enforced. Weekly integration tests with Ollama service.
+- **Honest caveat**: the project has 0 GitHub stars and 0 forks. It is technically complete and well-tested, but has not yet been validated by external users. Adoption is the next milestone, not code quality.
+
+## Lessons Learned
+
+1. **Local LLM extraction is viable for structured data.** llama3.2:3b handles product and article extraction adequately for most use cases. The accuracy gap with hosted APIs narrows for well-structured prompts and schemas.
+2. **Three engines cover the real spectrum.** Static, JS, and stealth are not theoretical distinctions — they map directly to the three categories of websites developers actually scrape. Unifying them behind one interface eliminated the need for separate tools.
+3. **Compliance belongs in the tool, not the docs.** robots.txt parsing and sensitive-domain detection run as pre-flight checks. This costs little and prevents the most common legal and ethical mistakes.
+4. **YAML pipelines lower the barrier significantly.** Non-developers can configure extractions without writing Python. The 10 templates serve as both starting points and documentation.
+
+## Future Work
+
+- Integration tests with a mock HTTP server for end-to-end pipeline validation
+- CONTRIBUTING.md and community onboarding materials
+- Enhanced compliance: ToS pattern detection, per-domain rate-limit intelligence
+- Community feedback iteration toward v0.7.0
