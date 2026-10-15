@@ -1,0 +1,171 @@
+﻿---
+title: "Anexo_Risk Limpio"
+description: "API FastAPI refinada con autenticación JWT, análisis de riesgo y código principal sincronizado."
+featured: false
+order: 3
+category: "AI/ML"
+date: 2026-10-01
+status: "production"
+metrics:
+  - value: "50"
+    label: "unit tests passing"
+  - value: "JWT"
+    label: "authentication"
+  - value: "Docker"
+    label: "multi-stage build"
+tech:
+  - name: "Python"
+  - name: "FastAPI"
+  - name: "JWT"
+  - name: "PostgreSQL"
+  - name: "Docker"
+links:
+  github: "https://github.com/juandelaf1/Anexo_Risk_limpio"
+---
+import ArchitectureFlow from '../../components/projects/ArchitectureFlow.astro';
+
+## Context
+
+Anexo_Risk Limpio is the refined, production-ready version of the original Anexo_Risk project. It focuses on a clean FastAPI implementation with JWT authentication, providing a robust backend for risk analysis workflows. The repository represents the canonical version for portfolio presentation, while the original Anexo_Risk is preserved as a historical archive.
+
+The project evolved from a research prototype to a structured API with proper authentication, data validation, and deployment configuration.
+
+## Challenges
+
+- **Authentication implementation**: Designing a JWT-based auth system that is both secure and developer-friendly
+- **Code sanitization**: Removing redundant files, debugging scripts, and temporary artifacts from the history
+- **Dependency management**: Establishing lean production dependencies via `requirements.prod.txt`
+- **Docker configuration**: Multi-stage build with Node 20 for frontend + Python 3.12-slim for backend
+- **API design**: Creating intuitive endpoints that balance flexibility with strict contract validation
+
+## Solution
+
+### Architecture
+
+The system uses a FastAPI backend with Pydantic v2 data contracts, JWT authentication for API access, and PostgreSQL for persistent data storage. A multi-stage Docker build ensures lean production deployment.
+
+```text
+┌────────────────────────────────────────────────────────────┐
+│                ANEXO_RISK LIMPO - ARCHITECTURE           │
+└────────────────────────────────────────────────────────────┘
+
+[MULTI-STAGE DOCKER BUILD]                       [PRODUCTION DEPLOY]
+  Node 20 (frontend)                            ┌─────────────────┐
+                                            │   FastAPI     │
+  ────────────────────          ────────────▶│   (Python)    │
+  Frontend build ───────────────────────────▶│   API Endpoints│
+                                            │   /api/auth/* │
+                                            │   /api/risk/* │
+                                            └─────────────────┘
+                                              ▲  ▲
+                                              │  │
+                                            docker compose  docker run
+                                              │  --port
+```
+
+### Key Endpoints
+
+| Endpoint | Description | Auth |
+|----------|-------------|------|
+| `/api/auth/jwt` | Obtener token JWT | Pública |
+| `/api/auth/refresh` | Renovar token | Pública |
+| `/api/risk/analyze` | Analizar riesgo en celda H3 | Requerido |
+| `/api/risk/profile` | Perfil de riesgo por zona | Requerido |
+| `/api/docs` | Documentación interactiva Swagger | Pública |
+
+### JWT Authentication Flow
+
+1. **Login**: POST `/api/auth/jwt` with credentials → receive signed JWT
+2. **Access**: Include JWT in `Authorization: Bearer <token>` header
+3. **Refresh**: POST `/api/auth/refresh` with refresh token → new access token
+4. **Validate**: All protected endpoints verify JWT before processing
+
+### Data Model
+
+- **Users**: email, hashed password, created_at, last_login
+- **Risk Cells**: h3_index, risk_profile (K-Means cluster), severity score, metadata
+- **Analysis Sessions**: user_id, cell_id, analysis_type, results, created_at
+
+### Production Deployment
+
+```bash
+# Docker Compose (development + development)
+docker compose up --build
+
+# Production single service
+docker run -p 8000:8000 juandelaf1/anexo_risk_limpio
+```
+
+### API Documentation
+
+Swagger UI automatically generated at `/api/docs`. All endpoints have OpenAPI 3.0 specification with request/response validation via Pydantic v2 models.
+
+## Implementation
+
+The most significant refactoring was the authentication layer. The original project had no auth; the limpio version introduces JWT with refresh token rotation. This involved:
+
+- Designing the user model with email uniqueness and password hashing
+- Creating token issuance with access/refresh token pair
+- Implementing middleware that validates JWT on all protected endpoints
+- Adding endpoint contracts with Pydantic models for request/response
+
+The code cleanup removed 8+ temporary scripts, debug files, and redundant configurations that were tracked in the original git history. The `.gitignore` was expanded to exclude `*.env`, `*.db`, `temp_*.py`, and `debug_*.py` files.
+
+The Docker configuration uses a multi-stage build:
+- **Stage 1**: Node 20 builds the frontend (if applicable)
+- **Stage 2**: Python 3.12-slim runs the FastAPI application
+- Combined via `docker compose` for development or `docker run` for production
+
+The `requirements.prod.txt` contains only the lean production dependencies, separate from the full ML stack in `requirements.txt`.
+
+## Testing
+
+- 50+ unit tests covering auth flow, endpoint validation, and data processing
+- pytest runs on every GitHub Actions push
+- Test coverage includes edge cases for token expiration, invalid credentials, and rate limiting
+- Integration tests verify the complete auth → analyze → response pipeline
+
+## Results
+
+- **JWT authentication functional** with access and refresh token flow
+- **Codebase cleaned**: redundant files and debug scripts removed from active tracking
+- **Docker multi-stage build** validated for production deployment
+- **Lean production dependencies** via `requirements.prod.txt` (vs. full ML stack)
+- **API docs auto-generated** with Swagger/OpenAPI 3.0 specification
+- **50+ tests passing** in CI/CD pipeline
+
+## License
+
+MIT. See repository for full license text.
+
+## Lessons Learned
+
+1. **Authentication from scratch is non-trivial**. Designing a JWT system that handles token rotation, refresh, and revocation requires careful consideration of security edge cases. Off-the-shelf solutions (like Auth0) can simplify this but may not match the project's integration requirements.
+
+2. **Code history cleanup improves presentational value**. Removing 8+ years of debug scripts, temporary analyses, and redundant configurations from the "active" view makes the repository more navigable and professional.
+
+3. **Separate production requirements files** prevent accidental deployment of development-only dependencies (ML libraries, test tools, debugging scripts). The `.gitignore` working in concert with `requirements.prod.txt` provides defense-in-depth.
+
+4. **Docker multi-stage builds require careful layer ordering**. The build order determines what's preserved in the final image. Placing the Python stage after the Node stage ensures the smallest possible footprint for a Python-only backend.
+
+5. **Swagger/OpenAPI generation is valuable** even for internal APIs. It serves as living documentation and enables automatic client generation for consumers of the API.
+
+## Future Work
+
+- Multi-tenant projects/portfolios support
+- Additional risk analysis models (actuarial, probabilistic)
+- GraphQL API alternative to REST
+- OpenID Connect integration instead of custom JWT
+- Rate limiting and abuse prevention middleware
+
+## Architecture Diagram
+
+<ArchitectureFlow stages={[
+  [{ label: "Frontend", sub: "React/Vite" },
+   { label: "API Gateway", sub: "FastAPI" }],
+  [{ label: "Auth", sub: "JWT + Refresh" },
+   { label: "Business Logic", sub: "Risk Analysis" }],
+  [{ label: "Data", sub: "PostgreSQL" },
+   { label: "Cache", sub: "Redis (opcional)" }],
+]} />
+} />

@@ -86,7 +86,7 @@ The most significant architectural decision was separating the ingestion layer f
 
 Data quality was enforced at the boundary. Every external data source has a dedicated validator that rejects malformed records before they enter the database. This prevents garbage-in-garbage-out scenarios that plague many climate data projects.
 
-Testing was prioritized from day one. The 158 tests cover ingestion, validation, API endpoints, and dashboard rendering. A CI pipeline runs these tests on every push, and Docker Compose provides a production-like test environment.
+Testing was prioritized from day one. The 180 tests cover ingestion, validation, API endpoints, and dashboard rendering. A CI pipeline runs these tests on every push, and Docker Compose provides a production-like test environment.
 
 ### Trade-offs
 
@@ -102,7 +102,7 @@ Data quality checks run at every stage: source validation rejects malformed inpu
 
 ## Results
 
-- **158 automated tests** running in CI/CD pipeline with GitHub Actions — every push runs the full suite
+- **180 automated tests** running in CI/CD pipeline with GitHub Actions — every push runs the full suite
 - **5 data sources** integrated (AEMET OpenData, crowdsourced reports, satellite imagery, pollution sensors, UV index)
 - **Alerts** configured for extreme weather conditions with configurable thresholds per municipality
 - **Docker containerization** enables one-command deployment to any cloud provider

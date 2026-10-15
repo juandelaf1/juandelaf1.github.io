@@ -1,0 +1,42 @@
+
+> juandelaf1.github.io@0.0.1 build
+> astro build
+
+[2m12:50:53[22m [34m[content][39m Syncing content
+[2m12:50:53[22m [34m[content][39m Synced content
+[2m12:50:53[22m [34m[types][39m Generated [2m686ms[22m
+[2m12:50:53[22m [34m[build][39m output: [34m"static"[39m
+[2m12:50:53[22m [34m[build][39m mode: [34m"static"[39m
+[2m12:50:53[22m [34m[build][39m directory: [34mC:\Users\JUAN\Desktop\Proyectos\juandelaf1.github.io\dist\[39m
+[2m12:50:53[22m [34m[build][39m Collecting build info...
+[2m12:50:53[22m [34m[build][39m [32mÔ£ô Completed in 750ms.[39m
+[2m12:50:54[22m [34m[build][39m Building static entrypoints...
+[2m12:50:54[22m [34m[vite][39m [32mÔ£ô built in 674ms[39m
+[2m12:50:54[22m [34m[vite][39m [32mÔ£ô built in 43ms[39m
+[2m12:50:54[22m [34m[build][39m Rearranging server assets...
+
+[42m[30m generating static routes [39m[49m
+[2m12:50:54[22m   [34mÔö£ÔöÇ[39m [2m/404.html[22m [2m(+21ms)[22m 
+[2m12:50:54[22m   [34mÔö£ÔöÇ[39m [2m/about.html[22m [31m(+882ms)[39m 
+[2m12:50:55[22m   [34mÔö£ÔöÇ[39m [2m/building.html[22m [2m(+8ms)[22m 
+[2m12:50:55[22m   [34mÔö£ÔöÇ[39m [2m/engineering/duckdb-in-production.html[22m [2m(+21ms)[22m 
+[2m12:50:55[22m   [34mÔö£ÔöÇ[39m [2m/engineering/fastapi-project-structure.html[22m [2m(+34ms)[22m 
+[2m12:50:55[22m   [34mÔö£ÔöÇ[39m [2m/engineering/testing-data-pipelines.html[22m [2m(+16ms)[22m 
+[2m12:50:55[22m   [34mÔö£ÔöÇ[39m [2m/engineering.html[22m [2m(+8ms)[22m 
+[2m12:50:55[22m   [34mÔö£ÔöÇ[39m [2m/experiments/spanish-wine-eda.html[22m [2m(+9ms)[22m 
+[2m12:50:55[22m   [34mÔö£ÔöÇ[39m [2m/experiments.html[22m [2m(+6ms)[22m 
+[2m12:50:55[22m   [34mÔö£ÔöÇ[39m [2m/projects/anexo-risk-limpio.html[22m [2m(+14ms)[22m 
+[2m12:50:55[22m   [34mÔö£ÔöÇ[39m [2m/projects/case.html[22m [2m(+9ms)[22m 
+[2m12:50:55[22m   [34mÔö£ÔöÇ[39m [2m/projects/dash-logistics.html[22m [2m(+10ms)[22m 
+[2m12:50:55[22m   [34mÔö£ÔöÇ[39m [2m/projects/georisk-finder.html[22m [2m(+10ms)[22m 
+[2m12:50:55[22m   [34mÔö£ÔöÇ[39m [2m/projects/net-tension.html[22m [2m(+8ms)[22m 
+[2m12:50:55[22m   [34mÔö£ÔöÇ[39m [2m/projects/optimus-price.html[22m [2m(+9ms)[22m 
+[2m12:50:55[22m   [34mÔö£ÔöÇ[39m [2m/projects/raspal-scraper.html[22m [2m(+8ms)[22m 
+[2m12:50:55[22m   [34mÔö£ÔöÇ[39m [2m/projects/sky-cast.html[22m [2m(+9ms)[22m 
+[2m12:50:55[22m   [34mÔö£ÔöÇ[39m [2m/index.html[22m [2m(+6ms)[22m 
+[2m12:50:55[22m [32mÔ£ô Completed in 1.14s.
+[39m
+[2m12:50:55[22m [34m[build][39m [32mÔ£ô Completed in 1.93s.[39m
+[2m12:50:55[22m [34m[@astrojs/sitemap][39m `sitemap-index.xml` created at `dist`
+[2m12:50:55[22m [34m[build][39m 18 page(s) built in [1m2.72s[22m
+[2m12:50:55[22m [34m[build][39m [1mComplete![22m
