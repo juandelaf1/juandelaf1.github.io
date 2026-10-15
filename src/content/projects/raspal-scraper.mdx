@@ -99,19 +99,19 @@ SQLite for cache and queue was chosen over Redis or PostgreSQL. The tool targets
 
 ### Reliability
 
-The suite defines 82 unit tests across 13 modules. **As of the latest master push (95ef201, 2026-10-14), GitHub Actions CI is red:** 70 tests pass and 11 fail with `ModuleNotFoundError: No module named 'patchright'`; the Ruff lint job and Docker publish job also fail. Five workflows exist (CI, PyPI publish, Docker, integration tests, docs). PyPI trusted publishing has succeeded historically (`raspal` 0.6.1 is installable), but the current CI status should not be read as a green pipeline.
+The suite defines 82 unit tests across 13 modules. On the latest master push (7cf6d3b, 2026-10-15), GitHub Actions CI reports 81 tests passed on both Python 3.11 and 3.12. The Ruff lint job has 31 errors that keep the global CI in red; the Docker publish job succeeds. The difference between 82 tests defined in the repository and 81 passed during CI collection remains under investigation — no module import changes were required to reach this count. Five workflows exist (CI, PyPI publish, Docker, integration tests, docs). PyPI trusted publishing has succeeded historically (`raspal` 0.6.1 is installable), but the current CI status should not be read as a green pipeline.
 
 The exception hierarchy (11 classes under RaspalError) provides granular error handling. CLI errors include actionable suggestions in Spanish. The `raspal doctor` command runs system diagnostics (Python version, Ollama connectivity, Playwright browser state).
 
 ## Results
 
-- **82 unit tests defined** across 13 modules. Local runs can pass with optional browser deps installed; the latest CI run does not (see Reliability).
+- **81 unit tests passed** in the latest GitHub Actions run (Python 3.11 and 3.12). The suite defines 82 tests; one test is not collected during CI execution — the discrepancy is tracked and under investigation.
 - **3 scraping engines** behind a unified interface: scrapling (static), playwright (JS-rendered), stealth (anti-bot). Auto-escalation included.
 - **10 YAML pipeline templates** covering ecommerce, competitor pricing, news, jobs, real estate, crypto, academic research, and more.
 - **16 CLI commands** covering setup, diagnostics, compliance, fetch, async batch, pipeline, queue, report, and dashboard.
 - **Published to PyPI** as `raspal` (0.6.1 verified on the package index) via trusted publishing.
-- **5 GitHub Actions workflows** are configured; the latest CI and Docker publish runs on master are failing — treat CI as not currently validating the suite.
-- **Honest caveat**: 0 GitHub stars / forks; CI has open failures on `patchright`. Adoption and pipeline repair are the next milestones.
+- **5 GitHub Actions workflows** are configured; the latest CI run passes tests but the global CI remains red due to Ruff lint errors; the Docker publish job succeeds.
+- **Honest caveat**: 0 GitHub stars / forks; Ruff lint job has 31 errors. Adoption and pipeline repair are the next milestones.
 
 ## Lessons Learned
 
