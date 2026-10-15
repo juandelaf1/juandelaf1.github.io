@@ -1,21 +1,34 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
 
 :root {
-  --bg-primary: #0A0A0B;
-  --bg-secondary: #121212;
-  --bg-tertiary: #1A1A1A;
-  --border: #232323;
-  --text-primary: #EDEDEF;
-  --text-secondary: #9CA3AF;
-  --accent: #33A5E5;
-  --accent-hover: #5BB8F5;
-  --metric: #22C55E;
-  --code-bg: #111111;
+  /* Surfaces — dark navy hierarchy (Nexus-inspired) */
+  --bg-primary: #0D1B2A;
+  --bg-secondary: #111f33;
+  --bg-tertiary: #162844;
+  --border: #243b55;
+  --border-strong: #3d5a80;
+
+  /* Text */
+  --text-primary: #e8eef5;
+  --text-secondary: #9fb3c8;
+  --text-muted: #7d95ad;
+
+  /* Accent — teal used sparingly */
+  --accent: #5eead4;
+  --accent-hover: #99f6e4;
+  --accent-solid: #0f766e;
+  --accent-solid-hover: #0d9488;
+  --accent-soft: color-mix(in srgb, var(--accent) 12%, transparent);
+
+  /* Metrics — amber to distinguish from accent */
+  --metric: #fbbf24;
+
+  --code-bg: #0a1628;
 
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
 
-  --max-width: 1200px;
+  --max-width: 1120px;
   --content-padding: 24px;
 
   --transition: 150ms ease;
@@ -56,7 +69,7 @@ a:hover {
 
 a:focus-visible {
   outline: 2px solid var(--accent);
-  outline-offset: 2px;
+  outline-offset: 3px;
   border-radius: 2px;
 }
 
@@ -67,15 +80,15 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--text-primary);
 }
 
-h1 { font-size: 2.5rem; }
-h2 { font-size: 1.75rem; }
-h3 { font-size: 1.25rem; }
-h4 { font-size: 1.125rem; }
+h1 { font-size: 2.5rem; letter-spacing: -0.02em; }
+h2 { font-size: 1.5rem; letter-spacing: -0.01em; }
+h3 { font-size: 1.125rem; }
+h4 { font-size: 1rem; }
 
 p, li {
   color: var(--text-secondary);
   font-size: 1rem;
-  line-height: 1.6;
+  line-height: 1.65;
 }
 
 code {
@@ -108,13 +121,13 @@ img {
 }
 
 ::selection {
-  background: var(--accent);
+  background: var(--accent-solid);
   color: white;
 }
 
 @media (max-width: 768px) {
   html { font-size: 15px; }
   h1 { font-size: 2rem; }
-  h2 { font-size: 1.5rem; }
-  h3 { font-size: 1.125rem; }
+  h2 { font-size: 1.35rem; }
+  h3 { font-size: 1.0625rem; }
 }

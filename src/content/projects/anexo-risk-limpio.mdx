@@ -1,32 +1,32 @@
-﻿---
-title: "Anexo_Risk Limpio"
-description: "API FastAPI refinada con autenticación JWT, análisis de riesgo y código principal sincronizado."
+---
+title: "Anexo Risk"
+description: "Refined FastAPI risk-analysis backend with JWT authentication, role-based access, and a clean, tested codebase."
 featured: false
-order: 3
+order: 8
 category: "AI/ML"
 date: 2026-10-01
-status: "production"
+status: "development"
 metrics:
-  - value: "50"
-    label: "unit tests passing"
+  - value: "50+"
+    label: "unit tests"
   - value: "JWT"
     label: "authentication"
-  - value: "Docker"
-    label: "multi-stage build"
+  - value: "SQLite"
+    label: "zero-ORM data layer"
 tech:
   - name: "Python"
   - name: "FastAPI"
   - name: "JWT"
-  - name: "PostgreSQL"
+  - name: "SQLite"
   - name: "Docker"
 links:
-  github: "https://github.com/juandelaf1/Anexo_Risk_limpio"
+  github: "https://github.com/juandelaf1/Anexo_Risk"
 ---
 import ArchitectureFlow from '../../components/projects/ArchitectureFlow.astro';
 
 ## Context
 
-Anexo_Risk Limpio is the refined, production-ready version of the original Anexo_Risk project. It focuses on a clean FastAPI implementation with JWT authentication, providing a robust backend for risk analysis workflows. The repository represents the canonical version for portfolio presentation, while the original Anexo_Risk is preserved as a historical archive.
+Anexo Risk is a refined FastAPI backend for risk-analysis workflows with JWT authentication. The codebase was cleaned of legacy debug scripts, organized around a zero-ORM SQLite data layer, and documented for portfolio review. The public repository is the canonical version.
 
 The project evolved from a research prototype to a structured API with proper authentication, data validation, and deployment configuration.
 
@@ -42,7 +42,7 @@ The project evolved from a research prototype to a structured API with proper au
 
 ### Architecture
 
-The system uses a FastAPI backend with Pydantic v2 data contracts, JWT authentication for API access, and PostgreSQL for persistent data storage. A multi-stage Docker build ensures lean production deployment.
+The system uses a FastAPI backend with Pydantic v2 data contracts, JWT authentication for API access, and SQLite via a zero-ORM data layer for persistence. A multi-stage Docker build keeps the runtime image lean.
 
 ```text
 ┌────────────────────────────────────────────────────────────┐
@@ -132,7 +132,7 @@ The `requirements.prod.txt` contains only the lean production dependencies, sepa
 - **Docker multi-stage build** validated for production deployment
 - **Lean production dependencies** via `requirements.prod.txt` (vs. full ML stack)
 - **API docs auto-generated** with Swagger/OpenAPI 3.0 specification
-- **50+ tests passing** in CI/CD pipeline
+- **50+ unit tests defined** covering auth and analysis paths; the latest GitHub Actions run on this repo is failing — treat CI as not currently green
 
 ## License
 
@@ -165,7 +165,6 @@ MIT. See repository for full license text.
    { label: "API Gateway", sub: "FastAPI" }],
   [{ label: "Auth", sub: "JWT + Refresh" },
    { label: "Business Logic", sub: "Risk Analysis" }],
-  [{ label: "Data", sub: "PostgreSQL" },
-   { label: "Cache", sub: "Redis (opcional)" }],
+  [{ label: "Data", sub: "SQLite (zero-ORM)" },
+   { label: "Cache", sub: "Optional layer" }],
 ]} />
-} />

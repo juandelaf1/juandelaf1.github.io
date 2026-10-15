@@ -1,16 +1,16 @@
 ---
 title: "SkyCast"
-description: "Enterprise climate intelligence platform integrating 5 data sources with real-time monitoring."
+description: "Climate intelligence platform integrating AEMET OpenData and auxiliary sources with scheduled ingestion, FastAPI, and Streamlit monitoring."
 featured: true
-order: 1
+order: 0
 category: "Climate"
 date: 2026-04-15
 status: "production"
 metrics:
-  - value: "5"
-    label: "live streams integrated"
-  - value: "Sub-second"
-    label: "alert latency"
+  - value: "180"
+    label: "automated tests in CI"
+  - value: "Circuit breaker"
+    label: "pattern on external APIs"
 tech:
   - name: "FastAPI"
   - name: "PostgreSQL"
@@ -69,7 +69,7 @@ Crowdsourced   → Validation                       → Alert Engine → Web/Mob
 2. **Validation**: Crowdsourced reports pass through a Pydantic validation layer. Malformed data is rejected with structured error messages.
 3. **Storage**: PostgreSQL stores historical data with time-series partitioning. Recent data is cached in-memory for fast dashboard queries.
 4. **API**: FastAPI endpoints serve filtered data by municipality, date range, and metric type. JWT authentication for protected endpoints.
-5. **Dashboard**: Streamlit frontend provides real-time monitoring, historical trends, and alert configuration.
+5. **Dashboard**: Streamlit frontend provides monitoring views, historical trends, and alert configuration.
 
 ### Tech Stack
 
@@ -90,7 +90,7 @@ Testing was prioritized from day one. The 180 tests cover ingestion, validation,
 
 ### Trade-offs
 
-The ingestion layer runs on a cron-based scheduler (APScheduler) rather than a streaming platform. This means data is at most 15 minutes stale — acceptable for climate monitoring but insufficient for real-time alerting where sub-minute latency matters. A streaming approach (Kafka, Kinesis) would reduce latency but add operational complexity that the project's resource constraints did not justify.
+The ingestion layer runs on a cron-based scheduler (APScheduler, default interval 120 minutes) rather than a streaming platform. This means data is intentionally periodic — acceptable for climate monitoring but not sub-minute alerting. A streaming approach (Kafka, Kinesis) would reduce staleness but add operational complexity that the project's resource constraints did not justify.
 
 Using PostgreSQL with manual time-series partitioning instead of a dedicated time-series database (TimescaleDB, InfluxDB) was a pragmatic choice. It simplified the stack but required maintaining partitioning logic that a specialized database handles automatically. For the current data volume (~100K records/day), the trade-off is acceptable. At 10x volume, a migration would be warranted.
 
@@ -103,10 +103,10 @@ Data quality checks run at every stage: source validation rejects malformed inpu
 ## Results
 
 - **180 automated tests** running in CI/CD pipeline with GitHub Actions — every push runs the full suite
-- **5 data sources** integrated (AEMET OpenData, crowdsourced reports, satellite imagery, pollution sensors, UV index)
+- **Official AEMET OpenData** integrated as the primary authoritative source, with validators for auxiliary inputs
 - **Alerts** configured for extreme weather conditions with configurable thresholds per municipality
 - **Docker containerization** enables one-command deployment to any cloud provider
-- **Automated CI/CD** reduces deployment time from manual process to under 2 minutes
+- **Automated CI/CD** builds, lints, tests, and containerizes on every push
 
 ## Lessons Learned
 

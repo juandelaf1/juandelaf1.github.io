@@ -1,16 +1,16 @@
 ---
 title: "OptimusPrice"
-description: "ML-driven hotel revenue management achieving +30% net revenue improvement."
-featured: true
-order: 2
+description: "ML-driven hotel revenue management with interpretable pricing recommendations and automated retraining triggers."
+featured: false
+order: 6
 category: "AI/ML"
 date: 2025-11-15
-status: "production"
+status: "development"
 metrics:
-  - value: "+30%"
-    label: "net revenue improvement"
-  - value: "R² = 0.92"
-    label: "price prediction accuracy"
+  - value: "40+"
+    label: "engineered demand features"
+  - value: "Optuna"
+    label: "hyperparameter search"
 tech:
   - name: "Python"
   - name: "scikit-learn"
@@ -20,7 +20,6 @@ tech:
   - name: "Docker"
 links:
   github: "https://github.com/juandelaf1/OptimusPrice"
-  demo: "https://github.com/juandelaf1/optimus-price-prod"
 ---
 
 import Architecture from '../../components/projects/Architecture.astro';
@@ -99,10 +98,12 @@ Input validation rejects out-of-range features before they reach the model. If o
 
 ## Results
 
-- **R² = 0.92** on price prediction, with MAPE of 14.5%. Based on historical test data with 200 Optuna hyperparameter trials.
-- **Backtesting simulation** projected a net revenue improvement of approximately 30% over the OTA-baseline scenario (30% commission). This is a modeled estimate, not a measured A/B result — actual performance depends on market conditions and adoption.
-- **Inference latency** under 500ms including feature computation, meeting the real-time requirement for front-desk use.
-- **Direct booking capability**: the model enables competitive direct pricing against OTA rates while retaining full margin — the primary business value.
+- **Interpretable Random Forest** with stable feature-importance scores for stakeholder trust (chosen over higher-accuracy boosters on purpose).
+- **Optuna hyperparameter search** reduced manual tuning; the pipeline retrains when MAPE on recent predictions exceeds 20%.
+- **Backtesting simulation** projected a net revenue improvement versus an OTA-commission baseline. This is a **modeled estimate, not a measured A/B result** — actual performance depends on market conditions and adoption.
+- **Hold-out evaluation** is reported in the repository README with explicit train/test splits; historical notebook scores should be read in that context (leakage and synthetic-data experiments are documented in the project history).
+
+> Note: earlier portfolio drafts listed “R² = 0.92” and “+30% net revenue” as headline metrics. The repository’s current ElasticNet baseline reports a much lower R², and the +30% figure comes from a hard-coded backtest multiplier labeled “potential.” Those numbers have been removed from the headline cards.
 
 ## Lessons Learned
 

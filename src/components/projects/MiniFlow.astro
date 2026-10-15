@@ -26,12 +26,12 @@ const totalH = padY * 2 + nodeH;
     const x = padX + i * (nodeW + gap + arrowW);
     return (
       <g>
-        <rect x={x} y={padY} width={nodeW} height={nodeH} rx="4" fill="#1A1A1A" stroke="#2A2A2A" stroke-width="1" />
-        <text x={x + nodeW / 2} y={padY + nodeH / 2} fill="#9CA3AF" font-family="JetBrains Mono, monospace" font-size="8" font-weight="500" text-anchor="middle" dominant-baseline="central">{node}</text>
+        <rect x={x} y={padY} width={nodeW} height={nodeH} rx="4" fill="#162844" stroke="#243b55" stroke-width="1" />
+        <text x={x + nodeW / 2} y={padY + nodeH / 2} fill="#9fb3c8" font-family="JetBrains Mono, monospace" font-size="8" font-weight="500" text-anchor="middle" dominant-baseline="central">{node}</text>
         {i < nodes.length - 1 && (
           <g transform={`translate(${x + nodeW}, ${padY + nodeH / 2})`}>
-            <line x1="0" y1="0" x2={gap + arrowW} y2="0" stroke="#2A2A2A" stroke-width="1" />
-            <polygon points={`${gap + arrowW - 4},-3 ${gap + arrowW},0 ${gap + arrowW - 4},3`} fill="#2A2A2A" />
+            <line x1="0" y1="0" x2={gap + arrowW} y2="0" stroke="#3d5a80" stroke-width="1" />
+            <polygon points={`${gap + arrowW - 4},-3 ${gap + arrowW},0 ${gap + arrowW - 4},3`} fill="#3d5a80" />
           </g>
         )}
       </g>

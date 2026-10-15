@@ -1,16 +1,16 @@
 ---
 title: "DashLogistics"
-description: "Multi-market logistics intelligence platform with ML cost prediction achieving R² = 0.987."
+description: "Multi-market logistics intelligence with multi-source ETL, operational KPIs, and cost-per-mile modeling on held-out data."
 featured: true
-order: 3
+order: 1
 category: "Logistics"
 date: 2025-09-01
 status: "production"
 metrics:
-  - value: "R² = 0.987"
-    label: "cost prediction accuracy"
   - value: "15+"
-    label: "KPIs tracked"
+    label: "operational KPIs"
+  - value: "5"
+    label: "data sources integrated"
   - value: "50"
     label: "US states covered"
 tech:
@@ -102,7 +102,7 @@ Model predictions include a confidence score based on feature completeness. When
 
 ## Results
 
-- **R² = 0.987** on cost per mile prediction against held-out test data. The model was trained on 80% of historical route data and evaluated on the remaining 20%.
+- **Test-set R² = 0.987** on cost-per-mile prediction against held-out data (80/20 split). The model fits distance and time features that largely define cost — strong fit, but close to a definitional relationship; treat as a modeling baseline, not a broad generalization claim.
 - **15+ operational KPIs** tracked across 50 states with automated weekly reporting
 - **End-to-end ETL pipeline** ingests from 5+ data sources (AAA fuel, OpenWeatherMap, US Census, operational databases) into a production Streamlit dashboard
 - **Multi-regional architecture**: designed for US states but generalizes to any geographic region with available data sources

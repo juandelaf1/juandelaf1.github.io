@@ -39,63 +39,59 @@ const websiteSchema = {
   <Container>
     <Hero />
 
-    <section class="approach">
-      <h2 class="approach-heading">How I approach data problems</h2>
+    <SelectedWork projects={featured} />
+
+    <section class="evidence" aria-labelledby="evidence-heading">
+      <h2 id="evidence-heading" class="evidence-heading">Engineering evidence</h2>
+      <div class="evidence-grid">
+        <div class="evidence-item">
+          <span class="evidence-value">180</span>
+          <span class="evidence-label">SkyCast tests green in GitHub Actions (verified run 9ec4a81)</span>
+        </div>
+        <div class="evidence-item">
+          <span class="evidence-value">CI</span>
+          <span class="evidence-label">workflows on SkyCast and GeoRisk_Finder — lint, tests, containers</span>
+        </div>
+        <div class="evidence-item">
+          <span class="evidence-value">PyPI</span>
+          <span class="evidence-label">RASPAL published as <code>raspal</code> (0.6.1, trusted publishing)</span>
+        </div>
+        <div class="evidence-item">
+          <span class="evidence-value">Docker</span>
+          <span class="evidence-label">reproducible environments for API, dashboard, and pipeline workloads</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="approach" aria-labelledby="approach-heading">
+      <h2 id="approach-heading" class="approach-heading">How I work</h2>
       <div class="steps">
         <div class="step">
           <span class="step-num">01</span>
           <h3 class="step-title">Understand</h3>
-          <p class="step-desc">Map the business context, identify the decision that needs better information, and define what success looks like.</p>
+          <p class="step-desc">Map the business context and the decision that needs better information.</p>
         </div>
         <div class="step">
           <span class="step-num">02</span>
           <h3 class="step-title">Model</h3>
-          <p class="step-desc">Design the data architecture. Source ingestion, transformation logic, storage, and access patterns before writing production code.</p>
+          <p class="step-desc">Design ingestion, transformation, storage, and access patterns before production code.</p>
         </div>
         <div class="step">
           <span class="step-num">03</span>
           <h3 class="step-title">Build</h3>
-          <p class="step-desc">Implement pipelines, APIs, and interfaces. Prioritize reliability — tests at every layer, validation at every boundary.</p>
+          <p class="step-desc">Ship pipelines, APIs, and interfaces with tests at every layer and validation at every boundary.</p>
         </div>
         <div class="step">
           <span class="step-num">04</span>
           <h3 class="step-title">Measure</h3>
-          <p class="step-desc">Validate output against the original business problem. A pipeline that runs is not the same as a pipeline that delivers value.</p>
+          <p class="step-desc">Validate output against the original business problem — not just that it runs.</p>
         </div>
       </div>
-    </section>
-
-    <section class="background">
-      <h2 class="background-heading">Background</h2>
-      <p class="background-copy">
-        I ran a business before I built data systems. Managing inventory, costs, logistics, and margins taught me that data is only valuable when it helps someone make a better decision. That principle guides every system I design.
+      <p class="background-note">
+        I ran a business before I built data systems. Managing inventory, costs, logistics, and margins taught me that data is only valuable when it helps someone make a better decision.
+        <a href="/about"> More about my background &rarr;</a>
       </p>
-      <a href="/about" class="read-more">Read more &rarr;</a>
     </section>
-
-    <section class="outcomes">
-      <h2 class="outcomes-heading">Selected engineering outcomes</h2>
-      <div class="outcomes-list">
-        <div class="outcome">
-          <span class="outcome-marker"></span>
-          <span>Designed provider-agnostic abstractions with zero-switch cost between LLM backends.</span>
-        </div>
-        <div class="outcome">
-          <span class="outcome-marker"></span>
-          <span>Built production-style data pipelines with automated validation and monitoring.</span>
-        </div>
-        <div class="outcome">
-          <span class="outcome-marker"></span>
-          <span>Applied testing and reliability practices to data workflows.</span>
-        </div>
-        <div class="outcome">
-          <span class="outcome-marker"></span>
-          <span>Created reproducible environments with Docker and CI/CD.</span>
-        </div>
-      </div>
-    </section>
-
-    <SelectedWork projects={featured} />
 
     <section class="cta">
       <h2 class="cta-heading">Interested in building reliable data systems close to business decisions?</h2>
@@ -112,111 +108,86 @@ const websiteSchema = {
 </BaseLayout>
 
 <style>
-  .approach {
-    padding: 64px 0;
+  .evidence {
+    padding: 48px 0;
     border-top: 1px solid var(--border);
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 48px;
+    margin-bottom: 16px;
   }
-
-  .approach-heading {
+  .evidence-heading {
     font-size: 1.125rem;
     font-weight: 600;
-    margin-bottom: 32px;
+    margin-bottom: 28px;
   }
-
-  .steps {
+  .evidence-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 24px;
   }
+  .evidence-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .evidence-value {
+    font-family: var(--font-mono);
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--accent);
+  }
+  .evidence-label {
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
 
+  .approach {
+    padding: 48px 0 64px;
+    border-top: 1px solid var(--border);
+  }
+  .approach-heading {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 28px;
+  }
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+    margin-bottom: 32px;
+  }
   .step-num {
     font-family: var(--font-mono);
     font-size: 0.75rem;
     color: var(--accent);
   }
-
   .step-title {
-    font-size: 1rem;
+    font-size: 0.9375rem;
     font-weight: 600;
-    margin: 8px 0;
+    margin: 6px 0;
   }
-
   .step-desc {
-    font-size: 0.875rem;
+    font-size: 0.8125rem;
     color: var(--text-secondary);
-    line-height: 1.6;
+    line-height: 1.55;
   }
-
-  .background {
-    padding-bottom: 48px;
-    margin-bottom: 48px;
-  }
-
-  .background-heading {
-    font-size: 1rem;
-    font-weight: 600;
-    color: var(--accent);
-    margin-bottom: 12px;
-  }
-
-  .background-copy {
-    color: var(--text-secondary);
-    line-height: 1.7;
-    max-width: 520px;
-  }
-
-  .read-more {
-    display: inline-block;
-    margin-top: 12px;
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: var(--accent);
-    text-decoration: none;
-  }
-
-  .read-more:hover {
-    text-decoration: underline;
-  }
-
-  .outcomes {
-    padding: 48px 0;
-    margin-bottom: 48px;
-  }
-  .outcomes-heading {
-    font-size: 1rem;
-    font-weight: 600;
-    color: var(--accent);
-    margin-bottom: 20px;
-  }
-  .outcomes-list {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-  .outcome {
-    display: flex;
-    align-items: center;
-    gap: 12px;
+  .background-note {
     font-size: 0.9375rem;
     color: var(--text-secondary);
-    line-height: 1.5;
+    line-height: 1.65;
+    max-width: 640px;
   }
-  .outcome-marker {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--accent);
-    flex-shrink: 0;
+  .background-note a {
+    color: var(--accent);
+    font-weight: 500;
   }
+
   .cta {
     padding: 64px 0;
     border-top: 1px solid var(--border);
     text-align: center;
   }
   .cta-heading {
-    font-size: 1.5rem;
+    font-size: 1.375rem;
     font-weight: 700;
     margin-bottom: 12px;
     max-width: 560px;
@@ -225,8 +196,8 @@ const websiteSchema = {
   }
   .cta-text {
     color: var(--text-secondary);
-    margin-bottom: 32px;
-    font-size: 1rem;
+    margin-bottom: 28px;
+    font-size: 0.9375rem;
   }
   .cta-actions {
     display: flex;
@@ -239,7 +210,7 @@ const websiteSchema = {
     align-items: center;
     padding: 12px 28px;
     border-radius: 8px;
-    background: var(--accent);
+    background: var(--accent-solid);
     color: white;
     text-decoration: none;
     font-size: 0.9375rem;
@@ -247,7 +218,7 @@ const websiteSchema = {
     transition: background var(--transition);
   }
   .cta-primary:hover {
-    background: var(--accent-hover);
+    background: var(--accent-solid-hover);
     color: white;
   }
   .cta-secondary {
@@ -266,13 +237,15 @@ const websiteSchema = {
     border-color: var(--text-secondary);
     color: var(--text-primary);
   }
-  @media (max-width: 768px) {
+
+  @media (max-width: 900px) {
+    .evidence-grid,
     .steps {
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: repeat(2, 1fr);
     }
   }
-
   @media (max-width: 480px) {
+    .evidence-grid,
     .steps {
       grid-template-columns: 1fr;
     }

@@ -1,24 +1,23 @@
 ﻿---
 title: "GeoRisk Finder"
-description: "Plataforma de inteligencia geoespacial para evaluaciÃ³n de riesgos compuestos y decisiones de inversiÃ³n en resiliencia climÃ¡tica."
-featured: true
-order: 2
+description: "Geospatial intelligence platform for compound climate-risk assessment using H3 grids, multi-hazard data, and unsupervised clustering."
+featured: false
+order: 5
 category: "Climate"
 date: 2026-04-15
-status: "production"
+status: "development"
 metrics:
-  - value: "180"
-    label: "automated tests passing"
-  - value: "130+ million"
-    label: "historical events processed"
-  - value: "Docker"
-    label: "containerization enabled"
+  - value: "1.1M+"
+    label: "historical events ingested"
+  - value: "4"
+    label: "macro risk profiles"
+  - value: "H3"
+    label: "global hexagonal grid"
 tech:
   - name: "Python"
   - name: "Scikit-Learn"
   - name: "Streamlit"
   - name: "Uber H3"
-  - name: "PostgreSQL"
 links:
   github: "https://github.com/juandelaf1/GeoRisk_Finder"
 ---
@@ -29,12 +28,12 @@ import ArchitectureFlow from '../../components/projects/ArchitectureFlow.astro';
 
 Global natural disasters generate losses exceeding $300 billion annually. Traditional models evaluate risks (earthquakes, hurricanes, eruptions) in isolation, ignoring **compound risk zones** where multiple threats coincide in time and space. This creates significant underpricing exposure for insurers, governments, and investors.
 
-GeoRisk Finder addresses this gap by combining unsupervised learning with a global hexagonal spatial grid (Uber H3) to process 130+ million historical events and categorize any planet cell into risk profiles with ROI analysis for Early Warning Systems.
+GeoRisk Finder addresses this gap by combining unsupervised learning with a global hexagonal spatial grid (Uber H3) to process historical hazard catalogs and categorize any planet cell into risk profiles with ROI analysis for Early Warning Systems.
 
 ## Challenges
 
-- **Multi-hazard integration**: Combining USGS seismic data, NOAA cyclone records, and IGN historical catalogs into a unified grid
-- **Spatial discretization**: Homogeneous global discretization via H3 Res 3 (~12,500 cells, ~12,300 kmÂ² each)
+- **Multi-hazard integration**: Combining USGS seismic data, NOAA/IBTrACS cyclone records, and IGN historical catalogs into a unified grid
+- **Spatial discretization**: Homogeneous global discretization via H3 Res 3 (~12,500 cells, ~12,300 km² each)
 - **Dimensionality reduction**: Preserving 85% variance with PCA before clustering
 - **Risk classification**: K-Means (4 macro risk profiles) + DBSCAN (extreme outlier detection)
 - **Financial translation**: Translating physical risk scores to dollar-scale ROI for investment decisions
@@ -43,18 +42,13 @@ GeoRisk Finder addresses this gap by combining unsupervised learning with a glob
 
 ### Architecture
 
-The system processes data through a multi-stage pipeline: external sources â†’ ingestion & cleaning â†’ grid features â†’ ML clustering â†’ product (multi-page Streamlit dashboard).
-
-```text
-[FUENTES EXTERNAS] â”€â”€â”€â”€â–¶ [INGESTA & LIMPIEZA] â”€â”€â”€â”€â–¶ [GRID H3 & FEATURES] â”€â”€â”€â”€â–¶ [ML & CLUSTERING] â”€â”€â”€â”€â–¶ [DASHBOARD MULTI-PÃGINA]
-  â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€          â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€          â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€          â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-```
+The system processes data through a multi-stage pipeline: external sources → ingestion & cleaning → grid features → ML clustering → product (multi-page Streamlit dashboard).
 
 ### Key Components
 
 - **Grid Engine**: Uber H3 Res 3 hexagonal grid covering the entire planet
-- **Multi-Hazard Ingestion**: USGS (sismos Mâ‰¥4.5, 1900-2026), IBTrACS/NOAA (ciclones), IGN (catÃ¡logo histÃ³rico)
-- **Feature Engineering**: PCA (85% variance retained) + Grid feature extraction
+- **Multi-Hazard Ingestion**: USGS (seismic events M≥4.5, 1900–2026), IBTrACS/NOAA (cyclones), IGN (national historical catalog)
+- **Feature Engineering**: PCA (85% variance retained) + grid feature extraction
 - **Clustering**: K-Means (4 risk profiles) + DBSCAN (extreme cell detection)
 - **Financial Module**: ROI calculation for Early Warning System deployment vs. reconstruction cost
 - **Streamlit Dashboard**: Interactive scenario simulation (Conservative, Base, Optimistic) with Benefit-Cost Ratio
@@ -63,7 +57,7 @@ The system processes data through a multi-stage pipeline: external sources â†
 
 | Source | Type | Coverage |
 |--------|------|----------|
-| USGS API | Seismic events Mâ‰¥4.5 | 1900-2026, global |
+| USGS API | Seismic events M≥4.5 | 1900–2026, global |
 | IBTrACS/NOAA | Cyclone records | Global hurricane/track data |
 | IGN Historical | National catalog | Country-specific historical data |
 
@@ -84,52 +78,51 @@ PCA reduction from the original feature set to the 85% variance subspace was cri
 
 The financial translation layer was the most complex to validate. We benchmarked against reconstruction cost data from insurance industry sources and adjusted the ROI calculation to account for regional variations in labor and material costs.
 
-## Testing
+### Trade-offs
 
-- 180+ automated tests covering ingestion, grid assignment, feature engineering, clustering, and dashboard rendering
-- CI pipeline runs tests on every push via GitHub Actions
-- Docker Compose provides a production-like test environment with mocked data sources
-- End-to-end tests verify the complete pipeline from API ingestion to dashboard output
+The pipeline uses batch CSV ingestion rather than streaming APIs for every source. This keeps the research workflow reproducible and offline-friendly, at the cost of freshness for live event feeds.
+
+Clustering was preferred over supervised risk labels because no globally consistent multi-hazard ground truth exists. The trade-off is that profiles are descriptive rather than predictive.
+
+## Reliability
+
+Test coverage exists for ingestion, grid assignment, feature engineering, and clustering stages. CI runs the suite on every push. End-to-end checks verify the complete pipeline from source files to dashboard output with mocked data sources.
 
 ## Results
 
-- **130+ million** historical events processed and categorized
-- **4 risk profiles** macro (with DBSCAN detection of extreme outliers)
+- **~1.1 million** historical hazard events ingested and categorized across USGS, IBTrACS, and IGN catalogs
+- **4 macro risk profiles** (with DBSCAN detection of extreme outliers)
 - **3 scenario simulations** (Conservative, Base, Optimistic) with Benefit-Cost Ratio calculation
-- **Global coverage** via Uber H3 grid â€” any point on the planet can be categorized
-- **Docker containerization** enables one-command deployment to any cloud provider
-- **Automated CI/CD** reduces deployment time from manual process to under 2 minutes
+- **Global coverage** via Uber H3 grid — any point on the planet can be categorized
+- **Docker** support for reproducible local runs
+
+> Note: earlier portfolio drafts listed “130+ million events” and “180 tests.” Those figures were incorrect (file sizes in MB were misread as row counts; test count was overstated). The numbers above reflect the actual catalogs and suite.
 
 ## Lessons Learned
 
-1. **Hexagonal grid eliminates boundary artifacts** that square grids introduce at zone edges. The choice of H3 resolution 3 provided the optimal balance between granularity and computational cost.
-
-2. **PCA before clustering is essential** for the feature count at 130M events. Without dimensionality reduction, K-Means training exceeded acceptable time limits.
-
-3. **Financial model validation requires industry data** that is not readily available. We benchmarked against limited insurance loss datasets and had to make conservative assumptions for missing dimensions.
-
-4. **Streamlit dashboard usability depends on progressive disclosure**. Hiding advanced parameters behind expandable sections keeps the interface accessible to non-technical users while power users can access all controls.
-
-5. **Multi-hazard integration requires careful normalization**. Each data source has different units, time ranges, and quality indicators. A unified normalization pipeline is critical before clustering.
+1. **Hexagonal grid eliminates boundary artifacts** that square grids introduce at zone edges. H3 resolution 3 balanced granularity and computational cost.
+2. **PCA before clustering is essential** at this feature count. Without dimensionality reduction, K-Means training exceeded acceptable time limits.
+3. **Financial model validation requires industry data** that is not readily available. Conservative assumptions were used for missing dimensions.
+4. **Streamlit dashboard usability depends on progressive disclosure**. Hiding advanced parameters behind expandable sections keeps the interface accessible.
+5. **Multi-hazard integration requires careful normalization**. Each source has different units, time ranges, and quality indicators.
 
 ## Future Work
 
 - Machine learning models for risk probability prediction using historical patterns
 - Integration with additional global data sources (World Bank, GDACS)
-- Mobile push notifications for critical risk alerts
 - Multi-tenant projects/portfolios for enterprise deployment
-- WebSocket real-time alert push system
+- WebSocket alert push for monitored cells
 
 ## Architecture Diagram
 
 <ArchitectureFlow stages={[
-  [{ label: "USGS", sub: "Sismos Mâ‰¥4.5" },
-   { label: "IBTrACS", sub: "Ciclones" },
-   { label: "IGN", sub: "CatÃ¡logo histÃ³rico" }],
-  [{ label: "Ingesta", sub: "NormalizaciÃ³n CSV" },
-   { label: "Grid H3", sub: "ResoluciÃ³n 3" },
-   { label: "Feature Eng", sub: "PCA 85% varianza" }],
+  [{ label: "USGS", sub: "Seismic M≥4.5" },
+   { label: "IBTrACS", sub: "Cyclones" },
+   { label: "IGN", sub: "Historical catalog" }],
+  [{ label: "Ingest", sub: "CSV normalize" },
+   { label: "Grid H3", sub: "Resolution 3" },
+   { label: "Features", sub: "PCA 85% var" }],
   [{ label: "Clustering", sub: "K-Means + DBSCAN" },
-   { label: "Financial", sub: "ROI Calculator" }],
+   { label: "Financial", sub: "ROI calculator" }],
   [{ label: "Dashboard", sub: "Streamlit SPA" }],
 ]} />

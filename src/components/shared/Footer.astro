@@ -1,5 +1,5 @@
 ---
-import { SITE } from '../../config/site';
+import { SITE, NAVIGATION } from '../../config/site';
 
 const year = new Date().getFullYear();
 ---
@@ -10,11 +10,11 @@ const year = new Date().getFullYear();
       <p class="bio-role">Analytics Engineer</p>
       <p class="bio-tagline">Building reliable data systems close to business decisions.</p>
     </div>
-    <div class="links">
-      <a href="/">Projects</a>
-      <a href="/engineering">Engineering</a>
+    <div class="links" aria-label="Footer">
+      {NAVIGATION.map((item) => (
+        <a href={item.href}>{item.label}</a>
+      ))}
       <a href="/experiments">Experiments</a>
-      <a href="/about">About</a>
       <a href="/resume.pdf" target="_blank" rel="noopener noreferrer">Resume (PDF)</a>
     </div>
     <p class="copyright">&copy; {year} Juan de la Fuente Larrocca</p>
@@ -25,6 +25,7 @@ const year = new Date().getFullYear();
   .footer {
     border-top: 1px solid var(--border);
     padding: 40px 0;
+    margin-top: 32px;
   }
   .inner {
     display: flex;
@@ -55,7 +56,8 @@ const year = new Date().getFullYear();
   }
   .links {
     display: flex;
-    gap: 24px;
+    flex-wrap: wrap;
+    gap: 20px;
   }
   .links a {
     font-family: var(--font-sans);
@@ -83,6 +85,9 @@ const year = new Date().getFullYear();
     }
     .bio-tagline {
       max-width: none;
+    }
+    .links {
+      justify-content: center;
     }
   }
 </style>

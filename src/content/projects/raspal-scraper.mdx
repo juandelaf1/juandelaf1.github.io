@@ -1,19 +1,18 @@
 ---
 title: "RASPAL Scraper"
 description: "Web scraping with local AI extraction. URL in, structured JSON out. No API keys. No data leaving your machine."
-featured: false
+featured: true
+order: 2
 category: "AI/ML"
 date: 2026-06-19
 status: "production"
 metrics:
-  - value: "81"
-    label: "passing unit tests"
+  - value: "82"
+    label: "unit tests defined"
+  - value: "PyPI"
+    label: "package published (0.6.1)"
   - value: "3"
     label: "scraping engines"
-  - value: "10"
-    label: "pipeline templates"
-  - value: "16"
-    label: "CLI commands"
 tech:
   - name: "Python"
   - name: "Playwright"
@@ -100,19 +99,19 @@ SQLite for cache and queue was chosen over Redis or PostgreSQL. The tool targets
 
 ### Reliability
 
-All 81 unit tests pass locally and in CI (verified: pytest run completed with 81 passed in 14.14s). CI runs on Python 3.11 and 3.12 with ruff lint and format checks on every push and pull request. Five GitHub Actions workflows cover CI, PyPI trusted publishing, Docker Hub multi-arch publishing (amd64 + arm64), weekly integration tests, and docs deployment.
+The suite defines 82 unit tests across 13 modules. **As of the latest master push (95ef201, 2026-10-14), GitHub Actions CI is red:** 70 tests pass and 11 fail with `ModuleNotFoundError: No module named 'patchright'`; the Ruff lint job and Docker publish job also fail. Five workflows exist (CI, PyPI publish, Docker, integration tests, docs). PyPI trusted publishing has succeeded historically (`raspal` 0.6.1 is installable), but the current CI status should not be read as a green pipeline.
 
 The exception hierarchy (11 classes under RaspalError) provides granular error handling. CLI errors include actionable suggestions in Spanish. The `raspal doctor` command runs system diagnostics (Python version, Ollama connectivity, Playwright browser state).
 
 ## Results
 
-- **81 unit tests passing** across 13 test modules. Verified locally: `pytest tests/` completed in 14.14s with 0 failures.
+- **82 unit tests defined** across 13 modules. Local runs can pass with optional browser deps installed; the latest CI run does not (see Reliability).
 - **3 scraping engines** behind a unified interface: scrapling (static), playwright (JS-rendered), stealth (anti-bot). Auto-escalation included.
 - **10 YAML pipeline templates** covering ecommerce, competitor pricing, news, jobs, real estate, crypto, academic research, and more.
 - **16 CLI commands** covering setup, diagnostics, compliance, fetch, async batch, pipeline, queue, report, and dashboard.
-- **Published to PyPI** (`pip install raspal`) and Docker Hub with trusted publishing and multi-arch builds (amd64 + arm64).
-- **CI/CD**: 5 GitHub Actions workflows. Tests run on Python 3.11 + 3.12. Ruff lint and format checks enforced. Weekly integration tests with Ollama service.
-- **Honest caveat**: the project has 0 GitHub stars and 0 forks. It is technically complete and well-tested, but has not yet been validated by external users. Adoption is the next milestone, not code quality.
+- **Published to PyPI** as `raspal` (0.6.1 verified on the package index) via trusted publishing.
+- **5 GitHub Actions workflows** are configured; the latest CI and Docker publish runs on master are failing — treat CI as not currently validating the suite.
+- **Honest caveat**: 0 GitHub stars / forks; CI has open failures on `patchright`. Adoption and pipeline repair are the next milestones.
 
 ## Lessons Learned
 

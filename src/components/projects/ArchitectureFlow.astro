@@ -50,13 +50,13 @@ function cy(rowIdx: number): number {
       const h = rowHs[ri];
       return (
         <g>
-          <rect x={x} y={y} width={boxW} height={h} rx="8" fill="#1A1A1A" stroke="#3A3A3A" stroke-width="1.5" />
-          <text x={x + boxW / 2} y={y + h / 2} fill="#EDEDEF" font-family="Inter, sans-serif" font-size="13" font-weight="600" text-anchor="middle" dominant-baseline="central">{stage.label}</text>
-          {stage.sub && <text x={x + boxW / 2} y={y + h - 8} fill="#9CA3AF" font-family="JetBrains Mono, monospace" font-size="10" text-anchor="middle">{stage.sub}</text>}
+          <rect x={x} y={y} width={boxW} height={h} rx="8" fill="#162844" stroke="#3d5a80" stroke-width="1.5" />
+          <text x={x + boxW / 2} y={y + h / 2} fill="#e8eef5" font-family="Inter, sans-serif" font-size="13" font-weight="600" text-anchor="middle" dominant-baseline="central">{stage.label}</text>
+          {stage.sub && <text x={x + boxW / 2} y={y + h - 8} fill="#9fb3c8" font-family="JetBrains Mono, monospace" font-size="10" text-anchor="middle">{stage.sub}</text>}
           {ci < row.length - 1 && (
             <g transform={`translate(${x + boxW}, ${y + h / 2})`}>
-              <line x1="0" y1="0" x2={gap + arrLen} y2="0" stroke="#3A3A3A" stroke-width="1.5" />
-              <polygon points={`${gap + arrLen - 6},-5 ${gap + arrLen + 2},0 ${gap + arrLen - 6},5`} fill="#3A3A3A" />
+              <line x1="0" y1="0" x2={gap + arrLen} y2="0" stroke="#3d5a80" stroke-width="1.5" />
+              <polygon points={`${gap + arrLen - 6},-5 ${gap + arrLen + 2},0 ${gap + arrLen - 6},5`} fill="#3d5a80" />
             </g>
           )}
         </g>

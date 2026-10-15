@@ -2,15 +2,15 @@
 title: "CASE"
 description: "Domain-agnostic AI decision orchestration platform with human oversight, reliability pipeline, and multi-provider support."
 featured: true
-order: 0
+order: 3
 category: "AI/ML"
 date: 2026-09-28
 status: "production"
 metrics:
-  - value: "0%"
-    label: "unvalidated LLM output"
+  - value: "692"
+    label: "tests passed (local run)"
   - value: "15"
-    label: "invariants enforced"
+    label: "frozen architectural invariants"
 tech:
   - name: "Python"
   - name: "Pydantic v2"
@@ -109,7 +109,7 @@ The most significant architectural decision was the reliability pipeline. Raw LL
 
 The domain policy system was designed to be extensible. Adding a new domain (Real Estate was added in V3) requires implementing `DomainPolicy` and `AutomationPolicy`, registering in `composition.py`, and writing tests. Zero changes to core logic.
 
-Provider neutrality was tested by running the same 813 test suite against Mock, Groq, and Ollama providers. The pipeline produces identical governance behavior regardless of which provider generates the proposal.
+Provider neutrality was tested by running the same large test suite against Mock, Groq, and Ollama providers. The pipeline produces identical governance behavior regardless of which provider generates the proposal.
 
 ### Trade-offs
 
@@ -119,7 +119,7 @@ The reliability pipeline uses synchronous validation. An async pipeline could pa
 
 ### Reliability
 
-- **813 automated tests** covering contracts, pipelines, domains, providers, security, and integration
+- **692 tests passed, 7 skipped** in the documented local run (`pytest tests/ -q --ignore=tests/unit/test_streamlit_client.py`). The repository README also shows a full-suite badge of 813 passed; there are **no GitHub Actions runs** for this repo — treat results as local/README-documented, not CI-verified.
 - **Circuit breaker pattern** on all external providers — if a provider fails 5 times, it is temporarily disabled
 - **Rate limiting** on the API layer — per-IP sliding window with configurable limits
 - **Constant-time token comparison** for authentication — no timing attacks via query strings
@@ -127,12 +127,12 @@ The reliability pipeline uses synchronous validation. An async pipeline could pa
 
 ## Results
 
-- **813 tests passing** across unit, integration, and release gate suites
+- **692 tests passed, 7 skipped** in the documented local run (README also reports 813 passed on the full suite). Not verified on GitHub Actions.
 - **5 domains registered**: Urban Operations, Logistics, Infrastructure, Seismic Risk, Real Estate
 - **4 LLM providers**: Mock (deterministic), Groq (cloud), Ollama (local), Cloud (OpenAI-compatible)
 - **15 API endpoints** including seismic data, health checks, rate limiting
 - **12 Streamlit views** with bilingual support (EN/ES)
-- **15 frozen architectural invariants** enforced by automated tests
+- **15 frozen architectural invariants** documented in AGENTS.md and reinforced by boundary/security tests (enforcement is structural, not a separate “0% unvalidated output” KPI)
 - **Zero provider-specific imports** in core logic — true provider neutrality
 
 ## Lessons Learned
