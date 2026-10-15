@@ -205,6 +205,14 @@ const sorted = [...all].sort((a, b) => {
     color: var(--text-secondary);
     padding-top: 8px;
   }
+  .note a {
+    text-decoration-thickness: 1px;
+    text-underline-offset: 2px;
+  }
+  .note a:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
   @media (max-width: 768px) {
     .item {
       grid-template-columns: 1fr;
