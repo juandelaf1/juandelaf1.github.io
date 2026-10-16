@@ -11,19 +11,19 @@ The website should feel closer to Stripe's documentation or Vercel's marketing s
 ### Color System
 
 ```
---bg-primary:    #0A0A0B     (main background — Vercel/Linear dark)
---bg-secondary:  #121212     (section backgrounds)
---bg-tertiary:   #1A1A1A     (cards, code blocks)
---border:        #232323     (subtle borders)
---text-primary:  #EDEDEF     (headings, body)
---text-secondary:#9CA3AF     (captions, metadata)
---accent:        #0077B5     (LinkedIn blue — personal brand)
---accent-hover:  #0099E0     (hover states)
---metric:        #22C55E     (positive metrics, results)
---code-bg:       #111111     (inline code background)
+--bg-primary:    #0D1B2A     (main background — dark navy)
+--bg-secondary:  #111F33     (section backgrounds)
+--bg-tertiary:   #162844     (cards, code blocks)
+--border:        #243B55     (subtle borders)
+--text-primary:  #E8EEF5     (headings, body)
+--text-secondary:#9FB3C8     (captions, metadata)
+--accent:        #5EEAD4     (teal — links, highlights)
+--accent-hover:  #99F6E4     (hover states)
+--metric:        #FBBF24     (amber — metrics, results)
+--code-bg:       #0A1628     (inline code background)
 ```
 
-The accent blue is taken from the LinkedIn brand because that is where professional recognition happens. It ties the personal brand to the professional network without being aggressive.
+Teal is used sparingly for interactive elements. Amber distinguishes metrics and results from navigation. Navy provides the technical, focused atmosphere.
 
 ### Typography
 
@@ -54,11 +54,11 @@ Code:         14px / 0.875rem JetBrains Mono
 
 4px base grid: 4, 8, 12, 16, 20, 24, 32, 40, 48, 64, 80, 96, 128, 160
 
-Max content width: 1200px with 24px padding on each side.
+Max content width: 1120px with 24px padding on each side.
 
 ### Iconography
 
-Minimal. Line-based. Consistent stroke width (1.5px or 2px). No filled icons. Color only when functional (e.g., green for metrics, blue for links).
+Minimal. Line-based. Consistent stroke width (1.5px or 2px). No filled icons. Color only when functional (e.g., amber for metrics, teal for links).
 
 ### Imagery
 
@@ -119,7 +119,7 @@ Write as if documenting a production system for another engineer. Every sentence
 
 ### Navigation
 
-- Minimal. Three links max in header: Projects, Engineering, Building
+- Minimal. Three links in header: Projects, Approach, About
 - No hamburger menu on desktop
 - Every page is one click from home
 - No dropdowns, no mega-menus, no breadcrumbs
