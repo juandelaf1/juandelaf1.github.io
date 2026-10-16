@@ -1,0 +1,442 @@
+---
+import { SITE } from '../../config/site';
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width" />
+  <title>Juan de la Fuente — Resume</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+    :root {
+      --bg: #ffffff;
+      --text: #1a1a2e;
+      --text-secondary: #4a5568;
+      --accent: #0f766e;
+      --accent-light: #14b8a6;
+      --border: #e2e8f0;
+      --code-bg: #f7fafc;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      color: var(--text);
+      line-height: 1.5;
+      font-size: 14px;
+      background: var(--bg);
+    }
+
+    .toolbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: #0D1B2A;
+      padding: 12px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 100;
+      border-bottom: 1px solid #243b55;
+    }
+    .toolbar a {
+      color: #5eead4;
+      text-decoration: none;
+      font-size: 13px;
+    }
+    .toolbar button {
+      background: #5eead4;
+      color: #0D1B2A;
+      border: none;
+      padding: 8px 20px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .toolbar button:hover { background: #99f6e4; }
+
+    .page {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 72px 48px 48px;
+    }
+
+    @media print {
+      .toolbar { display: none; }
+      .page { padding: 0; max-width: none; }
+      body { font-size: 11px; }
+    }
+
+    /* Header */
+    .resume-header {
+      margin-bottom: 24px;
+      padding-bottom: 20px;
+      border-bottom: 2px solid var(--accent);
+    }
+    .resume-name {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 4px;
+    }
+    .resume-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      color: var(--accent);
+      font-weight: 500;
+      margin-bottom: 12px;
+    }
+    .resume-contact {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+    .resume-contact a {
+      color: var(--text-secondary);
+      text-decoration: none;
+    }
+    .resume-contact a:hover { color: var(--accent); }
+
+    /* Sections */
+    .section {
+      margin-bottom: 24px;
+    }
+    .section-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--accent);
+      margin-bottom: 12px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--border);
+    }
+    .section-summary {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    /* Skills */
+    .skills-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px 24px;
+    }
+    .skill-group {
+      font-size: 13px;
+    }
+    .skill-label {
+      font-weight: 600;
+      color: var(--text);
+    }
+    .skill-items {
+      color: var(--text-secondary);
+    }
+
+    /* Experience */
+    .experience-item {
+      margin-bottom: 20px;
+    }
+    .experience-item:last-child { margin-bottom: 0; }
+    .exp-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 4px;
+    }
+    .exp-role {
+      font-size: 15px;
+      font-weight: 700;
+    }
+    .exp-date {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+    .exp-org {
+      font-size: 13px;
+      color: var(--accent);
+      font-weight: 500;
+      margin-bottom: 8px;
+    }
+    .exp-details {
+      list-style: none;
+      padding: 0;
+    }
+    .exp-details li {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.55;
+      padding-left: 16px;
+      position: relative;
+      margin-bottom: 4px;
+    }
+    .exp-details li::before {
+      content: '→';
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+    }
+
+    /* Projects */
+    .project-item {
+      margin-bottom: 16px;
+    }
+    .project-item:last-child { margin-bottom: 0; }
+    .project-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 4px;
+    }
+    .project-name {
+      font-size: 14px;
+      font-weight: 700;
+    }
+    .project-tech {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+    .project-desc {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.55;
+    }
+    .project-metrics {
+      display: flex;
+      gap: 16px;
+      margin-top: 6px;
+    }
+    .project-metric {
+      font-size: 12px;
+    }
+    .metric-value {
+      font-weight: 700;
+      color: var(--accent);
+    }
+    .metric-label {
+      color: var(--text-secondary);
+    }
+
+    /* Education */
+    .edu-item {
+      margin-bottom: 12px;
+    }
+    .edu-item:last-child { margin-bottom: 0; }
+    .edu-degree {
+      font-size: 14px;
+      font-weight: 700;
+    }
+    .edu-school {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    /* Languages */
+    .languages {
+      display: flex;
+      gap: 24px;
+      font-size: 13px;
+    }
+    .lang-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .lang-level {
+      display: flex;
+      gap: 3px;
+    }
+    .lang-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      border: 1.5px solid var(--accent);
+    }
+    .lang-dot.filled {
+      background: var(--accent);
+    }
+  </style>
+</head>
+<body>
+  <div class="toolbar">
+    <a href="/">← Back to portfolio</a>
+    <button onclick="window.print()">Print / Save as PDF</button>
+  </div>
+
+  <div class="page">
+    <header class="resume-header">
+      <h1 class="resume-name">Juan de la Fuente Larrocca</h1>
+      <p class="resume-title">Analytics Engineer · Data Products</p>
+      <div class="resume-contact">
+        <a href="mailto:juandelafuentelarrocca@gmail.com">juandelafuentelarrocca@gmail.com</a>
+        <a href="https://github.com/juandelaf1">github.com/juandelaf1</a>
+        <a href="https://linkedin.com/in/juandelafuentelarrocca">linkedin.com/in/juandelafuentelarrocca</a>
+        <span>Spain</span>
+      </div>
+    </header>
+
+    <section class="section">
+      <h2 class="section-title">Summary</h2>
+      <p class="section-summary">
+        Analytics engineer building production data systems informed by real business context. Before engineering data, ran a business — managing inventory, costs, logistics, and margins. Designs and ships end-to-end: pipelines, APIs, models, and interactive products. Focus on reliability, data contracts, and systems that help people make better decisions.
+      </p>
+    </section>
+
+    <section class="section">
+      <h2 class="section-title">Skills</h2>
+      <div class="skills-grid">
+        <div class="skill-group">
+          <span class="skill-label">Languages:</span>
+          <span class="skill-items"> Python, TypeScript, SQL</span>
+        </div>
+        <div class="skill-group">
+          <span class="skill-label">Data:</span>
+          <span class="skill-items"> PostgreSQL, DuckDB, ChromaDB, SQLite</span>
+        </div>
+        <div class="skill-group">
+          <span class="skill-label">Frameworks:</span>
+          <span class="skill-items"> FastAPI, LangChain, Streamlit, Astro</span>
+        </div>
+        <div class="skill-group">
+          <span class="skill-label">ML/AI:</span>
+          <span class="skill-items"> RAG, LLM-as-judge, scikit-learn</span>
+        </div>
+        <div class="skill-group">
+          <span class="skill-label">DevOps:</span>
+          <span class="skill-items"> Docker, GitHub Actions, CI/CD</span>
+        </div>
+        <div class="skill-group">
+          <span class="skill-label">Observability:</span>
+          <span class="skill-items"> MLflow, pytest, Playwright</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-title">Selected Projects</h2>
+
+      <div class="project-item">
+        <div class="project-header">
+          <span class="project-name">AsesorIA — RAG Tax Assistant</span>
+          <span class="project-tech">Python · LangChain · Groq · ChromaDB · Chainlit</span>
+        </div>
+        <p class="project-desc">
+          Conversational RAG assistant for Spanish self-employed workers. Answers tax questions exclusively from 7 official documents (2,847 pages) with exact citations and honest abstention. Evaluated with 40-question benchmark and LLM-as-judge in MLflow.
+        </p>
+        <div class="project-metrics">
+          <span class="project-metric"><span class="metric-value">584</span> <span class="metric-label">tests passing</span></span>
+          <span class="project-metric"><span class="metric-value">$0.002</span> <span class="metric-label">cost/query</span></span>
+          <span class="project-metric"><span class="metric-value">Production</span> <span class="metric-label">deployed on Railway</span></span>
+        </div>
+      </div>
+
+      <div class="project-item">
+        <div class="project-header">
+          <span class="project-name">SkyCast — Climate Intelligence</span>
+          <span class="project-tech">Python · FastAPI · PostgreSQL · Streamlit · Docker</span>
+        </div>
+        <p class="project-desc">
+          Climate platform integrating AEMET OpenData with scheduled ingestion, REST API, and monitoring dashboard. Circuit breaker on external APIs. Time-series partitioning for query performance.
+        </p>
+        <div class="project-metrics">
+          <span class="project-metric"><span class="metric-value">180</span> <span class="metric-label">automated tests</span></span>
+          <span class="project-metric"><span class="metric-value">15 min</span> <span class="metric-label">ingestion cycle</span></span>
+        </div>
+      </div>
+
+      <div class="project-item">
+        <div class="project-header">
+          <span class="project-name">RASPAL — Marketplace Scraper</span>
+          <span class="project-tech">Python · Patchright · PyPI · Docker</span>
+        </div>
+        <p class="project-desc">
+          Web scraping system for marketplace price intelligence. Published as PyPI package. JSON output validated against schema. CI with tests on Python 3.11 and 3.12.
+        </p>
+        <div class="project-metrics">
+          <span class="project-metric"><span class="metric-value">82</span> <span class="metric-label">tests defined</span></span>
+          <span class="project-metric"><span class="metric-value">PyPI</span> <span class="metric-label">trusted publishing</span></span>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-title">Experience</h2>
+
+      <div class="experience-item">
+        <div class="exp-header">
+          <span class="exp-role">Freelance Analytics Engineer</span>
+          <span class="exp-date">2024 — Present</span>
+        </div>
+        <p class="exp-org">Independent</p>
+        <ul class="exp-details">
+          <li>Built production data systems: pipelines, APIs, dashboards, and ML models</li>
+          <li>Designed data contracts and validation layers for multi-source integrations</li>
+          <li>Shipped end-to-end products with CI/CD, testing, and monitoring</li>
+        </ul>
+      </div>
+
+      <div class="experience-item">
+        <div class="exp-header">
+          <span class="exp-role">Business Owner & Operations Manager</span>
+          <span class="exp-date">2018 — 2024</span>
+        </div>
+        <p class="exp-org">Family Business</p>
+        <ul class="exp-details">
+          <li>Managed inventory, costs, logistics, and margins across operations</li>
+          <li>Made data-informed decisions with incomplete information daily</li>
+          <li>Learned that data is only valuable when it helps someone make a better decision</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-title">Education</h2>
+      <div class="edu-item">
+        <p class="edu-degree">Self-taught in Data Engineering & Analytics</p>
+        <p class="edu-school">Continuous learning through production projects, documentation, and applied practice</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-title">Languages</h2>
+      <div class="languages">
+        <div class="lang-item">
+          <span>Spanish</span>
+          <div class="lang-level">
+            <span class="lang-dot filled"></span>
+            <span class="lang-dot filled"></span>
+            <span class="lang-dot filled"></span>
+            <span class="lang-dot filled"></span>
+            <span class="lang-dot filled"></span>
+          </div>
+          <span style="font-size: 12px; color: var(--text-secondary);">Native</span>
+        </div>
+        <div class="lang-item">
+          <span>English</span>
+          <div class="lang-level">
+            <span class="lang-dot filled"></span>
+            <span class="lang-dot filled"></span>
+            <span class="lang-dot filled"></span>
+            <span class="lang-dot filled"></span>
+            <span class="lang-dot"></span>
+          </div>
+          <span style="font-size: 12px; color: var(--text-secondary);">Professional</span>
+        </div>
+      </div>
+    </section>
+  </div>
+</body>
+</html>
