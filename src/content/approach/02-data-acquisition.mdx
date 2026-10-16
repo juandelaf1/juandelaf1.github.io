@@ -1,0 +1,32 @@
+---
+title: "Data Acquisition"
+description: "Design ingestion with failure in mind. External APIs break, files go missing, and schemas change without notice."
+date: 2025-01-01
+principle: "Treat every external source as unreliable — validate at the boundary, handle retries explicitly, and preserve raw data for reprocessing."
+relatedProjects: ["sky-cast", "raspal-scraper"]
+---
+
+## Principle
+
+Every external data source — APIs, web scrapers, file drops, message queues — will eventually fail, return malformed data, or change its schema without warning. The ingestion layer must be designed to handle this reality from day one.
+
+This means three things: validate every record at the boundary before it enters your system, implement explicit retry and circuit-breaker logic rather than hoping for the best, and preserve raw data so you can reprocess if a transformation bug is discovered later.
+
+## How It Works
+
+1. **Validate at the boundary.** Every record from an external source passes through a schema validator (Pydantic, JSON Schema, or equivalent) before storage. Malformed records are rejected with structured error messages, not silently dropped.
+2. **Handle failure explicitly.** Circuit breakers stop calling an API after repeated failures. Retry logic uses exponential backoff. Dead-letter queues capture records that fail validation for later inspection.
+3. **Preserve raw data.** Store the raw payload alongside the transformed record. If a transformation bug is found, reprocessing does not require re-fetching from the source.
+4. **Monitor freshness.** Track the age of the most recent record per source. Stale data is a failure — alert on it.
+
+## Evidence
+
+- **SkyCast**: Circuit breaker pattern on the AEMET API — 5 consecutive errors stops ingestion and logs an alert. Dashboard continues serving cached data. Raw AEMET payloads stored for reprocessing.
+- **RASPAL**: Patchright browser automation with retry logic. JSON output validated against a schema before writing. Failed extractions logged with the URL and error for manual review.
+
+## When to Apply
+
+- New API integration
+- Web scraping pipeline
+- File-based data drop
+- Message queue consumer

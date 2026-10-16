@@ -6,7 +6,7 @@ const projectSchema = z.object({
   description: z.string().max(150),
   featured: z.boolean().default(false),
   order: z.number().optional(),
-  category: z.enum(['Climate', 'Logistics', 'AI/ML', 'Analytics']),
+  category: z.enum(['Climate', 'Logistics', 'AI/ML', 'Analytics', 'Decision', 'Integration']).optional(),
   date: z.date(),
   status: z.enum(['production', 'development', 'archived']).default('development'),
   metrics: z.array(
@@ -44,6 +44,15 @@ const experimentSchema = z.object({
   status: z.enum(['exploratory', 'completed', 'archived']).default('exploratory'),
 });
 
+const approachSchema = z.object({
+  title: z.string(),
+  description: z.string(),
+  date: z.date(),
+  principle: z.string(),
+  relatedProjects: z.array(z.string()).optional(),
+  relatedExperiments: z.array(z.string()).optional(),
+});
+
 const buildingSchema = z.object({
   title: z.string(),
   description: z.string(),
@@ -76,5 +85,9 @@ export const collections = {
   building: defineCollection({
     loader: glob({ pattern: '**/*.mdx', base: './src/content/building' }),
     schema: buildingSchema,
+  }),
+  approach: defineCollection({
+    loader: glob({ pattern: '**/*.mdx', base: './src/content/approach' }),
+    schema: approachSchema,
   }),
 };

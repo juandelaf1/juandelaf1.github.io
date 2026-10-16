@@ -1,0 +1,33 @@
+---
+title: "Production Reliability"
+description: "Tests at every layer. CI on every push. Monitoring that catches problems before users do. Deployments that are boring."
+date: 2025-01-01
+principle: "Ship with tests at every layer, continuous integration on every push, and monitoring that catches failures before they reach the decision-maker."
+relatedProjects: ["sky-cast", "raspal-scraper", "georisk-finder"]
+---
+
+## Principle
+
+A data system in production is a living system. It will encounter bad input, network failures, schema changes, disk pressure, and the inevitable 3 AM edge case. Reliability is not a feature added at the end — it is a property of how the system is built from the first commit.
+
+This means: unit and integration tests at every layer, continuous integration that runs the full suite on every push, containerized deployments that are reproducible, and monitoring that alerts on freshness and quality — not just uptime.
+
+## How It Works
+
+1. **Test every layer.** Ingestion tests validate external data handling. Transformation tests assert output correctness. API tests verify response contracts. Interface tests check rendering. Each layer catches a different class of bug.
+2. **Run CI on every push.** Lint, type-check, test, and containerize. A green build means the system is deployable. A red build blocks merge.
+3. **Containerize.** Docker provides a consistent environment from development to production. docker-compose orchestrates multi-service systems locally and in CI.
+4. **Monitor freshness and quality.** Track the age of the most recent record per source. Alert on stale data, failed validations, and circuit-breaker trips. Uptime is not the same as correctness.
+
+## Evidence
+
+- **SkyCast**: 180 automated tests covering ingestion, validation, API, and dashboard. GitHub Actions runs the full suite on every push. Docker Compose provides a production-like test environment. Circuit breaker on AEMET API with alert logging.
+- **RASPAL**: 82 tests defined, 81 passing in CI (Python 3.11 and 3.12). Docker workflow produces a container image on every push. Patchright browser automation with retry logic.
+- **GeoRisk_Finder**: GitHub Actions CI with lint and test jobs. Docker container for reproducible deployment.
+
+## When to Apply
+
+- First commit of any new service or pipeline
+- Before declaring a system "production-ready"
+- When adding a new consumer or integration point
+- When reliability incidents reveal gaps in testing or monitoring

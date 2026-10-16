@@ -1,0 +1,33 @@
+---
+title: "Problem Framing"
+description: "Start with the business decision, not the data. Every pipeline, model, and interface exists to improve a specific outcome."
+date: 2025-01-01
+principle: "Map the business context and the decision that needs better information before designing the system."
+relatedProjects: ["sky-cast", "dash-logistics", "case"]
+---
+
+## Principle
+
+Data is only valuable when it helps someone make a better decision. Before writing a single line of ingestion code, the first question is always: what decision needs to improve, who acts on it, and what information would change that action?
+
+This is not a business analyst step — it is an engineering constraint. The decision determines what latency is acceptable, what accuracy is required, what the output format should be, and how the system integrates into existing workflows.
+
+## How It Works
+
+1. **Identify the decision.** Not "we need a dashboard" — but "the logistics coordinator needs to choose the cheapest carrier on Monday morning, and currently they compare three spreadsheets."
+2. **Identify the actor.** Who sees the output? What do they already know? What tools do they use daily?
+3. **Identify the failure mode.** What happens if the data is wrong, stale, or missing? Is the cost of a bad decision reversible?
+4. **Define the output contract.** What format, frequency, and accuracy does the decision require?
+
+## Evidence
+
+- **SkyCast**: The decision was "emergency managers need real-time weather to issue alerts" — not "we want a weather dashboard." This shaped the 15-minute ingestion cycle and the alert thresholds.
+- **RASPAL**: The decision was "buyers need current marketplace prices before setting a price" — not "we want scraped data." This shaped the JSON output format and the freshness guarantees.
+- **DASH Logistics**: The decision was "operations managers need to compare carrier costs before Monday dispatch" — not "we want a logistics dashboard." This shaped the weekly refresh and the cost-per-shipment metric.
+
+## When to Apply
+
+- New data source or pipeline — always start here
+- Dashboard or reporting request — ask what decision it serves
+- Model training — define what the prediction changes in the workflow
+- API design — define what the consumer does with the response

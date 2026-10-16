@@ -1,0 +1,35 @@
+---
+title: "Architecture and Storage"
+description: "Choose storage and architecture based on access patterns, not fashion. Separate concerns. Make the system understandable in six months."
+date: 2025-01-01
+principle: "Design storage and architecture around query patterns and operational constraints — not around what is popular on Hacker News."
+relatedProjects: ["sky-cast", "georisk-finder", "net-tension"]
+---
+
+## Principle
+
+Storage and architecture decisions should be driven by how the data is actually accessed, the operational constraints of the team, and the expected data volume — not by what is trending in the data engineering community.
+
+A time-series database is the right choice when you query by time range at high frequency. PostgreSQL with partitioning is the right choice when your volume is moderate and your team already knows SQL. The wrong choice is the one you cannot operate.
+
+Separation of concerns — ingestion, transformation, storage, API, and interface as distinct layers — makes the system debuggable. When something breaks, you know which layer to look at.
+
+## How It Works
+
+1. **Map access patterns.** How is the data queried? By time range? By entity? By geographic region? Full-text search? The access pattern determines the storage engine.
+2. **Estimate volume.** Records per day, growth rate, retention requirements. This determines whether partitioning, archiving, or a specialized database is needed.
+3. **Separate layers.** Ingestion, transformation, storage, API, and interface communicate through well-defined interfaces. Each can be modified, tested, and deployed independently.
+4. **Design for the team.** A system the team can operate is more valuable than a theoretically optimal system nobody understands. PostgreSQL with manual partitioning beats TimescaleDB if the team only knows PostgreSQL.
+
+## Evidence
+
+- **SkyCast**: PostgreSQL with manual time-series partitioning instead of TimescaleDB — the team knows PostgreSQL, volume is ~100K records/day, and the trade-off is acceptable. At 10x volume, migration would be warranted.
+- **GeoRisk_Finder**: Geospatial data stored in PostgreSQL with PostGIS. Access pattern is bounding-box queries by region — PostGIS indexes handle this natively.
+- **Net Tension**: SQLite for local-first data. The decision was "field engineers need offline access" — not "we want a cloud database." SQLite is the right choice when the consumer is a single device.
+
+## When to Apply
+
+- New data pipeline or service
+- Storage migration or scaling decision
+- Adding a new query pattern to an existing system
+- Evaluating a new database or infrastructure technology

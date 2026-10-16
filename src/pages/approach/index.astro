@@ -1,0 +1,116 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Container from '../../components/ui/Container.astro';
+import { SITE } from '../../config/site';
+import { getCollection } from 'astro:content';
+
+const principles = await getCollection('approach');
+const sorted = [...principles].sort((a, b) => a.data.date.getTime() - b.data.date.getTime());
+---
+
+<BaseLayout
+  title={`Approach — ${SITE.author}`}
+  description="Five principles for building production data systems: problem framing, data acquisition, contracts, architecture, and reliability."
+  path="/approach"
+  currentPath="/approach"
+>
+  <Container>
+    <section class="approach-index">
+      <header class="page-header">
+        <h1>Approach</h1>
+        <p class="lede">
+          Five principles that shape every data system I build. Each one is grounded in a real project — not theory.
+        </p>
+      </header>
+
+      <div class="principles">
+        {sorted.map((entry, i) => (
+          <article class="principle">
+            <div class="principle-num">{String(i + 1).padStart(2, '0')}</div>
+            <div class="principle-body">
+              <h2 class="principle-title">
+                <a href={`/approach/${entry.id}`}>{entry.data.title}</a>
+              </h2>
+              <p class="principle-desc">{entry.data.description}</p>
+              <p class="principle-statement">{entry.data.principle}</p>
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+  </Container>
+</BaseLayout>
+
+<style>
+  .approach-index {
+    padding: 48px 0 96px;
+  }
+  .page-header {
+    margin-bottom: 48px;
+  }
+  .page-header h1 {
+    font-size: 2rem;
+    font-weight: 800;
+    margin-bottom: 12px;
+  }
+  .lede {
+    color: var(--text-secondary);
+    max-width: 560px;
+  }
+  .principles {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .principle {
+    display: grid;
+    grid-template-columns: 56px 1fr;
+    gap: 24px;
+    padding: 28px 32px;
+    background: var(--bg-primary);
+  }
+  .principle-num {
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    color: var(--accent);
+    padding-top: 4px;
+  }
+  .principle-title {
+    font-size: 1.1875rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .principle-title a {
+    color: var(--text-primary);
+    text-decoration: none;
+  }
+  .principle-title a:hover {
+    color: var(--accent);
+  }
+  .principle-desc {
+    font-size: 0.9375rem;
+    color: var(--text-secondary);
+    line-height: 1.55;
+    margin-bottom: 8px;
+    max-width: 640px;
+  }
+  .principle-statement {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+    max-width: 640px;
+    border-left: 2px solid var(--accent);
+    padding-left: 12px;
+  }
+  @media (max-width: 768px) {
+    .principle {
+      grid-template-columns: 40px 1fr;
+      gap: 16px;
+      padding: 24px;
+    }
+  }
+</style>

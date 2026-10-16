@@ -1,0 +1,32 @@
+---
+title: "Data Contracts and Quality"
+description: "Define the schema before building the pipeline. Validate at every boundary. Catch changes before they break downstream consumers."
+date: 2025-01-01
+principle: "Define the output contract before building the pipeline, and validate at every internal boundary — not just the external edge."
+relatedProjects: ["sky-cast", "georisk-finder"]
+---
+
+## Principle
+
+A data contract is an explicit agreement about what a data producer will deliver: schema, types, constraints, freshness guarantees, and change notification process. Without one, every upstream change becomes a silent downstream breakage.
+
+Contracts apply at every boundary — external APIs, internal service-to-service calls, and the API or dashboard that serves the end user. The goal is to catch schema drift and quality degradation at the point of failure, not in a production dashboard three layers downstream.
+
+## How It Works
+
+1. **Define the schema first.** Write the Pydantic model, JSON Schema, or database DDL before building the transformation logic. The schema is the contract.
+2. **Validate at every boundary.** External data is validated on ingestion. Transformed data is validated before storage. API responses are validated before serving. Each boundary catches a different class of bug.
+3. **Version the contract.** When the schema must change, version it. Old consumers continue reading the old version until migrated. New consumers use the new version.
+4. **Test the contract.** Schema tests assert that valid data passes and invalid data is rejected. These tests run in CI on every push.
+
+## Evidence
+
+- **SkyCast**: Pydantic validators on AEMET ingestion, crowdsourced reports, and API responses. 180 tests include schema validation cases.
+- **GeoRisk_Finder**: Geospatial data validated against expected coordinate ranges and attribute types before entering the analysis pipeline.
+
+## When to Apply
+
+- Multi-team data pipelines
+- Public or partner-facing APIs
+- Any pipeline where a silent schema change would cause incorrect business decisions
+- Before adding a new consumer to an existing data source
