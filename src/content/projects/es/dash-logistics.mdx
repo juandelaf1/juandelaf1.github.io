@@ -1,0 +1,120 @@
+---
+title: "DashLogistics"
+description: "Inteligencia logística multimercado con ETL multifuente, KPIs operativos y modelado de costo por milla sobre datos hold-out."
+featured: true
+order: 1
+category: "Logistics"
+date: 2025-09-01
+status: "production"
+metrics:
+  - value: "15+"
+    label: "KPIs operativos"
+  - value: "5"
+    label: "fuentes de datos integradas"
+  - value: "50"
+    label: "estados de EE. UU. cubiertos"
+tech:
+  - name: "Python"
+  - name: "Pandas"
+  - name: "Streamlit"
+  - name: "Plotly"
+  - name: "PostgreSQL"
+  - name: "Docker"
+links:
+  github: "https://github.com/juandelaf1/DashLogistics"
+---
+
+import Architecture from '../../../components/projects/Architecture.astro';
+import ArchitectureFlow from '../../../components/projects/ArchitectureFlow.astro';
+
+## Contexto
+
+<ArchitectureFlow stages={[
+  [
+    { label: "Multi-Source", sub: "AAA + Weather + Census" },
+    { label: "Quality Gate", sub: "Schema Validation" },
+    { label: "Feature Matrix", sub: "ETL Pipeline" },
+    { label: "XGBoost", sub: "Cost Prediction" },
+    { label: "Streamlit", sub: "15+ KPIs" },
+  ],
+]} />
+
+Las empresas logísticas que operan en múltiples estados de EE. UU. enfrentan un problema fundamental: los costos están impulsados por factores que cambian a diario — precios del combustible, condiciones meteorológicas, demanda regional y restricciones específicas de cada ruta. La mayoría de las herramientas de analítica logística proporcionan paneles descriptivos que muestran _qué ocurrieron_ pero no _qué ocurrirá_.
+
+El problema de negocio: un proveedor logístico del segmento medio necesita predecir costos a nivel de ruta con la precisión suficiente para fijar precios de contratos de forma rentable, optimizar la asignación de flotas e identificar ineficiencias antes de que impacten los márgenes.
+
+## Desafíos
+
+- **Heterogeneidad de datos**: Combinar datos de población, precios de combustible en vivo (AAA API), clima (OpenWeatherMap) y datos operativos internos en 50 estados
+- **Variabilidad a nivel estatal**: Cada estado tiene regulaciones, impuestos al combustible y calidad de infraestructura diferentes que afectan los costos
+- **Precisión de predicción**: Las predicciones de costo deben estar dentro del 5% de los valores reales para ser útiles en la fijación de precios de contratos
+- **ETL multifuente**: Los datos llegan en diferentes formatos y horarios — los precios de combustible se actualizan diariamente, el clima por horas y los datos operativos en lote
+- **Escalabilidad**: El pipeline debe procesar 50 estados sin intervención manual para cada región
+
+## Solución
+
+### Arquitectura
+
+<Architecture title="Pipeline multifuente">
+<pre>
+AAA Fuel API ──┐
+OpenWeatherMap ┤→ Ingestion → Quality Gate → Feature Matrix → XGBoost → Streamlit
+Population     ┤                                         ↓
+Operational  ──┘                                   PostgreSQL (Historical Store)
+</pre>
+</Architecture>
+
+### Pipeline
+
+1. **Ingestión multifuente**: Coletores de datos independientes extraen datos de AAA (precios de combustible, diario), OpenWeatherMap (horario), datos de población del US Census (estáticos, actualizaciones trimestrales) y bases de datos operativas internas (continuo).
+2. **Capa de calidad de datos**: Cada fuente pasa por validaciones — valores faltantes, valores atípicos y conformidad con el esquema. Los registros que fallan se ponen en cuarentena para revisión.
+3. **Ingeniería de características**: Los datos validados se unen en una matriz de características unificada indexada por ruta-estado-semana. Las características incluyen costo de combustible por milla, índice de severidad del clima, densidad de población, distancia y costo histórico por milla.
+4. **Predicción con ML**: Un modelo de regresión XGBoost predice el costo por milla para cada combinación ruta-estado-semana. Hiperparámetros ajustados mediante Optuna.
+5. **Dashboard**: Frontend en Streamlit con más de 15 KPIs, mapas coropléticos, comparaciones de eficiencia regional y análisis de escenarios what-if.
+
+### Stack tecnológico
+
+- **Python** con Pandas para ETL e ingeniería de características
+- **XGBoost** para predicción de costos (seleccionado por su rendimiento en datos tabulares con tipos de características mixtos)
+- **Streamlit** con Plotly para visualización interactiva
+- **PostgreSQL** para almacenamiento histórico de datos
+- **Docker** con pipeline de CI/CD
+
+## Implementación
+
+La decisión arquitectónica clave fue separar la ingesta de la predicción. La ingesta se ejecuta en su propio horario (precios de combustible a diario, clima por horas, etc.) y escribe en tablas de staging. Un pipeline separado desencadena el cálculo de características y la inferencia del modelo cuando todos los datos fuente necesarios están disponibles.
+
+Este desacoplamiento evita que la falla de una sola fuente bloquee todo el pipeline. Si la API del clima está caída, el sistema aún procesa los datos de combustible y operativos, y el modelo se ejecuta con características parciales (con confianza reducida).
+
+La capa de calidad de datos resultó esencial. Los intentos iniciales de construir una matriz de características unificada fallaron repetidamente porque los NULL de una fuente se propagaban silenciosamente a través de los joins. La capa de validación ahora verifica explícitamente la completitud antes de permitir que una matriz de características avance al modelo.
+
+### Compromisos
+
+Se eligió XGBoost en lugar de un modelo lineal más simple a pesar de su mayor complejidad de implementación. Las pruebas iniciales con regresión lineal alcanzaron un R² en torno a 0.82, pero no lograron capturar las interacciones no lineales entre características (p. ej., el efecto compuesto de precios altos de combustible durante tormentas invernales). La ganancia en precisión de XGBoost justificó la complejidad adicional, pero también introdujo una carga de mantenimiento: el modelo requiere reentrenamiento periódico para adaptarse a cambios en los patrones de costos.
+
+El sistema procesa datos en lote (granularidad diaria) en lugar de streaming. La predicción de costos en tiempo real podría permitir ajustes de ruta el mismo día, pero las decisiones operativas que soporta este sistema (fijación de precios de contratos, asignación de flotas) operan en ciclos semanales. El procesamiento por lotes es adecuado para el caso de uso actual.
+
+### Confiabilidad
+
+El control de calidad de datos es el mecanismo de confiabilidad más importante. Cada fuente debe pasar la validación de esquema y las verificaciones de completitud antes de que sus datos entren en la matriz de características. Si una fuente falla la validación dos veces consecutivas, se envía una alerta y el sistema usa los últimos valores conocidos con una penalización de confianza.
+
+Las predicciones del modelo incluyen un puntaje de confianza basado en la completitud de las características. Cuando hay menos fuentes de las esperadas disponibles, el puntaje de confianza disminuye proporcionalmente, y el dashboard muestra las predicciones con una advertencia visual.
+
+## Resultados
+
+- **R² en el conjunto de prueba = 0.987** en la predicción de costo por milla contra datos hold-out (división 80/20). El modelo ajusta características de distancia y tiempo que definen en gran medida el costo — un buen ajuste, pero cercano a una relación definicional; tratar como línea base de modelado, no como una afirmación de generalización amplia.
+- **Más de 15 KPIs operativos** rastreados en 50 estados con reportes semanales automatizados
+- **Pipeline ETL extremo a extremo** que ingesta desde más de 5 fuentes de datos (combustible AAA, OpenWeatherMap, US Census, bases de datos operativas) hacia un dashboard Streamlit en producción
+- **Arquitectura multirregional**: diseñada para los estados de EE. UU., pero generalizable a cualquier región geográfica con fuentes de datos disponibles
+
+## Lecciones aprendidas
+
+1. **Los controles de calidad de datos previenen pesadillas de depuración.** Cada fuente tiene una prueba que debe pasar antes de que sus datos entren en la matriz de características. Esto detectó cambios de esquema en APIs externas en múltiples ocasiones.
+2. **La precisión del modelo es más fácil que la disponibilidad de datos.** El modelo XGBoost convergió rápidamente. Obtener datos completos y alineados de 5 fuentes fue el verdadero desafío de ingeniería.
+3. **La visualización impulsa la adopción.** El equipo de operaciones empezó a confiar en el sistema cuando pudo ver mapas de costos a nivel estatal que coincidían con su experiencia en campo.
+
+## Trabajo futuro
+
+- Predicción de costos en tiempo real usando datos de streaming para ajustes de ruta el mismo día
+- Herramienta automatizada de fijación de precios de contratos que use los costos predichos para sugerir tarifas rentables
+- Integración con software de enrutamiento para re-enrutamiento dinámico basado en costos predichos

@@ -5,7 +5,7 @@ import Metric from '../../components/ui/Metric.astro';
 import { SITE } from '../../config/site';
 import { getCollection } from 'astro:content';
 
-const all = await getCollection('projects');
+const all = await getCollection('projects', (entry) => entry.id.startsWith('en/'));
 const sorted = [...all].sort((a, b) => {
   const fa = a.data.featured ? 0 : 1;
   const fb = b.data.featured ? 0 : 1;
@@ -41,7 +41,7 @@ const sorted = [...all].sort((a, b) => {
                   {project.data.featured && <span class="badge">Featured</span>}
                 </div>
                 <h3 class="item-title">
-                  <a href={`/projects/${project.id}`}>{project.data.title}</a>
+                  <a href={`/projects/${project.id.replace(/^en\//, '')}`}>{project.data.title}</a>
                 </h3>
                 <p class="item-desc">{project.data.description}</p>
                 <div class="tech-row">
@@ -55,7 +55,7 @@ const sorted = [...all].sort((a, b) => {
                   <Metric value={m.value} label={m.label} class="compact" />
                 ))}
                 <div class="item-links">
-                  <a href={`/projects/${project.id}`}>Case study &rarr;</a>
+                  <a href={`/projects/${project.id.replace(/^en\//, '')}`}>Case study &rarr;</a>
                   {project.data.links.github && (
                     <a href={project.data.links.github} target="_blank" rel="noopener noreferrer">Repository</a>
                   )}

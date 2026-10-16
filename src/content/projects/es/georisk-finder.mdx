@@ -1,0 +1,128 @@
+---
+title: "GeoRisk Finder"
+description: "Plataforma de inteligencia geoespacial para evaluación de riesgo climático compuesto con rejillas H3, datos multihazard y clustering no supervisado."
+featured: false
+order: 5
+category: "Climate"
+date: 2026-04-15
+status: "development"
+metrics:
+  - value: "1.1M+"
+    label: "eventos históricos ingeridos"
+  - value: "4"
+    label: "perfiles de riesgo macro"
+  - value: "H3"
+    label: "rejilla hexagonal global"
+tech:
+  - name: "Python"
+  - name: "Scikit-Learn"
+  - name: "Streamlit"
+  - name: "Uber H3"
+links:
+  github: "https://github.com/juandelaf1/GeoRisk_Finder"
+---
+
+import ArchitectureFlow from '../../../components/projects/ArchitectureFlow.astro';
+
+## Contexto
+
+Los desastres naturales globales generan pérdidas que superan los 300 mil millones de dólares anuales. Los modelos tradicionales evalúan los riesgos (terremotos, huracanes, erupciones) de forma aislada, ignorando las **zonas de riesgo compuesto** donde múltiples amenazas coinciden en tiempo y espacio. Esto crea una exposición significativa de subvaluación para aseguradoras, gobiernos e inversores.
+
+GeoRisk Finder aborda esta brecha combinando aprendizaje no supervisado con una rejilla hexagonal espacial global (Uber H3) para procesar catálogos históricos de peligros y categorizar cualquier celda del planeta en perfiles de riesgo con análisis de ROI para Sistemas de Alerta Temprana.
+
+## Desafíos
+
+- **Integración multihazard**: Combinar datos sísmicos del USGS, registros de ciclones de NOAA/IBTrACS y catálogos históricos del IGN en una rejilla unificada
+- **Discretización espacial**: Discretización global homogénea mediante H3 Res 3 (~12.500 celdas, ~12.300 km² cada una)
+- **Reducción de dimensionalidad**: Preservar el 85% de la varianza con PCA antes del clustering
+- **Clasificación de riesgo**: K-Means (4 perfiles de riesgo macro) + DBSCAN (detección de valores atípicos extremos)
+- **Traducción financiera**: Traducir puntuaciones de riesgo físico a ROI en escala de dólares para decisiones de inversión
+
+## Solución
+
+### Arquitectura
+
+El sistema procesa datos a través de un pipeline multietapa: fuentes externas → ingestión y limpieza → características de la rejilla → clustering con ML → producto (dashboard Streamlit multipágina).
+
+### Componentes clave
+
+- **Grid Engine**: Rejilla hexagonal Uber H3 Res 3 que cubre todo el planeta
+- **Ingestión multihazard**: USGS (eventos sísmicos M≥4.5, 1900–2026), IBTrACS/NOAA (ciclones), IGN (catálogo histórico nacional)
+- **Ingeniería de características**: PCA (85% de varianza retenida) + extracción de características de la rejilla
+- **Clustering**: K-Means (4 perfiles de riesgo) + DBSCAN (detección de celdas extremas)
+- **Módulo financiero**: Cálculo de ROI para el despliegue de un Sistema de Alerta Temprana frente al costo de reconstrucción
+- **Dashboard Streamlit**: Simulación interactiva de escenarios (Conservador, Base, Optimista) con Ratio Beneficio-Costo
+
+### Fuentes de datos
+
+| Fuente | Tipo | Cobertura |
+|--------|------|-----------|
+| USGS API | Eventos sísmicos M≥4.5 | 1900–2026, global |
+| IBTrACS/NOAA | Registros de ciclones | Datos globales de huracanes/trayectorias |
+| IGN Histórico | Catálogo nacional | Datos históricos específicos del país |
+
+### Etapas del pipeline
+
+1. **Ingestión de datos**: Ingestión de CSV en bruto desde APIs externas, normalización a un formato unificado
+2. **Asignación a la rejilla**: Asignar cada evento a una celda H3 en resolución 3
+3. **Ingeniería de características**: Características espaciales (centroide de la celda, vecinos, área), características temporales (fecha, temporada) y severidad del evento
+4. **Reducción de dimensionalidad**: PCA para retener el 85% de varianza, reduciendo el espacio de características mientras se preservan los patrones estructurales
+5. **Clustering**: K-Means (4 perfiles de riesgo) + DBSCAN (detectar valores atípicos extremos)
+6. **Impacto financiero**: Módulo de cálculo de ROI que combina puntuaciones de riesgo físico con costos de reconstrucción y valores de interrupción del negocio
+
+## Implementación
+
+La decisión arquitectónica más significativa fue usar una rejilla hexagonal (H3) en lugar de rejillas cuadradas tradicionales. Esto asegura una cobertura homogénea y elimina efectos de borde en los límites de las zonas. La discretización de 12.500 celdas proporciona una granularidad suficiente para análisis a nivel de ciudad manteniendo la eficiencia computacional.
+
+La reducción PCA del conjunto original de características al subespacio del 85% de varianza fue crítica para hacer que el clustering con K-Means fuera viable a escala sin perder las características que señalan el riesgo.
+
+La capa de traducción financiera fue la más compleja de validar. Realizamos un benchmark contra datos de costos de reconstrucción de fuentes de la industria de seguros y ajustamos el cálculo del ROI para tener en cuenta las variaciones regionales en los costos de mano de obra y materiales.
+
+### Compromisos
+
+El pipeline usa ingestión de CSV por lotes en lugar de APIs de streaming para cada fuente. Esto mantiene el flujo de investigación reproducible y compatible con uso sin conexión, a costa de la frescura en feeds de eventos en vivo.
+
+Se prefirió el clustering a las etiquetas de riesgo supervisadas porque no existe una verdad fundamental multihazard globalmente consistente. El compromiso es que los perfiles son descriptivos en lugar de predictivos.
+
+## Confiabilidad
+
+Existen pruebas de cobertura para las etapas de ingestión, asignación a la rejilla, ingeniería de características y clustering. El CI ejecuta la suite en cada push. Las verificaciones extremo a extremo validan el pipeline completo desde los archivos fuente hasta la salida del dashboard con fuentes de datos simuladas.
+
+## Resultados
+
+- **~1.1 millón** de eventos históricos de peligros ingeridos y categorizados a través de los catálogos USGS, IBTrACS e IGN
+- **4 perfiles de riesgo macro** (con detección DBSCAN de valores atípicos extremos)
+- **3 simulaciones de escenarios** (Conservador, Base, Optimista) con cálculo de Ratio Beneficio-Costo
+- **Cobertura global** mediante la rejilla Uber H3 — cualquier punto del planeta puede ser categorizado
+- **Soporte de Docker** para ejecuciones locales reproducibles
+
+> Nota: borradores anteriores del portafolio listaban "más de 130 millones de eventos" y "180 pruebas". Esas cifras eran incorrectas (los tamaños de archivo en MB se leyeron erróneamente como número de filas; el número de pruebas estaba sobreestimado). Los números anteriores reflejan los catálogos y la suite reales.
+
+## Lecciones aprendidas
+
+1. **La rejilla hexagonal elimina artefactos de borde** que las rejillas cuadradas introducen en los extremos de las zonas. La resolución 3 de H3 equilibró granularidad y costo computacional.
+2. **El PCA antes del clustering es esencial** con este número de características. Sin reducción de dimensionalidad, el entrenamiento de K-Means excedía los límites de tiempo aceptables.
+3. **La validación del modelo financiero requiere datos de la industria** que no están fácilmente disponibles. Se usaron supuestos conservadores para las dimensiones faltantes.
+4. **La usabilidad del dashboard Streamlit depende de la divulgación progresiva.** Ocultar parámetros avanzados detrás de secciones expandibles mantiene la interfaz accesible.
+5. **La integración multihazard requiere una normalización cuidadosa.** Cada fuente tiene unidades, rangos de tiempo e indicadores de calidad diferentes.
+
+## Trabajo futuro
+
+- Modelos de machine learning para predicción de probabilidad de riesgo usando patrones históricos
+- Integración con fuentes de datos globales adicionales (World Bank, GDACS)
+- Proyectos/portafolios multitenant para despliegue empresarial
+- Push de alertas via WebSocket para celdas monitoreadas
+
+## Diagrama de arquitectura
+
+<ArchitectureFlow stages={[
+  [{ label: "USGS", sub: "Seismic M≥4.5" },
+   { label: "IBTrACS", sub: "Cyclones" },
+   { label: "IGN", sub: "Historical catalog" }],
+  [{ label: "Ingest", sub: "CSV normalize" },
+   { label: "Grid H3", sub: "Resolution 3" },
+   { label: "Features", sub: "PCA 85% var" }],
+  [{ label: "Clustering", sub: "K-Means + DBSCAN" },
+   { label: "Financial", sub: "ROI calculator" }],
+  [{ label: "Dashboard", sub: "Streamlit SPA" }],
+]} />

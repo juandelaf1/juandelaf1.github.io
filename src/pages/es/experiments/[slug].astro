@@ -5,9 +5,9 @@ import { SITE } from '../../../config/site';
 import { getCollection, render } from 'astro:content';
 
 export async function getStaticPaths() {
-  const experiments = await getCollection('experiments');
+  const experiments = await getCollection('experiments', (entry) => entry.id.startsWith('es/'));
   return experiments.map((exp) => ({
-    params: { slug: exp.id },
+    params: { slug: exp.id.replace(/^es\//, '') },
     props: { exp },
   }));
 }
@@ -19,7 +19,7 @@ const { Content } = await render(exp);
 <BaseLayout
   title={`${exp.data.title} — ${SITE.author}`}
   description={exp.data.description}
-  path={`/es/experiments/${exp.id}`}
+  path={`/es/experiments/${exp.id.replace(/^es\//, '')}`}
 >
   <Container>
     <article class="experiment-article">

@@ -3,9 +3,9 @@ import CaseStudyLayout from '../../layouts/CaseStudyLayout.astro';
 import { getCollection, render } from 'astro:content';
 
 export async function getStaticPaths() {
-  const projects = await getCollection('projects');
+  const projects = await getCollection('projects', (entry) => entry.id.startsWith('en/'));
   return projects.map((project) => ({
-    params: { slug: project.id },
+    params: { slug: project.id.replace(/^en\//, "") },
     props: { project },
   }));
 }

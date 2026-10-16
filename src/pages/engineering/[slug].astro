@@ -3,9 +3,9 @@ import EngineeringLayout from '../../layouts/EngineeringLayout.astro';
 import { getCollection, render } from 'astro:content';
 
 export async function getStaticPaths() {
-  const notes = await getCollection('engineering');
+  const notes = await getCollection('engineering', (entry) => entry.id.startsWith('en/'));
   return notes.map((note) => ({
-    params: { slug: note.id },
+    params: { slug: note.id.replace(/^en\//, "") },
     props: { note },
   }));
 }
@@ -19,7 +19,7 @@ const { Content } = await render(note);
   description={note.data.description}
   date={note.data.date}
   tags={note.data.tags}
-  path={`/engineering/${note.id}`}
+  path={`/engineering/${note.id.replace(/^en\//, '')}`}
 >
   <Content />
 </EngineeringLayout>

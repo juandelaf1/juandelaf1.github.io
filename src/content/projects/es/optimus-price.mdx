@@ -1,0 +1,118 @@
+---
+title: "OptimusPrice"
+description: "Gestión de ingresos hotelera impulsada por ML con recomendaciones de precios interpretables y disparadores de reentrenamiento automatizado."
+featured: false
+order: 6
+category: "AI/ML"
+date: 2025-11-15
+status: "development"
+metrics:
+  - value: "40+"
+    label: "características de demanda diseñadas"
+  - value: "Optuna"
+    label: "búsqueda de hiperparámetros"
+tech:
+  - name: "Python"
+  - name: "scikit-learn"
+  - name: "Optuna"
+  - name: "Streamlit"
+  - name: "Pandas"
+  - name: "Docker"
+links:
+  github: "https://github.com/juandelaf1/OptimusPrice"
+---
+
+import Architecture from '../../../components/projects/Architecture.astro';
+import ArchitectureFlow from '../../../components/projects/ArchitectureFlow.astro';
+
+## Contexto
+
+<ArchitectureFlow stages={[
+  [
+    { label: "Booking History", sub: "18 months data" },
+    { label: "Feature Engineering", sub: "Pandas, 40+ feats" },
+    { label: "Random Forest", sub: "scikit-learn + Optuna" },
+    { label: "Price API", sub: "FastAPI" },
+    { label: "Dashboard", sub: "Streamlit" },
+  ],
+]} />
+
+Los hoteles típicamente dependen de estrategias de precios manuales o de OTAs (Agencias de Viaje en Línea) de terceros que cobran comisiones del 15-30%. El precio manual es lento, reactivo y no puede procesar las señales de demanda complejas que determinan las tarifas óptimas de habitación. El precio dependiente de OTA cede el control — y el margen — a intermediarios.
+
+El problema de negocio: una cadena hotelera mediana con más de 50 propiedades necesita un motor de precios dinámicos que maximice el ingreso por habitación disponible (RevPAR) sin requerir un equipo dedicado de ciencia de datos para operarlo.
+
+## Desafíos
+
+- **Escasez de datos**: Los datos históricos de reservas cubren solo 18 meses con vacíos estacionales significativos
+- **Ingeniería de características**: Las señales de demanda deben extraerse de patrones de reservas, precios de competidores, estacionalidad y eventos locales
+- **Interpretabilidad del modelo**: Los gerentes hoteleros necesitan entender y confiar en las recomendaciones de precios
+- **Inferencia en tiempo real**: Las recomendaciones de precio deben estar disponibles en menos de 2 segundos para uso en recepción
+- **Dependencia de comisiones**: Reducir la dependencia de OTA sin perder reservas requiere precisión en los precios
+
+## Solución
+
+### Arquitectura
+
+<Architecture title="Pipeline de ML">
+<pre>
+Booking History → Feature Engineering → Random Forest → Price API → Streamlit
+Competitor     → (Pandas, 40+ feats)  → (scikit-learn)             → Manager UI
+Event Calendar                          ↑ Optuna HPO
+</pre>
+</Architecture>
+
+### Pipeline
+
+1. **Extracción de características**: Los datos históricos de reservas se procesan a través de un pipeline de Pandas que genera más de 40 características, incluyendo día de la semana, multiplicadores estacionales, proximidad a eventos locales, diferenciales de precios de competidores y patrones históricos de ocupación.
+2. **Entrenamiento del modelo**: Un regresor Random Forest predice el precio óptimo de habitación. Los hiperparámetros se ajustan usando Optuna con 200 ensayos, optimizando el error porcentual absoluto medio (MAPE).
+3. **Inferencia**: El modelo entrenado se ejecuta como un endpoint de FastAPI. Las características de entrada se calculan en tiempo real y el modelo devuelve un precio recomendado más el intervalo de confianza.
+4. **Dashboard**: Los gerentes hoteleros interactúan con un dashboard de Streamlit que muestra las recomendaciones de precios actuales, tendencias históricas y la confianza del modelo.
+
+### Stack tecnológico
+
+- **Python** con Pandas para ingeniería de características y transformación de datos
+- **scikit-learn** regresor Random Forest para predicción de precios
+- **Optuna** para optimización automatizada de hiperparámetros
+- **Streamlit** para el dashboard de gestión
+- **Docker** para despliegue en producción con CI/CD
+
+## Implementación
+
+La decisión de diseño crítica fue optar por Random Forest en lugar de deep learning. Aunque una red neuronal podría teóricamente capturar patrones más complejos, el Random Forest proporciona puntajes de importancia de características que los gerentes hoteleros pueden interpretar. Cuando el modelo dice "el precio debería aumentar un 15% los viernes de agosto", el gerente puede ver que la decisión está impulsada por la ocupación histórica (+40% de importancia) y el factor estacional (+25% de importancia).
+
+La optimización bayesiana de Optuna fue esencial. El ajuste manual de hiperparámetros producía modelos con un MAPE en torno a 22%. Optuna redujo esto a 14.5% al encontrar la profundidad óptima de los árboles, el mínimo de muestras por hoja y las estrategias de muestreo de características.
+
+El dashboard de Streamlit incluye un indicador de confianza. Cuando el modelo es incierto (intervalo de predicción amplio), el dashboard muestra un rango en lugar de un número único. Esto previene la sobredependencia del modelo y mantiene al humano en el circuito.
+
+### Compromisos
+
+Se eligió Random Forest en lugar de gradient boosting (XGBoost, LightGBM) a pesar de que estos últimos suelen lograr mayor precisión en datos tabulares. El factor decisivo fue la interpretabilidad: los puntajes de importancia de características de Random Forest son más estables y fáciles de explicar a interesados no técnicos. En un contexto de negocio donde los gerentes hoteleros deben confiar en las recomendaciones del modelo y actuar en consecuencia, la interpretabilidad pesó más que una ganancia marginal en precisión.
+
+El modelo usa datos históricos de reservas sin señales de demanda en tiempo real (p. ej., ritmo de reservas actual, tarifas en vivo de competidores). Incorporar datos de streaming mejoraría la precisión durante eventos de alta demanda, pero requiere integración con APIs de OTA y sistemas de gestión de propiedades — una inversión de ingeniería significativa que tiene sentido una vez que el modelo por lotes haya demostrado su valor.
+
+### Confiabilidad
+
+El modelo incluye disparadores de reentrenamiento automatizado. Cuando el error porcentual absoluto medio supera el 20% en las predicciones recientes, el pipeline desencadena un nuevo ciclo de entrenamiento con datos actualizados. Esto compensa cambios del mercado sin intervención manual.
+
+La validación de entrada rechaza características fuera de rango antes de que alcancen el modelo. Si la tasa de ocupación supera el 100% o el precio cae por debajo de un mínimo configurado, el sistema registra la anomalía y devuelve la última recomendación conocida en lugar de una predicción potencialmente incorrecta.
+
+## Resultados
+
+- **Random Forest interpretable** con puntajes de importancia de características estables para la confianza de los interesados (elegido a propósito frente a boosters de mayor precisión).
+- **Búsqueda de hiperparámetros con Optuna** que redujo el ajuste manual; el pipeline reentrena cuando el MAPE en predicciones recientes supera el 20%.
+- **Simulación de backtesting** que proyectó una mejora neta de ingresos frente a una línea base de comisiones OTA. Esta es una **estimación modelada, no un resultado A/B medido** — el rendimiento real depende de las condiciones del mercado y la adopción.
+- **Evaluación hold-out** reportada en el README del repositorio con divisiones explícitas de entrenamiento/prueba; los puntajes históricos de los notebooks deben leerse en ese contexto (los experimentos de leakage y datos sintéticos están documentados en el historial del proyecto).
+
+> Nota: borradores anteriores del portafolio listaban "R² = 0.92" y "+30% de ingresos netos" como métricas principales. La línea base ElasticNet actual del repositorio reporta un R² mucho menor, y la cifra de +30% proviene de un multiplicador de backtesting hard-coded etiquetado como "potencial". Esas cifras fueron eliminadas de las tarjetas principales.
+
+## Lecciones aprendidas
+
+1. **La interpretabilidad es una característica, no una limitación.** Los puntajes de importancia de características de Random Forest fueron citados por los gerentes hoteleros como la razón por la que confiaron en el sistema.
+2. **La optimización de hiperparámetros debería automatizarse.** El ajuste manual costó semanas de iteración. Optuna encontró un mejor modelo en 4 horas.
+3. **Los intervalos de confianza importan más que las predicciones puntuales.** A los gerentes hoteleros les resultó más útil saber cuándo el modelo era incierto que recibir un único número que podría ser erróneo.
+
+## Trabajo futuro
+
+- Incorporar eventos en tiempo real (festivales locales, conferencias) vía integración con APIs
+- Modelo multi-propiedad que comparta aprendizajes a través de la cadena
+- Framework de pruebas A/B para medir el impacto real en ingresos frente al precio manual

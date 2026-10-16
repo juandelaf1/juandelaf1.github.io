@@ -1,0 +1,154 @@
+---
+title: "CASE"
+description: "Plataforma de orquestación de decisiones con IA agnóstica al dominio, con supervisión humana, pipeline de fiabilidad y soporte multiproveedor."
+featured: true
+order: 3
+category: "AI/ML"
+date: 2026-09-28
+status: "production"
+metrics:
+  - value: "692"
+    label: "tests aprobados (ejecución local)"
+  - value: "15"
+    label: "invariantes arquitectónicos congelados"
+tech:
+  - name: "Python"
+  - name: "Pydantic v2"
+  - name: "FastAPI"
+  - name: "Streamlit"
+  - name: "SQLite"
+links:
+  github: "https://github.com/juandelaf1/CASE"
+---
+
+import ArchitectureFlow from '../../../components/projects/ArchitectureFlow.astro';
+
+## Contexto
+
+<ArchitectureFlow stages={[
+  [
+    { label: "Case Input", sub: "Unstructured" },
+    { label: "PromptBuilder", sub: "Structured" },
+    { label: "LLMProvider", sub: "Any provider" },
+    { label: "ReliabilityPipeline", sub: "Validate" },
+    { label: "Domain + Risk", sub: "Policy" },
+    { label: "Decision", sub: "Auditable" },
+  ],
+]} />
+
+Los large language models son sistemas probabilísticos. Su salida puede ser inconsistente, alucinada o sutilmente incorrecta de formas difíciles de detectar automáticamente. Enrutar directamente la salida cruda de un LLM hacia decisiones operativas introduce un riesgo inaceptable.
+
+El problema de negocio: los equipos operativos necesitan toma de decisiones asistida por IA que sea auditable, consciente del dominio y segura. El sistema nunca debe confiar en la salida cruda del modelo, debe hacer cumplir la supervisión humana cuando el riesgo es alto y debe funcionar con cualquier proveedor LLM sin cambios en el código.
+
+CASE aborda esto introduciendo una capa de orquestación estructurada que se sitúa entre el LLM y la decisión. El LLM propone. CASE valida, evalúa y gobierna la decisión.
+
+## Desafíos
+
+- **La salida cruda del LLM no es confiable**: Las violaciones de esquema, las inconsistencias semánticas y las infracciones de reglas de dominio deben detectarse antes de que cualquier decisión se persista
+- **Vendor lock-in**: Atar el sistema a un único proveedor LLM crea fragilidad y limita la optimización de costes
+- **Agnosticismo al dominio**: El pipeline central debe funcionar para infraestructura urbana, logística, riesgo sísmico y real estate sin comprobaciones `if domain ==`
+- **Supervisión humana**: El riesgo aumenta la participación humana, no la disminuye. La baja confianza o la alta urgencia deben enrutarse automáticamente a humanos
+- **Auditabilidad**: Cada decisión debe ser trazable — quién la propuso, qué validación pasó, qué riesgo se evaluó, qué acción se tomó
+
+import Architecture from '../../../components/projects/Architecture.astro';
+
+## Solución
+
+### Arquitectura
+
+El sistema sigue una arquitectura hexagonal (Ports & Adapters). La lógica central depende de interfaces abstractas, no de implementaciones.
+
+<Architecture title="Pipeline de decisiones">
+<pre>
+Streamlit UI / FastAPI
+       |
+TriageEngine (orchestrator)
+       |
+PromptBuilder → LLMProvider (any) → ReliabilityPipeline
+                                          |
+                              Domain Policy + Risk Evaluator
+                                          |
+                                    Decision + Audit
+                                          |
+                              Human Oversight (HITL)
+</pre>
+</Architecture>
+
+### Pipeline
+
+1. **Input**: Un caso operativo llega con texto de reporte, dominio, urgencia y evidencia opcional
+2. **Construcción de prompt**: PromptBuilder crea un prompt estructurado con contexto de dominio y restricciones
+3. **Generación LLM**: Cualquier proveedor configurado (Mock, Groq, Ollama, Cloud) genera una propuesta estructurada
+4. **Pipeline de fiabilidad**: Validación en cuatro etapas — parse → schema → semantic → domain. Los fallos activan reintentos con exponential backoff
+5. **Evaluación de riesgo**: AutomationEvaluator determina el enrutamiento: auto-aprobación, revisión humana o escalamiento obligatorio
+6. **Supervisión humana**: Cuando el riesgo es alto, el caso entra en el ciclo HITL (aprobar/rechazar/modificar/escalar)
+7. **Persistencia**: La decisión y el audit trail completo se almacenan en SQLite con seguimiento del ciclo de vida
+
+### Tech Stack
+
+- **Python 3.11+** con type hints y mypy en modo strict
+- **Pydantic v2** para todos los contratos de datos en fronteras públicas
+- **FastAPI** para la capa de REST API con más de 15 endpoints
+- **Streamlit** para la UI interactiva de sala de control
+- **SQLite** para la persistencia de decisiones y el audit trail
+- **4 LLM Providers**: Mock (testing), Groq (cloud), Ollama (local), Cloud (compatible con OpenAI)
+
+### Decisiones de diseño clave
+
+**Invariantes congelados (I01-I15)**: La arquitectura tiene 15 reglas inmutables. La lógica de dominio nunca se filtra al core. El código específico del proveedor permanece detrás de interfaces. La salida cruda nunca es confiable. Estos invariantes son enforceados por tests.
+
+**Pipeline de fiabilidad**: Cada respuesta del LLM pasa por cuatro etapas de validación. La validación de esquema detecta errores estructurales. La validación semántica verifica la consistencia interna. La validación de dominio hace cumplir reglas específicas de la política. Cada fallo se clasifica como recuperable (retry) o terminal (reject).
+
+**Enrutamiento basado en riesgo**: Tres umbrales de automatización — `AUTO_APPROVE` para casos de bajo riesgo, `HUMAN_REVIEW` para riesgo medio, `MANDATORY_HUMAN` para casos críticos. El riesgo aumenta la participación humana, nunca la disminuye.
+
+**Abstracción de proveedores**: Todos los proveedores implementan el ABC `LLMProvider`. Cambiar de Groq a Ollama requiere cero cambios en TriageEngine, ReliabilityPipeline o cualquier política de dominio.
+
+## Implementación
+
+La decisión arquitectónica más significativa fue el pipeline de fiabilidad. La salida cruda del LLM es JSON estructurado, pero la corrección estructural no implica corrección semántica. Una propuesta puede ser JSON válido con el dominio equivocado, una urgencia imposible o evidencia que contradice el texto del reporte. El pipeline de cuatro etapas captura estos problemas de forma sistemática.
+
+El sistema de políticas de dominio fue diseñado para ser extensible. Agregar un nuevo dominio (Real Estate se agregó en V3) requiere implementar `DomainPolicy` y `AutomationPolicy`, registrar en `composition.py` y escribir tests. Cero cambios en la lógica central.
+
+La neutralidad de proveedores se probó ejecutando el mismo gran conjunto de tests contra los proveedores Mock, Groq y Ollama. El pipeline produce un comportamiento de gobernanza idéntico sin importar qué proveedor genere la propuesta.
+
+### Trade-offs
+
+SQLite fue elegido para la persistencia sobre PostgreSQL para mantener el despliegue simple. Esto limita el rendimiento de escrituras concurrentes, pero es aceptable para un proyecto de portafolio donde el objetivo principal es demostrar la arquitectura, no manejar carga de producción.
+
+El pipeline de fiabilidad usa validación síncrona. Un pipeline async podría paralelizar las etapas de validación, pero la complejidad añadida no se justificaba para el alcance actual.
+
+### Fiabilidad
+
+- **692 tests aprobados, 7 omitidos** en la ejecución local documentada (`pytest tests/ -q --ignore=tests/unit/test_streamlit_client.py`). El README del repositorio también muestra un badge de suite completa con 813 aprobados; **no hay ejecuciones de GitHub Actions** para este repo — trate los resultados como locales/documentados en el README, no verificados por CI.
+- **Patrón circuit breaker** en todos los proveedores externos — si un proveedor falla 5 veces, se deshabilita temporalmente
+- **Rate limiting** en la capa de API — ventana deslizante por IP con límites configurables
+- **Comparación de tokens en tiempo constante** para autenticación — sin ataques de timing vía query strings
+- **Audit trail completo** para cada decisión — quién propuso, qué validó, qué riesgo se evaluó, qué acción se tomó
+
+## Resultados
+
+- **692 tests aprobados, 7 omitidos** en la ejecución local documentada (el README también reporta 813 aprobados en la suite completa). No verificado en GitHub Actions.
+- **5 dominios registrados**: Urban Operations, Logistics, Infrastructure, Seismic Risk, Real Estate
+- **4 LLM providers**: Mock (determinista), Groq (cloud), Ollama (local), Cloud (compatible con OpenAI)
+- **15 API endpoints** incluyendo datos sísmicos, health checks, rate limiting
+- **12 vistas Streamlit** con soporte bilingüe (EN/ES)
+- **15 invariantes arquitectónicos congelados** documentados en AGENTS.md y reforzados por tests de frontera/seguridad (el enforcement es estructural, no un KPI separado de "0% de salida sin validar")
+- **Cero imports específicos de proveedor** en la lógica central — verdadera neutralidad de proveedores
+
+## Lecciones aprendidas
+
+1. **Los invariantes congelados previenen la deriva arquitectónica.** Definir reglas inmutables temprano y hacerlas cumplir con tests eliminó la necesidad de revisión arquitectónica en cada cambio. El sistema se mantuvo coherente a medida que creció de V1 a V4.
+
+2. **La validación de salida cruda es la capa de seguridad crítica.** El pipeline de fiabilidad detecta más problemas de lo que la mayoría de los equipos esperan. Las violaciones de esquema, las contradicciones semánticas y las infracciones de reglas de dominio ocurren regularmente en la salida de LLMs — incluso de modelos capaces.
+
+3. **El enrutamiento basado en riesgo es más valioso que las métricas de precisión.** El valor del sistema no está en acertar el 100% del tiempo. Está en saber cuándo es incierto y enrutar a humanos en consecuencia.
+
+4. **La neutralidad de proveedores es alcanzable pero requiere disciplina.** La tentación de agregar lógica específica de proveedor en el core es constante. El ABC `LLMProvider` y la regla de no-imports-en-core (I13) fueron esenciales.
+
+## Trabajo futuro
+
+- Decisiones con streaming en tiempo real para casos operativos sensibles al tiempo
+- Consenso multi-modelo — enrutar decisiones críticas a múltiples proveedores y comparar
+- Integración con Webhooks para notificaciones de sistemas externos
+- Framework de evaluación automatizada con datasets del mundo real (actualmente solo MockProvider)
+- Gobernanza RBAC y compliance (implementado pero aislado)

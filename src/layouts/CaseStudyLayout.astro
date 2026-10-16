@@ -4,6 +4,8 @@ import Container from '../components/ui/Container.astro';
 import Tag from '../components/ui/Tag.astro';
 import Button from '../components/ui/Button.astro';
 import { SITE } from '../config/site';
+import { getLocaleFromUrl } from '../i18n/utils';
+import { getUI } from '../i18n/ui';
 
 export interface Props {
   title: string;
@@ -17,6 +19,8 @@ export interface Props {
 
 const { title, description, category, date, tech, links, image } = Astro.props;
 const techList = tech.map((t) => t.name);
+const locale = getLocaleFromUrl(Astro.url);
+const t = getUI(locale);
 ---
 
 <BaseLayout
@@ -28,29 +32,29 @@ const techList = tech.map((t) => t.name);
   <Container>
     <article class="case-study">
       <header class="header">
-        <a href="/projects" class="back">&larr; All projects</a>
+        <a href={locale === 'es' ? '/es/projects' : '/projects'} class="back">&larr; {t.caseStudy.backToProjects}</a>
         <div class="meta">
           <Tag text={category} />
           <time datetime={date.toISOString()} class="date">
-            {new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'long' }).format(date)}
+            {new Intl.DateTimeFormat(locale === 'es' ? 'es-ES' : 'en-US', { year: 'numeric', month: 'long' }).format(date)}
           </time>
         </div>
         <h1 class="title">{title}</h1>
         <p class="description">{description}</p>
         <div class="actions">
           {links.github && (
-            <Button href={links.github} variant="primary" external>View Repository</Button>
+            <Button href={links.github} variant="primary" external>{t.caseStudy.viewRepository}</Button>
           )}
           {links.demo && (
-            <Button href={links.demo} variant="ghost" external>Live Demo</Button>
+            <Button href={links.demo} variant="ghost" external>{t.caseStudy.liveDemo}</Button>
           )}
           {links.docs && (
-            <Button href={links.docs} variant="ghost" external>Documentation</Button>
+            <Button href={links.docs} variant="ghost" external>{t.caseStudy.documentation}</Button>
           )}
         </div>
         <div class="tech-row">
-          {techList.map((t) => (
-            <span class="tech-item">{t}</span>
+          {techList.map((tech) => (
+            <span class="tech-item">{tech}</span>
           ))}
         </div>
       </header>
@@ -58,14 +62,14 @@ const techList = tech.map((t) => t.name);
       <div class="content">
         <aside class="sidebar">
           <nav class="toc">
-            <a href="#context" class="toc-link">Context</a>
-            <a href="#challenges" class="toc-link">Challenges</a>
-            <a href="#solution" class="toc-link">Solution</a>
-            <a href="#implementation" class="toc-link">Implementation</a>
-            <a href="#trade-offs" class="toc-link">Trade-offs</a>
-            <a href="#reliability" class="toc-link">Reliability</a>
-            <a href="#results" class="toc-link">Results</a>
-            <a href="#lessons" class="toc-link">Lessons Learned</a>
+            <a href="#context" class="toc-link">{t.caseStudy.toc.context}</a>
+            <a href="#challenges" class="toc-link">{t.caseStudy.toc.challenges}</a>
+            <a href="#solution" class="toc-link">{t.caseStudy.toc.solution}</a>
+            <a href="#implementation" class="toc-link">{t.caseStudy.toc.implementation}</a>
+            <a href="#trade-offs" class="toc-link">{t.caseStudy.toc.tradeOffs}</a>
+            <a href="#reliability" class="toc-link">{t.caseStudy.toc.reliability}</a>
+            <a href="#results" class="toc-link">{t.caseStudy.toc.results}</a>
+            <a href="#lessons" class="toc-link">{t.caseStudy.toc.lessons}</a>
           </nav>
         </aside>
 

@@ -1,0 +1,50 @@
+---
+title: "Organising FastAPI projects for data products"
+description: "Estructura de proyecto dirigida por el dominio que mantiene las APIs de datos mantenibles a medida que crecen más allá de unos pocos endpoints."
+date: 2026-06-15
+tags: ["FastAPI", "Architecture", "API Design", "Production"]
+---
+
+## Contexto
+
+La documentación de FastAPI promueve una estructura plana donde rutas, modelos Pydantic y lógica de negocio coexisten en el mismo archivo. Esto es aceptable para un prototipo de dos endpoints, pero cada producto de datos que he construido ha crecido más allá de eso. Cuando un sistema alcanza más de 10 endpoints con múltiples fuentes de datos, una estructura plana se convierte en un cuello de botella de mantenimiento.
+
+## Estructura por dominio, no por capa
+
+El enfoque que uso es organizar por dominio de negocio en lugar de por capa técnica:
+
+```
+src/
+  api/
+    routes/
+      ingestion.py
+      analytics.py
+      alerts.py
+    middleware/
+      auth.py
+      validation.py
+  domain/
+    weather/
+      models.py
+      service.py
+      validators.py
+    alerts/
+      models.py
+      service.py
+  infrastructure/
+    database.py
+    cache.py
+    config.py
+```
+
+Cada dominio es dueño de sus modelos Pydantic, su lógica de negocio y sus reglas de validación. La capa de API es deliberadamente delgada: analiza la petición HTTP, delega en el servicio del dominio y formatea la respuesta. Ninguna lógica de negocio vive en los manejadores de rutas.
+
+## Por qué esto funciona para productos de datos
+
+Los productos de datos difieren de las aplicaciones web estándar en un aspecto importante: el mismo modelo de datos es consumido frecuentemente por múltiples interfaces. Los modelos del dominio de clima en esta estructura los usa la API, el job de ingesta en segundo plano y el dashboard. Cuando el modelo cambia, el cambio se hace en un solo archivo y todos los consumidores lo recogen.
+
+Las pruebas también mejoran. Con los servicios de dominio separados de las preocupaciones de HTTP, puedo hacer unit tests de la lógica de transformación sin levantar un cliente de prueba. Las pruebas de integración verifican la capa de API por separado.
+
+## La contrapartida
+
+La estructura dirigida por el dominio introduce más archivos que una disposición plana. Un dominio nuevo requiere crear un directorio con al menos tres archivos (models, service, validators). Para proyectos muy pequeños con 2-3 endpoints, este sobrecosto puede no estar justificado. Pero en mi experiencia, todo producto de datos acaba creciendo — y el costo de refactorizar código plano a estructura de dominio es mayor que empezar con ella.

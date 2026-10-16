@@ -1,0 +1,59 @@
+---
+title: "When to use DuckDB for analytical workloads"
+description: "Patrones de producción para OLAP en proceso: cuándo DuckDB reemplaza a PostgreSQL y cuándo no debería hacerlo."
+date: 2026-05-20
+tags: ["DuckDB", "OLAP", "Architecture", "Production"]
+---
+
+## Contexto
+
+Todo proyecto analítico enfrenta una decisión: dónde procesar los datos. Las opciones convencionales — PostgreSQL para consultas estructuradas, Pandas para análisis flexibles — ambas tienen límites conocidos. PostgreSQL requiere aprovisionamiento de servidores y gestión de esquemas. Pandas falla con datasets que superan la memoria disponible.
+
+Para cargas analíticas de escala media (1M a 100M de filas), ninguna de las dos es ideal.
+
+## Por qué DuckDB
+
+DuckDB llena el hueco entre DataFrames en memoria y despliegues completos de bases de datos. Se ejecuta en proceso, usa almacenamiento columnar, admite SQL completo y maneja datasets más grandes que la RAM disponible aprovechando el volcado a disco (spill-to-storage). Sin servidor que configurar, sin pool de conexiones que gestionar.
+
+## Patrón de producción
+
+El patrón más efectivo que he utilizado es DuckDB como motor de transformación posicionado entre el almacenamiento de datos crudos y la capa de análisis:
+
+```python
+import duckdb
+
+con = duckdb.connect(':memory:')
+
+con.execute("""
+  CREATE VIEW analytics AS
+  SELECT
+    region,
+    date_trunc('month', date) as month,
+    sum(revenue) as total_revenue,
+    count(distinct customer_id) as customers
+  FROM read_parquet('data/*.parquet')
+  GROUP BY region, month
+""")
+
+result = con.execute("SELECT * FROM analytics WHERE total_revenue > 100000").fetchdf()
+```
+
+Este patrón mantiene los datos crudos en archivos Parquet (almacenamiento barato, portable) y usa DuckDB únicamente para la capa de transformación y consulta. Los datos nunca entran en una base de datos tradicional a menos que deban servir una API en producción.
+
+## Cuándo no usar DuckDB
+
+DuckDB no es un reemplazo de PostgreSQL. No admite escrituras concurrentes, no tiene modo de servidor para acceso de red y carece de autenticación de usuarios. Si múltiples servicios necesitan consultar el mismo dataset simultáneamente, o si los datos deben actualizarse de forma transaccional, usa PostgreSQL.
+
+Uso DuckDB para:
+- Pipelines analíticos que producen reportes o dashboards
+- Análisis exploratorio sobre datasets que superan los límites de memoria de Pandas
+- Capas de transformación en ETL por lotes donde la alimentación de salida va a una base de datos de servicio (serving)
+
+Uso PostgreSQL para:
+- APIs en producción que sirven datos a consumidores aguas abajo
+- Sistemas que requieren acceso concurrente de lectura/escritura
+- Datos que deben sobrevivir a reinicios de proceso
+
+## Impacto medido
+
+En el proyecto NetTension, DuckDB procesó más de 1.8M de indicadores de Eurostat unidos con 41.937 filas de datos regulatorios. Tiempo total de consulta del pipeline analítico completo: menos de 30 segundos en un portátil. Las operaciones equivalentes en Pandas habrían requerido chunking y gestión manual de memoria. Un PostgreSQL equivalente habría requerido aprovisionar una instancia de base de datos.

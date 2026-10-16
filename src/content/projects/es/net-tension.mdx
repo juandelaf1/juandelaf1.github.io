@@ -1,0 +1,120 @@
+---
+title: "NetTension"
+description: "Análisis de estrés de redes de telecomunicaciones de la UE: hipótesis pre-registradas sobre tráfico vs. ingresos con datos CNMC y Eurostat."
+featured: false
+order: 7
+category: "Analytics"
+date: 2026-05-15
+status: "development"
+metrics:
+  - value: "5/6"
+    label: "hipótesis confirmadas"
+  - value: "41,937"
+    label: "puntos de datos de CNMC"
+  - value: "DuckDB"
+    label: "analítica in-process"
+tech:
+  - name: "Python"
+  - name: "Pandas"
+  - name: "DuckDB"
+  - name: "Power BI"
+  - name: "Docker"
+  - name: "CNMC Data"
+links:
+  github: "https://github.com/juandelaf1/NetTension"
+---
+
+import Architecture from '../../../components/projects/Architecture.astro';
+import ArchitectureFlow from '../../../components/projects/ArchitectureFlow.astro';
+
+## Contexto
+
+<ArchitectureFlow stages={[
+  [
+    { label: "CNMC", sub: "41,937 rows" },
+    { label: "DuckDB", sub: "In-Process OLAP" },
+    { label: "Analysis", sub: "6 Hypotheses" },
+    { label: "Power BI", sub: "Interactive Viz" },
+    { label: "Findings", sub: "5/6 Confirmed" },
+  ],
+]} />
+
+Los mercados de telecomunicaciones europeos se caracterizan por una inversión masiva en infraestructura acompañada de una caída del ingreso por bit. Los operadores enfrentan un desafío estructural: el tráfico crece exponencialmente mientras el ingreso crece linealmente o disminuye. Este fenómeno — el "efecto tijera" — amenaza la sostenibilidad de las redes de telecomunicaciones de la UE.
+
+El problema de negocio: los reguladores de la UE y los operadores de telecomunicaciones necesitan evidencia cuantitativa del estrés del mercado para orientar políticas de infraestructura, decisiones de inversión y marcos regulatorios. Sin este análisis, las decisiones de política se basan en anécdotas en lugar de datos.
+
+## Desafíos
+
+- **Alineación de datos multifuente**: Combinar 41,937 filas de datos regulatorios de CNMC con más de 1.8M de indicadores macroeconómicos de Eurostat en diferentes granularidades y períodos de tiempo
+- **Formulación de hipótesis**: Traducir conocimiento cualitativo del mercado en hipótesis cuantitativas comprobables
+- **Análisis temporal**: Las tendencias de tráfico e ingresos deben analizarse en escalas de tiempo coincidentes para identificar la divergencia
+- **Contexto regulatorio**: El análisis debe ser lo suficientemente riguroso como para fundamentar discusiones de política a nivel de la UE
+
+## Solución
+
+### Arquitectura
+
+<Architecture title="Pipeline de analítica">
+<pre>
+CNMC (41,937 rows) ──┐
+                      ├──→ DuckDB Processing → Metrics → Hypothesis Testing → Power BI
+Eurostat (1.8M+)   ──┘                                     ↓
+                                                      6 Hypotheses
+                                                      (5 confirmed)
+</pre>
+</Architecture>
+
+### Pipeline
+
+1. **Adquisición de datos**: Los datos regulatorios de CNMC (41,937 filas que cubren ancho de banda, precios y cuota de mercado) y los macrodatos de Eurostat (más de 1.8M de indicadores en las economías de la UE) se ingesan en DuckDB.
+2. **Transformación de datos**: DuckDB procesa los datos multifuente in-process, alineando granularidades temporales y uniendo por claves región-tiempo.
+3. **Cálculo de características**: Se calculan métricas clave: CAGR del tráfico, CAGR de ingresos, precio por Mbps e Índice Herfindahl-Hirschman para la concentración de mercado.
+4. **Validación estadística**: Se prueban seis hipótesis sobre la dinámica del mercado usando análisis de regresión y descomposición de series temporales.
+5. **Visualización**: El dashboard de Power BI presenta los hallazgos con drill-down interactivo por país, operador y período de tiempo.
+
+### Stack tecnológico
+
+- **Python** con Pandas para transformación y análisis de datos
+- **DuckDB** para procesamiento analítico in-process de grandes conjuntos de datos
+- **Power BI** para visualización interactiva y comunicación con interesados
+- **Docker** para un entorno de análisis reproducible
+
+## Implementación
+
+La decisión más impactante fue usar DuckDB en lugar de una base de datos tradicional. Los más de 1.8M de indicadores de Eurostat habrían requerido una infraestructura significativa para cargarse en PostgreSQL. DuckDB procesó todo in-process con tiempos de consulta sub-segundos, eliminando la necesidad de aprovisionar una base de datos.
+
+El enfoque basado en hipótesis diferenció este proyecto del análisis exploratorio. Cada una de las seis hipótesis se formuló antes de que comenzara la recolección de datos, previniendo el sesgo de confirmación y asegurando rigor estadístico. La única hipótesis no confirmada (que la concentración de mercado se correlaciona con precios más altos) fue tan informativa como las cinco confirmadas — mostró que la política de competencia estaba funcionando.
+
+El análisis del efecto tijera requirió una alineación cuidadosa de las series temporales de tráfico e ingresos. Los datos de tráfico se reportan trimestralmente por los operadores; los datos de ingresos son anuales de los informes regulatorios. Las capacidades de join temporal de DuckDB hicieron esta alineación sencilla.
+
+### Compromisos
+
+Se eligió DuckDB en lugar de un data warehouse en la nube (Snowflake, BigQuery) a pesar de que estos últimos son más convencionales para cargas de trabajo analíticas multifuente. El proyecto no tenía presupuesto dedicado de base de datos ni equipo de operaciones — el enfoque de infraestructura cero de DuckDB hizo factible el análisis. Sin embargo, esta decisión limita la colaboración: el conjunto de datos vive en una sola máquina en lugar de ser accesible para un equipo. Para un proyecto analítico de una persona, esto es aceptable. Para un entorno de equipo, un data warehouse en la nube sería necesario.
+
+El análisis usa datos públicamente disponibles de CNMC y Eurostat en lugar de datos propietarios de los operadores. Esto significa que los hallazgos reflejan el reporte regulatorio en lugar de métricas operativas en tiempo real. El compromiso es entre la accesibilidad de los datos y la frescura de los datos.
+
+### Confiabilidad
+
+Todas las pruebas estadísticas se pre-registraron antes de la recolección de datos, incluyendo los criterios de aceptación. Esto previene el p-hacking y asegura que los resultados sean reproducibles. El pipeline completo de análisis — desde la ingestión de datos en bruto hasta la prueba de hipótesis — está contenedorizado con Docker y puede re-ejecutarse por cualquiera con acceso a las mismas fuentes de datos públicas.
+
+La integridad de los datos de origen se verifica en la ingestión: los conteos de filas y las verificaciones de esquema confirman que los conjuntos de datos de CNMC y Eurostat coinciden con su documentación publicada antes de que avance cualquier análisis.
+
+## Resultados
+
+- **5 de 6 hipótesis confirmadas** sobre la dinámica del mercado de telecomunicaciones de la UE. La sexta (concentración de mercado vs. precios) fue rechazada — hallazgo de que la política de competencia está funcionando.
+- **Efecto tijera cuantificado**: CAGR del tráfico +127% vs. CAGR de ingresos -0.4%. Calculado a partir de informes regulatorios de CNMC y datos de Eurostat, cubriendo 2018-2024.
+- **41,937 filas** de datos regulatorios de CNMC y más de 1.8M de macroindicadores de Eurostat procesados a través de DuckDB en menos de 30 segundos de tiempo total de consulta.
+- **Análisis de concentración de mercado** usando el Índice Herfindahl-Hirschman en los 27 Estados miembros de la UE.
+- **Coeficiente de Gini global: 0.974** que demuestra una concentración extrema de la atención (del análisis complementario sobre datos de atención digital).
+
+## Lecciones aprendidas
+
+1. **El análisis basado en hipótesis previene la divagación.** Cada hipótesis tenía una prueba pre-registrada y criterios de aceptación. Esto mantuvo el análisis enfocado y defendible.
+2. **DuckDB está infravalorado para cargas de trabajo analíticas.** Procesar más de 1.8M de filas en una laptop sin infraestructura fue transformador para la velocidad de iteración.
+3. **La hipótesis no confirmada fue el hallazgo más valioso.** Saber que la concentración de mercado no predice los precios es accionable para los reguladores.
+
+## Trabajo futuro
+
+- Dashboard de monitoreo en tiempo real para indicadores del mercado de telecomunicaciones de la UE
+- Modelo predictivo para estrés financiero de operadores basado en la divergencia tráfico-ingresos
+- Expansión para incluir mercados no pertenecientes a la UE para análisis comparativo

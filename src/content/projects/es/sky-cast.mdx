@@ -1,0 +1,121 @@
+---
+title: "SkyCast"
+description: "Plataforma de inteligencia climática que integra AEMET OpenData y fuentes auxiliares con ingestión programada, FastAPI y monitoreo mediante Streamlit."
+featured: true
+order: 0
+category: "Climate"
+date: 2026-04-15
+status: "production"
+metrics:
+  - value: "180"
+    label: "pruebas automatizadas en CI"
+  - value: "Circuit breaker"
+    label: "patrón en APIs externas"
+tech:
+  - name: "FastAPI"
+  - name: "PostgreSQL"
+  - name: "Streamlit"
+  - name: "Docker"
+  - name: "Python"
+  - name: "AEMET API"
+links:
+  github: "https://github.com/juandelaf1/SkyCast"
+---
+
+import ArchitectureFlow from '../../../components/projects/ArchitectureFlow.astro';
+
+## Contexto
+
+<ArchitectureFlow stages={[
+  [
+    { label: "AEMET", sub: "OpenData API" },
+    { label: "Ingestión", sub: "Pydantic" },
+    { label: "PostgreSQL", sub: "TimescaleDB" },
+    { label: "FastAPI", sub: "REST API" },
+    { label: "Streamlit", sub: "Dashboard + Alertas" },
+  ],
+]} />
+
+Los municipios y gobiernos regionales de toda España carecen de un sistema unificado para monitorear las condiciones climáticas locales. Los datos oficiales de AEMET (Agencia Estatal de Meteorología) proporcionan mediciones de referencia, pero no siempre son en tiempo real y no cubren los microclimas hiperlocales. Mientras tanto, los informes no oficiales recopilados de forma colaborativa por los residentes contienen observaciones de campo valiosas que nunca llegan a los responsables de la toma de decisiones.
+
+El problema de negocio es claro: los equipos de gestión de emergencias necesitan datos meteorológicos precisos y en tiempo real para emitir alertas, asignar recursos y responder a incidentes. Sin ellos, la respuesta es reactiva en lugar de preventiva.
+
+## Desafíos
+
+- **Fragmentación de datos**: AEMET OpenData utiliza diferentes endpoints con esquemas inconsistentes entre estaciones
+- **Requisitos de tiempo real**: El clima cambia rápidamente; los datos obsoletos son peligrosos para los sistemas de alertas
+- **Escalabilidad**: El sistema debe manejar solicitudes concurrentes de múltiples municipios
+- **Calidad de datos**: Los informes de origen colectivo requieren validación antes de utilizarse en la toma de decisiones
+- **Infraestructura**: Debe ejecutarse en recursos mínimos en la nube sin soporte operativo dedicado
+
+import Architecture from '../../../components/projects/Architecture.astro';
+
+## Solución
+
+### Arquitectura
+
+El sistema se construye como un pipeline modular: ingestión de datos → procesamiento → almacenamiento → API → visualización. Cada componente se ejecuta de forma independiente y se comunica a través de interfaces bien definidas.
+
+<Architecture title="Pipeline de datos">
+<pre>
+AEMET OpenData → Ingestión → PostgreSQL → FastAPI → Streamlit
+Origen colectivo → Validación                     → Motor de alertas → Web/Móvil
+</pre>
+</Architecture>
+
+### Pipeline
+
+1. **Ingestión**: Un trabajo programado obtiene datos de AEMET OpenData cada 15 minutos. Las solicitudes concurrentes se agrupan para respetar los límites de tasa de la API.
+2. **Validación**: Los informes de origen colectivo pasan por una capa de validación de Pydantic. Los datos mal formados se rechazan con mensajes de error estructurados.
+3. **Almacenamiento**: PostgreSQL almacena datos históricos con particionado por series temporales. Los datos recientes se almacenan en caché en memoria para consultas rápidas en el dashboard.
+4. **API**: Los endpoints de FastAPI sirven datos filtrados por municipio, rango de fechas y tipo de métrica. Autenticación JWT para los endpoints protegidos.
+5. **Dashboard**: El frontend de Streamlit proporciona vistas de monitoreo, tendencias históricas y configuración de alertas.
+
+### Stack tecnológico
+
+- **FastAPI** para la capa de API REST con documentación OpenAPI automática
+- **PostgreSQL** con extensiones de TimescaleDB para la optimización de series temporales
+- **Streamlit** para el dashboard interactivo con actualizaciones en tiempo real
+- **Docker** para el despliegue contenedorizado con orquestación mediante docker-compose
+- **APScheduler** para trabajos de ingestión de datos basados en cron
+- **JWT** para la autenticación de la API
+
+## Implementación
+
+La decisión arquitectónica más significativa fue separar la capa de ingestión de la capa de API. Esto permite que el sistema continúe sirviendo datos incluso cuando las fuentes upstream no están disponibles temporalmente. Si AEMET cae, el dashboard sigue mostrando los últimos datos conocidos.
+
+La calidad de datos se garantizó en la frontera del sistema. Cada fuente de datos externa tiene un validador dedicado que rechaza los registros mal formados antes de que entren en la base de datos. Esto previene los escenarios de basura entra, basura sale que aquejan a muchos proyectos de datos climáticos.
+
+Las pruebas se priorizaron desde el primer día. Las 180 pruebas cubren ingestión, validación, endpoints de API y renderizado del dashboard. Un pipeline de CI ejecuta estas pruebas en cada push, y Docker Compose proporciona un entorno de pruebas similar al de producción.
+
+### Compromisos (Trade-offs)
+
+La capa de ingestión se ejecuta en un programador basado en cron (APScheduler, intervalo predeterminado de 120 minutos) en lugar de una plataforma de streaming. Esto significa que los datos son intencionalmente periódicos — aceptable para el monitoreo climático, pero no para alertas de latencia inferior a un minuto. Un enfoque de streaming (Kafka, Kinesis) reduciría la caducidad de los datos, pero añadiría complejidad operativa que las restricciones de recursos del proyecto no justificaban.
+
+Usar PostgreSQL con particionado manual de series temporales en lugar de una base de datos especializada en series temporales (TimescaleDB, InfluxDB) fue una decisión pragmática. Simplificó el stack, pero requirió mantener la lógica de particionado que una base de datos especializada gestiona automáticamente. Para el volumen actual de datos (~100K registros/día), el compromiso es aceptable. Con un volumen 10 veces mayor, la migración estaría justificada.
+
+### Fiabilidad
+
+Cada API externa utiliza el patrón de circuit breaker. Si AEMET devuelve errores en 5 solicitudes consecutivas, la capa de ingestión deja de llamarla y registra una alerta. El dashboard continúa sirviendo los datos en caché. Cuando la API se recupera, la ingestión se reanuda automáticamente.
+
+Las comprobaciones de calidad de datos se ejecutan en cada etapa: la validación de la fuente rechaza entradas mal formadas, las comprobaciones de esquema detectan cambios en la API y las comprobaciones de rango señalan valores atípicos en las lecturas de temperatura y precipitación antes de que lleguen al dashboard.
+
+## Resultados
+
+- **180 pruebas automatizadas** ejecutándose en el pipeline de CI/CD con GitHub Actions — cada push ejecuta la suite completa
+- **AEMET OpenData oficial** integrado como fuente autorizada principal, con validadores para las entradas auxiliares
+- **Alertas** configuradas para condiciones meteorológicas extremas con umbrales configurables por municipio
+- **Contenedorización con Docker** que permite el despliegue con un solo comando en cualquier proveedor en la nube
+- **CI/CD automatizado** que compila, aplica lint, prueba y contenedoriza en cada push
+
+## Lecciones aprendidas
+
+1. **El diseño basado en esquemas previene los problemas de integración.** Definir el modelo de datos antes de construir la capa de ingestión habría ahorrado dos semanas de refactorización cuando AEMET cambió su API.
+2. **Los datos de origen colectivo requieren más validación que las fuentes oficiales.** La relación señal-ruido es menor, pero la cobertura es mayor. Un sistema de reputación para quienes envían informes mejoraría la calidad de los datos.
+3. **El particionado por series temporales es esencial para el rendimiento de las consultas.** Sin él, las consultas del dashboard sobre más de 6 meses de datos se volvían demasiado lentas para ser utilizables.
+
+## Trabajo futuro
+
+- Modelos de machine learning para la predicción meteorológica a corto plazo utilizando patrones históricos
+- Notificaciones push móviles para alertas meteorológicas críticas
+- Integración con agencias meteorológicas europeas adicionales (Météo-France, DWD, Met Office)

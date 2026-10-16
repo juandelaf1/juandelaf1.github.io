@@ -1,0 +1,63 @@
+---
+title: "Testing data pipelines at three layers"
+description: "Validación en la fuente, pruebas de transformación y aserciones de salida — una estrategia práctica para ETL fiable."
+date: 2026-06-01
+tags: ["Testing", "ETL", "CI/CD", "Data Quality"]
+---
+
+## Contexto
+
+Los pipelines de datos son difíciles de probar por una razón específica: la entrada cambia constantemente. A diferencia de una aplicación web donde las peticiones siguen formatos predecibles, un pipeline que procesa datos diarios debe manejar deriva de esquema (schema drift), campos faltantes, cambios de tipo y valores que caen fuera de los rangos esperados.
+
+La mayoría de los equipos detectan estos problemas a nivel del dashboard — el gráfico se ve mal, así que alguien investiga. Para ese punto, los datos ya se han propagado por todo el sistema.
+
+## El enfoque de tres capas
+
+Pruebo los pipelines de datos en tres capas distintas, cada una detecta una clase diferente de fallo.
+
+**Capa de origen — validar en la frontera**
+
+La prueba más costo-efectiva es rechazar datos mal formados antes de que entren en el pipeline. Cada fuente tiene un contrato de esquema, y cualquier registro que lo viole se pone en cuarentena:
+
+```python
+def test_source_schema(df):
+    expected_columns = {'date', 'revenue', 'customer_id', 'region'}
+    assert expected_columns.issubset(set(df.columns))
+    assert df['revenue'].dtype in ('float64', 'int64')
+```
+
+En producción, estas verificaciones se ejecutan como parte del paso de ingesta. Los registros fallidos se escriben en una tabla de cuarentena con el motivo del rechazo, permitiendo el análisis posterior de las tendencias de calidad de la fuente.
+
+**Capa de transformación — unit test de cada función**
+
+Cada función de transformación debe ser testeable de forma independiente con entradas conocidas y salidas esperadas:
+
+```python
+def test_normalize_region():
+    assert normalize_region('NY') == 'New York'
+    assert normalize_region('ny') == 'New York'
+    assert normalize_region('') is None
+```
+
+La existencia de una prueba para casos límite (cadena vacía, mayúsculas mezcladas, abreviaturas) fuerza a la implementación a manejarlos. Las funciones sin dicho manejo son una fuente común de corrupción silenciosa de datos.
+
+**Capa de salida — aserción de reglas de negocio**
+
+El dataset final debe satisfacer restricciones a nivel de negocio independientemente de cómo se vean los datos de origen:
+
+- Conteo de filas dentro de rangos esperados (no cero, no 10x el promedio semanal)
+- Sin NULLs en columnas clave
+- Integridad referencial mantenida en las tablas unidas
+- Valores de métricas dentro de rangos físicamente posibles
+
+Estas pruebas de la capa de salida son la red de seguridad que detecta problemas de integración — casos donde las transformaciones individuales funcionan correctamente pero producen resultados incorrectos cuando se combinan.
+
+## Qué logra esto
+
+En el proyecto DashLogistics, este enfoque de tres capas detectó un cambio de esquema en la API de combustible de AAA en minutos después de su despliegue. La prueba de la capa de origen falló, el pipeline puso en cuarentena los registros afectados y el equipo de operaciones fue notificado antes de que ningún dashboard mostrara datos incorrectos.
+
+El mismo enfoque permitió refactorizar con confianza el pipeline de transformación de Pandas a Polars — las pruebas de la capa de transformación validaron que la salida era idéntica después de la migración.
+
+## Orden de prioridad
+
+Si los recursos son limitados, invierte primero en la validación de la capa de origen. La mayoría de los fallos de los pipelines provienen de entradas inesperadas. Las pruebas de transformación son la segunda prioridad. Las pruebas de la capa de salida son valiosas pero tienden a ser más frágiles — fallan cuando cambios legítimos de negocio afectan los rangos esperados, requiriendo mantenimiento regular.

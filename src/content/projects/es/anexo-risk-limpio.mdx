@@ -1,0 +1,170 @@
+---
+title: "Anexo Risk"
+description: "Backend de análisis de riesgo FastAPI refinado con autenticación JWT, acceso basado en roles y una base de código limpia y probada."
+featured: false
+order: 8
+category: "AI/ML"
+date: 2026-10-01
+status: "development"
+metrics:
+  - value: "50+"
+    label: "pruebas unitarias"
+  - value: "JWT"
+    label: "autenticación"
+  - value: "SQLite"
+    label: "capa de datos zero-ORM"
+tech:
+  - name: "Python"
+  - name: "FastAPI"
+  - name: "JWT"
+  - name: "SQLite"
+  - name: "Docker"
+links:
+  github: "https://github.com/juandelaf1/Anexo_Risk"
+---
+import ArchitectureFlow from '../../../components/projects/ArchitectureFlow.astro';
+
+## Contexto
+
+Anexo Risk es un backend FastAPI refinado para flujos de trabajo de análisis de riesgo con autenticación JWT. La base de código fue depurada de scripts de depuración heredados, organizada en torno a una capa de datos SQLite zero-ORM y documentada para revisión de portafolio. El repositorio público es la versión canónica.
+
+El proyecto evolucionó desde un prototipo de investigación hasta una API estructurada con autenticación adecuada, validación de datos y configuración de despliegue.
+
+## Desafíos
+
+- **Implementación de autenticación**: Diseñar un sistema de autenticación basado en JWT que sea a la vez seguro y amigable para el desarrollador
+- **Sanitización del código**: Eliminar archivos redundantes, scripts de depuración y artefactos temporales del historial
+- **Gestión de dependencias**: Establecer dependencias de producción optimizadas mediante `requirements.prod.txt`
+- **Configuración de Docker**: Build multi-stage con Node 20 para el frontend + Python 3.12-slim para el backend
+- **Diseño de API**: Crear endpoints intuitivos que equilibren la flexibilidad con una validación estricta de contratos
+
+## Solución
+
+### Arquitectura
+
+El sistema usa un backend FastAPI con contratos de datos Pydantic v2, autenticación JWT para el acceso a la API y SQLite a través de una capa de datos zero-ORM para la persistencia. Un build multi-stage de Docker mantiene la imagen de runtime optimizada.
+
+```text
+┌────────────────────────────────────────────────────────────┐
+│                ANEXO_RISK LIMPO - ARCHITECTURE           │
+└────────────────────────────────────────────────────────────┘
+
+[MULTI-STAGE DOCKER BUILD]                       [PRODUCTION DEPLOY]
+  Node 20 (frontend)                            ┌─────────────────┐
+                                            │   FastAPI     │
+  ────────────────────          ────────────▶│   (Python)    │
+  Frontend build ───────────────────────────▶│   API Endpoints│
+                                            │   /api/auth/* │
+                                            │   /api/risk/* │
+                                            └─────────────────┘
+                                              ▲  ▲
+                                              │  │
+                                            docker compose  docker run
+                                              │  --port
+```
+
+### Endpoints clave
+
+| Endpoint | Descripción | Auth |
+|----------|-------------|------|
+| `/api/auth/jwt` | Obtener token JWT | Pública |
+| `/api/auth/refresh` | Renovar token | Pública |
+| `/api/risk/analyze` | Analizar riesgo en celda H3 | Requerido |
+| `/api/risk/profile` | Perfil de riesgo por zona | Requerido |
+| `/api/docs` | Documentación interactiva Swagger | Pública |
+
+### Flujo de autenticación JWT
+
+1. **Login**: POST a `/api/auth/jwt` con credenciales → recibir JWT firmado
+2. **Acceso**: Incluir el JWT en el header `Authorization: Bearer <token>`
+3. **Refresh**: POST a `/api/auth/refresh` con el refresh token → nuevo access token
+4. **Validación**: Todos los endpoints protegidos verifican el JWT antes de procesar
+
+### Modelo de datos
+
+- **Usuarios**: email, contraseña hasheada, created_at, last_login
+- **Celdas de riesgo**: h3_index, risk_profile (clúster K-Means), puntaje de severidad, metadatos
+- **Sesiones de análisis**: user_id, cell_id, analysis_type, results, created_at
+
+### Despliegue en producción
+
+```bash
+# Docker Compose (development + development)
+docker compose up --build
+
+# Production single service
+docker run -p 8000:8000 juandelaf1/anexo_risk_limpio
+```
+
+### Documentación de la API
+
+Swagger UI generado automáticamente en `/api/docs`. Todos los endpoints tienen especificación OpenAPI 3.0 con validación de request/response mediante modelos Pydantic v2.
+
+## Implementación
+
+El refactoring más significativo fue la capa de autenticación. El proyecto original no tenía autenticación; la versión limpio introduce JWT con rotación de refresh tokens. Esto implicó:
+
+- Diseñar el modelo de usuario con unicidad de email y hash de contraseña
+- Crear la emisión de tokens con el par access/refresh token
+- Implementar middleware que valida el JWT en todos los endpoints protegidos
+- Agregar contratos de endpoints con modelos Pydantic para request/response
+
+La limpieza del código eliminó más de 8 scripts temporales, archivos de depuración y configuraciones redundantes que estaban rastreados en el historial git original. El `.gitignore` se amplió para excluir archivos `*.env`, `*.db`, `temp_*.py` y `debug_*.py`.
+
+La configuración de Docker usa un build multi-stage:
+- **Etapa 1**: Node 20 construye el frontend (si aplica)
+- **Etapa 2**: Python 3.12-slim ejecuta la aplicación FastAPI
+- Combinados mediante `docker compose` para desarrollo o `docker run` para producción
+
+El `requirements.prod.txt` contiene solo las dependencias de producción optimizadas, separadas del stack completo de ML en `requirements.txt`.
+
+## Testing
+
+- Más de 50 pruebas unitarias que cubren el flujo de autenticación, validación de endpoints y procesamiento de datos
+- pytest se ejecuta en cada push de GitHub Actions
+- La cobertura de pruebas incluye casos límite para expiración de tokens, credenciales inválidas y rate limiting
+- Las pruebas de integración verifican el pipeline completo autenticación → análisis → respuesta
+
+## Resultados
+
+- **Autenticación JWT funcional** con flujo de access y refresh token
+- **Base de código depurada**: archivos redundantes y scripts de depuración eliminados del rastreo activo
+- **Build multi-stage de Docker** validado para despliegue en producción
+- **Dependencias de producción optimizadas** mediante `requirements.prod.txt` (vs. el stack completo de ML)
+- **Documentación de API auto-generada** con especificación Swagger/OpenAPI 3.0
+- **Más de 50 pruebas unitarias definidas** que cubren los caminos de autenticación y análisis; la ejecución más reciente de GitHub Actions en este repo está fallando — tratar el CI como actualmente no verde
+
+## Licencia
+
+MIT. Ver el repositorio para el texto completo de la licencia.
+
+## Lecciones aprendidas
+
+1. **La autenticación desde cero no es trivial**. Diseñar un sistema JWT que maneje rotación de tokens, refresh y revocación requiere una consideración cuidadosa de los casos límite de seguridad. Las soluciones off-the-shelf (como Auth0) pueden simplificar esto, pero pueden no cumplir los requisitos de integración del proyecto.
+
+2. **La limpieza del historial de código mejora el valor presentacional**. Eliminar más de 8 años de scripts de depuración, análisis temporales y configuraciones redundantes de la vista "activa" hace el repositorio más navegable y profesional.
+
+3. **Archivos de requirements separados para producción** previenen el despliegue accidental de dependencias que solo son de desarrollo (bibliotecas de ML, herramientas de prueba, scripts de depuración). El `.gitignore` trabajando en conjunto con `requirements.prod.txt` proporciona defensa en profundidad.
+
+4. **Los builds multi-stage de Docker requieren un ordenamiento cuidadoso de capas**. El orden de build determina qué se preserva en la imagen final. Colocar la etapa de Python después de la etapa de Node asegura la menor huella posible para un backend exclusivamente de Python.
+
+5. **La generación de Swagger/OpenAPI es valiosa** incluso para APIs internas. Sirve como documentación viva y permite la generación automática de clientes para los consumidores de la API.
+
+## Trabajo futuro
+
+- Soporte para proyectos/portafolios multitenant
+- Modelos adicionales de análisis de riesgo (actuariales, probabilísticos)
+- API GraphQL como alternativa a REST
+- Integración de OpenID Connect en lugar de JWT personalizado
+- Middleware de rate limiting y prevención de abuso
+
+## Diagrama de arquitectura
+
+<ArchitectureFlow stages={[
+  [{ label: "Frontend", sub: "React/Vite" },
+   { label: "API Gateway", sub: "FastAPI" }],
+  [{ label: "Auth", sub: "JWT + Refresh" },
+   { label: "Lógica de negocio", sub: "Análisis de riesgo" }],
+  [{ label: "Datos", sub: "SQLite (zero-ORM)" },
+   { label: "Caché", sub: "Capa opcional" }],
+]} />

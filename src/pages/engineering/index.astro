@@ -5,7 +5,7 @@ import NoteList from '../../components/engineering/NoteList.astro';
 import { SITE } from '../../config/site';
 import { getCollection } from 'astro:content';
 
-const notes = await getCollection('engineering');
+const notes = await getCollection('engineering', (entry) => entry.id.startsWith('en/'));
 ---
 
 <BaseLayout

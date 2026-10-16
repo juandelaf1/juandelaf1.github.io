@@ -5,7 +5,7 @@ import BuildingCard from '../../components/building/BuildingCard.astro';
 import { SITE } from '../../config/site';
 import { getCollection } from 'astro:content';
 
-const projects = await getCollection('building');
+const projects = await getCollection('building', (entry) => entry.id.startsWith('es/'));
 const sorted = [...projects].sort((a, b) => b.data.started.getTime() - a.data.started.getTime());
 ---
 

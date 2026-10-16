@@ -3,9 +3,15 @@ import BaseLayout from '../../../layouts/BaseLayout.astro';
 import Container from '../../../components/ui/Container.astro';
 import { SITE } from '../../../config/site';
 import { getCollection } from 'astro:content';
+import { getUI } from '../../../i18n/ui';
 
-const notes = await getCollection('engineering');
-const sorted = [...notes].sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+const t = getUI('es');
+const all = await getCollection('engineering', (entry) => entry.id.startsWith('es/'));
+const sorted = [...all].sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+
+function stripLocale(id: string): string {
+  return id.replace(/^es\//, '');
+}
 ---
 
 <BaseLayout
@@ -32,7 +38,7 @@ const sorted = [...notes].sort((a, b) => b.data.date.getTime() - a.data.date.get
               </time>
             </div>
             <h2 class="item-title">
-              <a href={`/es/engineering/${note.id}`}>{note.data.title}</a>
+              <a href={`/es/engineering/${stripLocale(note.id)}`}>{note.data.title}</a>
             </h2>
             <p class="item-desc">{note.data.description}</p>
             <div class="tags">
@@ -48,75 +54,18 @@ const sorted = [...notes].sort((a, b) => b.data.date.getTime() - a.data.date.get
 </BaseLayout>
 
 <style>
-  .engineering-index {
-    padding: 48px 0 96px;
-  }
-  .page-header {
-    margin-bottom: 48px;
-  }
-  .page-header h1 {
-    font-size: 2rem;
-    font-weight: 800;
-    margin-bottom: 12px;
-  }
-  .lede {
-    color: var(--text-secondary);
-    max-width: 560px;
-  }
-  .list {
-    display: flex;
-    flex-direction: column;
-    gap: 1px;
-    background: var(--border);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    overflow: hidden;
-  }
-  .item {
-    padding: 28px 32px;
-    background: var(--bg-primary);
-  }
-  .item-meta {
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    color: var(--text-muted);
-    margin-bottom: 8px;
-  }
-  .item-title {
-    font-size: 1.1875rem;
-    font-weight: 700;
-    margin-bottom: 8px;
-  }
-  .item-title a {
-    color: var(--text-primary);
-    text-decoration: none;
-  }
-  .item-title a:hover {
-    color: var(--accent);
-  }
-  .item-desc {
-    font-size: 0.9375rem;
-    color: var(--text-secondary);
-    line-height: 1.55;
-    max-width: 640px;
-    margin-bottom: 12px;
-  }
-  .tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-  .tag {
-    font-family: var(--font-mono);
-    font-size: 0.6875rem;
-    color: var(--text-secondary);
-    border: 1px solid var(--border);
-    border-radius: 999px;
-    padding: 3px 10px;
-  }
-  @media (max-width: 768px) {
-    .item {
-      padding: 24px;
-    }
-  }
+  .engineering-index { padding: 48px 0 96px; }
+  .page-header { margin-bottom: 48px; }
+  .page-header h1 { font-size: 2rem; font-weight: 800; margin-bottom: 12px; }
+  .lede { color: var(--text-secondary); max-width: 560px; }
+  .list { display: flex; flex-direction: column; gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  .item { padding: 28px 32px; background: var(--bg-primary); }
+  .item-meta { font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted); margin-bottom: 8px; }
+  .item-title { font-size: 1.1875rem; font-weight: 700; margin-bottom: 8px; }
+  .item-title a { color: var(--text-primary); text-decoration: none; }
+  .item-title a:hover { color: var(--accent); }
+  .item-desc { font-size: 0.9375rem; color: var(--text-secondary); line-height: 1.55; max-width: 640px; margin-bottom: 12px; }
+  .tags { display: flex; flex-wrap: wrap; gap: 8px; }
+  .tag { font-family: var(--font-mono); font-size: 0.6875rem; color: var(--text-secondary); border: 1px solid var(--border); border-radius: 999px; padding: 3px 10px; }
+  @media (max-width: 768px) { .item { padding: 24px; } }
 </style>

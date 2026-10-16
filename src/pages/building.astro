@@ -5,7 +5,7 @@ import BuildingCard from '../components/building/BuildingCard.astro';
 import { SITE } from '../config/site';
 import { getCollection } from 'astro:content';
 
-const buildingProjects = await getCollection('building');
+const buildingProjects = await getCollection('building', (entry) => entry.id.startsWith('en/'));
 ---
 
 <BaseLayout

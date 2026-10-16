@@ -75,6 +75,22 @@ export const UI = {
       print: 'Print / Save as PDF',
       backToSite: 'Back to portfolio',
     },
+    caseStudy: {
+      backToProjects: 'All projects',
+      viewRepository: 'View Repository',
+      liveDemo: 'Live Demo',
+      documentation: 'Documentation',
+      toc: {
+        context: 'Context',
+        challenges: 'Challenges',
+        solution: 'Solution',
+        implementation: 'Implementation',
+        tradeOffs: 'Trade-offs',
+        reliability: 'Reliability',
+        results: 'Results',
+        lessons: 'Lessons Learned',
+      },
+    },
     language: {
       switch: 'Español',
       label: 'Language',
@@ -155,6 +171,22 @@ export const UI = {
     resume: {
       print: 'Imprimir / Guardar como PDF',
       backToSite: 'Volver al portfolio',
+    },
+    caseStudy: {
+      backToProjects: 'Todos los proyectos',
+      viewRepository: 'Ver repositorio',
+      liveDemo: 'Demo en vivo',
+      documentation: 'Documentación',
+      toc: {
+        context: 'Contexto',
+        challenges: 'Desafíos',
+        solution: 'Solución',
+        implementation: 'Implementación',
+        tradeOffs: 'Trade-offs',
+        reliability: 'Fiabilidad',
+        results: 'Resultados',
+        lessons: 'Lecciones aprendidas',
+      },
     },
     language: {
       switch: 'English',

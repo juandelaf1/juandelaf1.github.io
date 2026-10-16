@@ -6,7 +6,7 @@ import { SITE } from '../../config/site';
 import { getCollection } from 'astro:content';
 import { formatDate } from '../../lib/utils';
 
-const experiments = await getCollection('experiments');
+const experiments = await getCollection('experiments', (entry) => entry.id.startsWith('en/'));
 ---
 
 <BaseLayout
@@ -27,7 +27,7 @@ const experiments = await getCollection('experiments');
       {experiments.length > 0 ? (
         <div style="display: flex; flex-direction: column; gap: 2px; border: 1px solid var(--border); border-radius: 12px; overflow: hidden;">
           {experiments.sort((a, b) => b.data.date.getTime() - a.data.date.getTime()).map((exp) => (
-            <a href={`/experiments/${exp.id}`} style="display: block; padding: 24px 32px; background: var(--bg-primary); text-decoration: none; transition: background 150ms ease;">
+            <a href={`/experiments/${exp.id.replace(/^en\//, '')}`} style="display: block; padding: 24px 32px; background: var(--bg-primary); text-decoration: none; transition: background 150ms ease;">
               <div style="margin-bottom: 8px;">
                 <time datetime={exp.data.date.toISOString()} style="font-family: var(--font-mono); font-size: 0.8125rem; color: var(--text-secondary);">
                   {formatDate(exp.data.date)}

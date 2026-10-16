@@ -4,7 +4,7 @@ import Container from '../../../components/ui/Container.astro';
 import { SITE } from '../../../config/site';
 import { getCollection } from 'astro:content';
 
-const experiments = await getCollection('experiments');
+const experiments = await getCollection('experiments', (entry) => entry.id.startsWith('es/'));
 const sorted = [...experiments].sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
 ---
 
@@ -33,7 +33,7 @@ const sorted = [...experiments].sort((a, b) => b.data.date.getTime() - a.data.da
               <span class="status">{exp.data.status}</span>
             </div>
             <h2 class="item-title">
-              <a href={`/es/experiments/${exp.id}`}>{exp.data.title}</a>
+              <a href={`/es/experiments/${exp.id.replace(/^es\//, '')}`}>{exp.data.title}</a>
             </h2>
             <p class="item-desc">{exp.data.description}</p>
             <div class="tags">

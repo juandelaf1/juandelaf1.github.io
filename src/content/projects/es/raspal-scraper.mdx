@@ -1,0 +1,128 @@
+---
+title: "RASPAL Scraper"
+description: "Web scraping con extracción mediante IA local. Una URL entra, JSON estructurado sale. Sin API keys. Sin datos que salgan de tu máquina."
+featured: true
+order: 2
+category: "AI/ML"
+date: 2026-06-19
+status: "production"
+metrics:
+  - value: "82"
+    label: "pruebas unitarias definidas"
+  - value: "PyPI"
+    label: "paquete publicado (0.6.1)"
+  - value: "3"
+    label: "motores de scraping"
+tech:
+  - name: "Python"
+  - name: "Playwright"
+  - name: "Scrapling"
+  - name: "Ollama"
+  - name: "Docker"
+  - name: "Pydantic"
+links:
+  github: "https://github.com/juandelaf1/RASPAL_SCRAPER"
+---
+
+import Architecture from '../../../components/projects/Architecture.astro';
+import ArchitectureFlow from '../../../components/projects/ArchitectureFlow.astro';
+
+## Contexto
+
+<ArchitectureFlow stages={[
+  [
+    { label: "URL", sub: "Cualquier sitio web" },
+    { label: "Fetcher", sub: "3 motores" },
+    { label: "Extractor", sub: "trafilatura" },
+    { label: "Ollama", sub: "LLM local" },
+    { label: "JSON", sub: "Estructurado" },
+  ],
+]} />
+
+Las herramientas de web scraping obligan a elegir un compromiso. Las APIs SaaS (Firecrawl, Apify, Browse.ai) envían el contenido de las páginas a servidores de terceros y cobran por solicitud. Los frameworks auto-hospedados (Scrapy) requieren una configuración significativa y no manejan las protecciones anti-bot de forma nativa. Para un desarrollador que necesita datos estructurados de unas pocas páginas — sin pagar tarifas de API ni enviar potencialmente contenido sensible a servicios externos — ninguna de las dos opciones encaja.
+
+El problema de negocio: extraer datos estructurados de sitios web arbitrarios utilizando únicamente infraestructura local. Sin API keys. Sin datos que salgan de la máquina. Un solo comando desde la URL hasta el JSON estructurado.
+
+## Desafíos
+
+- **Protecciones anti-bot**: Cloudflare, Turnstile y sistemas de fingerprinting bloquean clientes HTTP ingenuos. Un scraper de producción debe manejarlos sin mantener código de evasión personalizado.
+- **Contenido renderizado con JavaScript**: Muchos sitios modernos renderizan los datos en el cliente. La obtención de HTML estático devuelve estructuras vacías.
+- **Restricciones de IA local**: Ejecutar la extracción con LLM local significa trabajar con modelos más pequeños (3B de parámetros) que tienen menor precisión que las alternativas hospedadas como GPT-4 o Claude.
+- **Cumplimiento legal**: El análisis de robots.txt, el respeto del crawl-delay y la detección de dominios sensibles a menudo se tratan como una idea de último momento. Necesitan ser funcionalidades de primera clase.
+- **Herramientas fragmentadas**: La velocidad, el renderizado de JS y el stealth normalmente se resuelven con tres herramientas distintas. Los usuarios deben elegir o integrar manualmente.
+
+## Solución
+
+### Arquitectura
+
+<Architecture title="Pipeline de Scraping">
+<pre>
+URL ──→ Fetcher ──→ Extractor ──→ LLM (Ollama) ──→ JSON Estructurado
+        │            │              │
+   scrapling     trafilatura    llama3.2:3b
+   playwright    CSS selectors   6 templates
+   stealth       metadata        chains
+        │
+   SQLite cache + priority queue + auto-throttle
+</pre>
+</Architecture>
+
+### Pipeline
+
+1. **Fetch**: Tres opciones de motor detrás de una interfaz unificada. `scrapling` (basado en curl_cffi) para HTML estático con spoofing de fingerprint TLS. `playwright` para páginas renderizadas con JavaScript. `stealth` (browserforge + apify-fingerprint-datapoints) para páginas protegidas por Cloudflare o Turnstile. Un modo `auto` usa scrapling por defecto y escala cuando es bloqueado.
+2. **Extract**: trafilatura extrae texto legible y metadatos. Los selectores CSS extraen campos estructurados (título, precio, disponibilidad) directamente del HTML.
+3. **Transform**: Ollama ejecuta un LLM local (llama3.2:3b por defecto) para convertir texto no estructurado en JSON estructurado. Seis plantillas de prompts cubren patrones comunes (productos, artículos, reseñas, empleos, bienes raíces, cripto). Los pipelines con pasos encadenados (chain-step) soportan extracción multipas.
+4. **Caché y cola**: Una caché TTL respaldada por SQLite evita solicitudes redundantes. Una cola de prioridad con lógica de reintentos maneja cargas de trabajo por lotes. Un throttle adaptativo ajusta los retrasos de solicitud basándose en los códigos de estado de respuesta.
+5. **Output**: El módulo de pipeline serializa los resultados a JSON o CSV. Un dashboard de FastAPI (opcional) proporciona monitoreo en tiempo real.
+
+### Stack tecnológico
+
+- **Python** 3.11+ con Pydantic v2 para todos los contratos de datos
+- **Playwright** para automatización de navegador y renderizado de JS
+- **Scrapling** para HTTP rápido con gestión de fingerprint TLS
+- **Ollama** para inferencia de LLM local — sin llamadas a API
+- **Docker** con builds multi-stage y docker-compose para configuración con un solo comando
+
+## Implementación
+
+El diseño de tres motores surgió de la fricción del mundo real. La obtención estática falla en sitios protegidos por Cloudflare. La automatización completa de navegador es lenta para páginas simples. El modo stealth resuelve ambos, pero consume más recursos. Al exponer los tres detrás de un único flag `--engine` con valores por defecto razonables, la herramienta se adapta al objetivo sin forzar al usuario a tomar la decisión de antemano.
+
+La extracción con LLM local fue la decisión arquitectónica definitoria. Las APIs hospedadas (OpenAI, Anthropic) producen salida estructurada de mayor calidad, pero requieren enviar el contenido de las páginas a servidores externos. Para el caso de uso planteado — datos que no deberían salir de la máquina — esto no era negociable. llama3.2:3b maneja la extracción de productos y artículos de forma adecuada. La extracción compleja multi-entidad se degrada, lo que el pipeline de pasos encadenados compensa parcialmente al descomponer la tarea.
+
+El módulo de cumplimiento analiza robots.txt de verdad (urllib.robotparser), verifica las reglas can_fetch, respeta las directivas de crawl-delay y marca dominios sensibles (redes sociales, salud, finanzas). Se ejecuta como una comprobación previa antes de cualquier solicitud, no como un consejo de documentación.
+
+### Compromisos (Trade-offs)
+
+La extracción con LLM local sacrifica precisión por privacidad. Una llamada hospedada a GPT-4 produciría una salida estructurada más confiable para esquemas complejos. La decisión de permanecer local refleja la premisa central del proyecto: soberanía de datos sobre precisión marginal. Para casos de uso donde el contenido es público y no sensible, un backend de LLM hospedado sería una alternativa razonable — pero eso rompería la garantía de "sin datos que salgan de tu máquina".
+
+SQLite para la caché y la cola se eligió sobre Redis o PostgreSQL. La herramienta está orientada a uso en una sola máquina. El modelo de configuración cero e infraestructura cero de SQLite coincide con el despliegue mediante docker-compose. Para coordinación multi-máquina, sería necesaria una cola externa — fuera del alcance del diseño actual.
+
+### Fiabilidad
+
+La suite define 82 pruebas unitarias en 13 módulos. En el último push a master (7cf6d3b, 2026-10-15), el CI de GitHub Actions reporta 81 pruebas aprobadas tanto en Python 3.11 como en 3.12. El job de lint de Ruff tiene 31 errores que mantienen el CI global en rojo; el job de publicación de Docker tiene éxito. La diferencia entre las 82 pruebas definidas en el repositorio y las 81 aprobadas durante la recolección del CI permanece bajo investigación — no se requirieron cambios en imports de módulos para alcanzar esta cifra. Existen cinco workflows (CI, publicación en PyPI, Docker, pruebas de integración, documentación). La publicación confiable en PyPI ha tenido éxito históricamente (`raspal` 0.6.1 es instalable), pero el estado actual del CI no debe interpretarse como un pipeline en verde.
+
+La jerarquía de excepciones (11 clases bajo RaspalError) proporciona un manejo de errores granular. Los errores de CLI incluyen sugerencias accionables en español. El comando `raspal doctor` ejecuta diagnósticos del sistema (versión de Python, conectividad con Ollama, estado de los navegadores de Playwright).
+
+## Resultados
+
+- **81 pruebas unitarias aprobadas** en la última ejecución de GitHub Actions (Python 3.11 y 3.12). La suite define 82 pruebas; una prueba no es recolectada durante la ejecución del CI — la discrepancia está rastreada y bajo investigación.
+- **3 motores de scraping** detrás de una interfaz unificada: scrapling (estático), playwright (renderizado con JS), stealth (anti-bot). Incluye auto-escalación.
+- **10 plantillas de pipeline en YAML** que cubren ecommerce, precios de competencia, noticias, empleos, bienes raíces, cripto, investigación académica y más.
+- **16 comandos de CLI** que cubren configuración, diagnósticos, cumplimiento, fetch, batch asíncrono, pipeline, cola, reporte y dashboard.
+- **Publicado en PyPI** como `raspal` (0.6.1 verificado en el índice de paquetes) mediante publicación confiable.
+- **5 workflows de GitHub Actions** configurados; la última ejecución del CI aprueba las pruebas pero el CI global permanece rojo debido a errores de lint de Ruff; el job de publicación de Docker tiene éxito.
+- **Salvedad honesta**: 0 estrellas / forks en GitHub; el job de lint de Ruff tiene 31 errores. La adopción y la reparación del pipeline son los próximos hitos.
+
+## Lecciones aprendidas
+
+1. **La extracción con LLM local es viable para datos estructurados.** llama3.2:3b maneja la extracción de productos y artículos de forma adecuada para la mayoría de los casos de uso. La brecha de precisión con las APIs hospedadas se reduce con prompts y esquemas bien estructurados.
+2. **Tres motores cubren el espectro real.** Estático, JS y stealth no son distinciones teóricas — se mapean directamente a las tres categorías de sitios web que los desarrolladores realmente raspian. Unificarlos detrás de una sola interfaz eliminó la necesidad de herramientas separadas.
+3. **El cumplimiento pertenece a la herramienta, no a la documentación.** El análisis de robots.txt y la detección de dominios sensibles se ejecutan como comprobaciones previas. Esto cuesta poco y previene los errores legales y éticos más comunes.
+4. **Los pipelines en YAML reducen significativamente la barrera de entrada.** Los no desarrolladores pueden configurar extracciones sin escribir Python. Las 10 plantillas sirven tanto como puntos de partida como como documentación.
+
+## Trabajo futuro
+
+- Pruebas de integración con un servidor HTTP mock para validación end-to-end del pipeline
+- CONTRIBUTING.md y materiales de incorporación para la comunidad
+- Cumplimiento mejorado: detección de patrones de ToS, inteligencia de rate-limit por dominio
+- Iteración con retroalimentación de la comunidad hacia la v0.7.0
