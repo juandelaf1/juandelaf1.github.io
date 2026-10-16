@@ -1,0 +1,32 @@
+---
+title: "Adquisición de Datos"
+description: "Diseñar la ingesta pensando en el fallo. Las APIs externas se rompen, los archivos desaparecen y los esquemas cambian sin aviso."
+date: 2025-01-01
+principle: "Tratar cada fuente externa como no fiable — validar en la frontera, manejar reintentos explícitamente, y preservar datos crudos para reprocesamiento."
+relatedProjects: ["sky-cast", "raspal-scraper"]
+---
+
+## Principio
+
+Cada fuente de datos externa — APIs, web scrapers, drops de archivos, colas de mensajes — eventualmente fallará, devolverá datos malformados o cambiará su esquema sin previo aviso. La capa de ingesta debe diseñarse para manejar esta realidad desde el primer día.
+
+Esto significa tres cosas: validar cada registro en la frontera antes de que entre en tu sistema, implementar lógica explícita de reintentos y circuit breakers en lugar de esperar lo mejor, y preservar datos crudos para poder reprocesar si se descubre un bug en la transformación.
+
+## Cómo Funciona
+
+1. **Validar en la frontera.** Cada registro de una fuente externa pasa por un validador de esquema (Pydantic, JSON Schema o equivalente) antes del almacenamiento. Los registros malformados se rechazan con mensajes de error estructurados, no se descartan silenciosamente.
+2. **Manejar el fallo explícitamente.** Los circuit breakers dejan de llamar a una API después de fallos repetidos. La lógica de reintentos usa backoff exponencial. Las colas dead-letter capturan registros que fallan la validación para inspección manual.
+3. **Preservar datos crudos.** Almacenar el payload crudo junto al registro transformado. Si se encuentra un bug de transformación, el reprocesamiento no requiere volver a obtener datos de la fuente.
+4. **Monitorizar frescura.** Rastrear la edad del registro más reciente por fuente. Los datos obsoletos son un fallo — alertar sobre ellos.
+
+## Evidencia
+
+- **SkyCast**: Patrón de circuit breaker en la API de AEMET — 5 errores consecutivos detienen la ingesta y registran una alerta. El dashboard continúa sirviendo datos en caché. Los payloads crudos de AEMET se almacenan para reprocesamiento.
+- **RASPAL**: Automatización de navegador Patchright con lógica de reintentos. La salida JSON se valida contra un esquema antes de escribir. Los fallos de extracción se registran con la URL y el error para revisión manual.
+
+## Cuándo Aplicar
+
+- Nueva integración de API
+- Pipeline de web scraping
+- Drop de datos basado en archivos
+- Consumidor de cola de mensajes

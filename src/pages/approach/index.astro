@@ -3,24 +3,35 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import Container from '../../components/ui/Container.astro';
 import { SITE } from '../../config/site';
 import { getCollection } from 'astro:content';
+import { getUI } from '../../i18n/ui';
+import { getLocaleFromUrl } from '../../i18n/utils';
 
-const principles = await getCollection('approach');
+const locale = getLocaleFromUrl(Astro.url);
+const t = getUI(locale);
+
+const prefix = locale === 'es' ? 'es/' : 'en/';
+const all = await getCollection('approach');
+const principles = all.filter((entry) => entry.id.startsWith(prefix));
 const sorted = [...principles].sort((a, b) => a.data.date.getTime() - b.data.date.getTime());
+
+function stripLocale(id: string): string {
+  return id.replace(/^(en|es)\//, '');
+}
 ---
 
 <BaseLayout
-  title={`Approach — ${SITE.author}`}
-  description="Five principles for building production data systems: problem framing, data acquisition, contracts, architecture, and reliability."
-  path="/approach"
-  currentPath="/approach"
+  title={`${t.approach.title} — ${SITE.author}`}
+  description={locale === 'es'
+    ? 'Cinco principios que moldean cada sistema de datos que construyo: enmarcar problemas, adquisición, contratos, arquitectura y fiabilidad.'
+    : 'Five principles for building production data systems: problem framing, data acquisition, contracts, architecture, and reliability.'}
+  path={locale === 'es' ? '/es/approach' : '/approach'}
+  currentPath={locale === 'es' ? '/es/approach' : '/approach'}
 >
   <Container>
     <section class="approach-index">
       <header class="page-header">
-        <h1>Approach</h1>
-        <p class="lede">
-          Five principles that shape every data system I build. Each one is grounded in a real project — not theory.
-        </p>
+        <h1>{t.approach.title}</h1>
+        <p class="lede">{t.approach.lede}</p>
       </header>
 
       <div class="principles">
@@ -29,7 +40,7 @@ const sorted = [...principles].sort((a, b) => a.data.date.getTime() - b.data.dat
             <div class="principle-num">{String(i + 1).padStart(2, '0')}</div>
             <div class="principle-body">
               <h2 class="principle-title">
-                <a href={`/approach/${entry.id}`}>{entry.data.title}</a>
+                <a href={`${locale === 'es' ? '/es' : ''}/approach/${stripLocale(entry.id)}`}>{entry.data.title}</a>
               </h2>
               <p class="principle-desc">{entry.data.description}</p>
               <p class="principle-statement">{entry.data.principle}</p>

@@ -1,0 +1,32 @@
+---
+title: "Contratos y Calidad de Datos"
+description: "Definir el esquema antes de construir el pipeline. Validar en cada frontera. Detectar cambios antes de que rompan consumidores downstream."
+date: 2025-01-01
+principle: "Definir el contrato de salida antes de construir el pipeline, y validar en cada frontera interna — no solo en el borde externo."
+relatedProjects: ["sky-cast", "georisk-finder"]
+---
+
+## Principio
+
+Un contrato de datos es un acuerdo explícito sobre lo que un productor de datos entregará: esquema, tipos, restricciones, garantías de frescura y proceso de notificación de cambios. Sin uno, cada cambio upstream se convierte en una rotura silenciosa downstream.
+
+Los contratos se aplican en cada frontera — APIs externas, llamadas internas entre servicios, y la API o dashboard que sirve al usuario final. El objetivo es detectar deriva de esquema y degradación de calidad en el punto de fallo, no en un dashboard de producción tres capas más abajo.
+
+## Cómo Funciona
+
+1. **Definir el esquema primero.** Escribir el modelo Pydantic, JSON Schema o DDL de base de datos antes de construir la lógica de transformación. El esquema es el contrato.
+2. **Validar en cada frontera.** Los datos externos se validan en la ingesta. Los datos transformados se validan antes del almacenamiento. Las respuestas de API se validan antes de servir. Cada frontera captura una clase diferente de bug.
+3. **Versionar el contrato.** Cuando el esquema debe cambiar, versionarlo. Los consumidores antiguos continúan leyendo la versión antigua hasta migrar. Los nuevos consumidores usan la nueva versión.
+4. **Testear el contrato.** Los tests de esquema verifican que los datos válidos pasan y los inválidos se rechazan. Estos tests se ejecutan en CI en cada push.
+
+## Evidencia
+
+- **SkyCast**: Validadores Pydantic en ingesta de AEMET, reportes crowdsourced y respuestas de API. Los 180 tests incluyen casos de validación de esquema.
+- **GeoRisk_Finder**: Los datos geoespaciales se validan contra rangos esperados de coordenadas y tipos de atributos antes de entrar en el pipeline de análisis.
+
+## Cuándo Aplicar
+
+- Pipelines de datos multi-equipo
+- APIs públicas o para socios
+- Cualquier pipeline donde un cambio silencioso de esquema cause decisiones de negocio incorrectas
+- Antes de añadir un nuevo consumidor a una fuente de datos existente

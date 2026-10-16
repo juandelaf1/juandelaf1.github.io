@@ -1,0 +1,253 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Container from '../../components/ui/Container.astro';
+import Hero from '../../components/home/Hero.astro';
+import SelectedWork from '../../components/home/SelectedWork.astro';
+import { SITE } from '../../config/site';
+import { getCollection } from 'astro:content';
+import { getUI } from '../../i18n/ui';
+
+const t = getUI('es');
+const projects = await getCollection('projects');
+const featured = projects.filter((p) => p.data.featured);
+const personSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: SITE.author,
+  url: SITE.url,
+  jobTitle: 'Ingeniero de Analítica',
+  sameAs: [SITE.links.github, SITE.links.linkedin],
+  knowsAbout: ['Ingeniería de Analítica', 'Ingeniería de Datos', 'Productos de Datos', 'Arquitectura de Datos', 'ETL Pipelines', 'Business Intelligence'],
+};
+const websiteSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: SITE.title,
+  url: `${SITE.url}/es`,
+  description: SITE.description,
+  author: { '@type': 'Person', name: SITE.author },
+};
+---
+
+<BaseLayout
+  title={`Juan de la Fuente — ${t.hero.position}`}
+  description="Ingeniero de analítica que construye sistemas de datos en producción informados por contexto de negocio real. Pipelines, APIs y productos que convierten datos en decisiones."
+  path="/es"
+  currentPath="/es"
+>
+  <script type="application/ld+json" set:html={JSON.stringify(personSchema, null, 2)} />
+  <script type="application/ld+json" set:html={JSON.stringify(websiteSchema, null, 2)} />
+
+  <Container>
+    <Hero />
+
+    <SelectedWork projects={featured} />
+
+    <section class="evidence" aria-labelledby="evidence-heading">
+      <h2 id="evidence-heading" class="evidence-heading">{t.home.evidenceHeading}</h2>
+      <div class="evidence-grid">
+        <div class="evidence-item">
+          <span class="evidence-value">180</span>
+          <span class="evidence-label">{t.home.evidence.tests}</span>
+        </div>
+        <div class="evidence-item">
+          <span class="evidence-value">CI</span>
+          <span class="evidence-label">{t.home.evidence.ci}</span>
+        </div>
+        <div class="evidence-item">
+          <span class="evidence-value">PyPI</span>
+          <span class="evidence-label">{t.home.evidence.pypi}</span>
+        </div>
+        <div class="evidence-item">
+          <span class="evidence-value">Docker</span>
+          <span class="evidence-label">{t.home.evidence.docker}</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="approach" aria-labelledby="approach-heading">
+      <h2 id="approach-heading" class="approach-heading">{t.home.approachHeading}</h2>
+      <div class="steps">
+        <div class="step">
+          <span class="step-num">01</span>
+          <h3 class="step-title">{t.home.steps.understand.title}</h3>
+          <p class="step-desc">{t.home.steps.understand.desc}</p>
+        </div>
+        <div class="step">
+          <span class="step-num">02</span>
+          <h3 class="step-title">{t.home.steps.model.title}</h3>
+          <p class="step-desc">{t.home.steps.model.desc}</p>
+        </div>
+        <div class="step">
+          <span class="step-num">03</span>
+          <h3 class="step-title">{t.home.steps.build.title}</h3>
+          <p class="step-desc">{t.home.steps.build.desc}</p>
+        </div>
+        <div class="step">
+          <span class="step-num">04</span>
+          <h3 class="step-title">{t.home.steps.measure.title}</h3>
+          <p class="step-desc">{t.home.steps.measure.desc}</p>
+        </div>
+      </div>
+      <p class="background-note">
+        {t.home.backgroundNote}
+        <a href="/es/about"> {t.home.backgroundLink}</a>
+      </p>
+    </section>
+
+    <section class="cta">
+      <h2 class="cta-heading">{t.home.ctaHeading}</h2>
+      <p class="cta-text">{t.home.ctaText}</p>
+      <div class="cta-actions">
+        <a href={SITE.links.email} class="cta-primary">{t.home.ctaContact}</a>
+        <a href={SITE.links.linkedin} target="_blank" rel="noopener noreferrer" class="cta-secondary">{t.home.ctaLinkedin}</a>
+        <a href="/resume.pdf" target="_blank" rel="noopener noreferrer" class="cta-secondary">{t.hero.ctaResume}</a>
+      </div>
+    </section>
+  </Container>
+</BaseLayout>
+
+<style>
+  .evidence {
+    padding: 48px 0;
+    border-top: 1px solid var(--border);
+    margin-bottom: 16px;
+  }
+  .evidence-heading {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 28px;
+  }
+  .evidence-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+  }
+  .evidence-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .evidence-value {
+    font-family: var(--font-mono);
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--accent);
+  }
+  .evidence-label {
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+
+  .approach {
+    padding: 48px 0 64px;
+    border-top: 1px solid var(--border);
+  }
+  .approach-heading {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 28px;
+  }
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+    margin-bottom: 32px;
+  }
+  .step-num {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--accent);
+  }
+  .step-title {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    margin: 6px 0;
+  }
+  .step-desc {
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+    line-height: 1.55;
+  }
+  .background-note {
+    font-size: 0.9375rem;
+    color: var(--text-secondary);
+    line-height: 1.65;
+    max-width: 640px;
+  }
+  .background-note a {
+    color: var(--accent);
+    font-weight: 500;
+  }
+
+  .cta {
+    padding: 64px 0;
+    border-top: 1px solid var(--border);
+    text-align: center;
+  }
+  .cta-heading {
+    font-size: 1.375rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+    max-width: 560px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .cta-text {
+    color: var(--text-secondary);
+    margin-bottom: 28px;
+    font-size: 0.9375rem;
+  }
+  .cta-actions {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .cta-primary {
+    display: inline-flex;
+    align-items: center;
+    padding: 12px 28px;
+    border-radius: 8px;
+    background: var(--accent-solid);
+    color: white;
+    text-decoration: none;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    transition: background var(--transition);
+  }
+  .cta-primary:hover {
+    background: var(--accent-solid-hover);
+    color: white;
+  }
+  .cta-secondary {
+    display: inline-flex;
+    align-items: center;
+    padding: 12px 28px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    transition: border-color var(--transition), color var(--transition);
+  }
+  .cta-secondary:hover {
+    border-color: var(--text-secondary);
+    color: var(--text-primary);
+  }
+
+  @media (max-width: 900px) {
+    .evidence-grid,
+    .steps {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (max-width: 480px) {
+    .evidence-grid,
+    .steps {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

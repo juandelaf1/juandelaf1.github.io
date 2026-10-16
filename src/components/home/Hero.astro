@@ -2,6 +2,12 @@
 import Button from '../ui/Button.astro';
 import Monogram from '../ui/Monogram.astro';
 import { SITE } from '../../config/site';
+import { getUI } from '../../i18n/ui';
+import { getLocaleFromUrl } from '../../i18n/utils';
+
+const locale = getLocaleFromUrl(Astro.url);
+const t = getUI(locale);
+const projectsUrl = locale === 'es' ? '/es/projects' : '/projects';
 ---
 
 <section class="hero">
@@ -10,19 +16,19 @@ import { SITE } from '../../config/site';
       <Monogram size={48} />
       <div>
         <h1 class="name">Juan de la Fuente</h1>
-        <p class="position">Analytics Engineer · Data Products</p>
+        <p class="position">{t.hero.position}</p>
       </div>
     </div>
     <p class="tagline">
-      I design and build production data systems. Pipelines, APIs, models, and interactive products that turn data into decisions.
+      {t.hero.tagline}
     </p>
     <p class="differentiator">
-      Before engineering data, I ran a business. That experience shapes every system I build — from understanding the real problem to shipping something that works.
+      {t.hero.differentiator}
     </p>
     <div class="actions">
-      <Button href="/projects" variant="primary">Explore projects</Button>
-      <Button href="/resume.pdf" variant="ghost" external>Resume (PDF)</Button>
-      <Button href={SITE.links.github} variant="ghost" external>GitHub</Button>
+      <Button href={projectsUrl} variant="primary">{t.hero.ctaProjects}</Button>
+      <Button href="/resume.pdf" variant="ghost" external>{t.hero.ctaResume}</Button>
+      <Button href={SITE.links.github} variant="ghost" external>{t.hero.ctaGithub}</Button>
     </div>
   </div>
 </section>

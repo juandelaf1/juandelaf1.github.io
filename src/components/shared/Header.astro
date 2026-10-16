@@ -1,27 +1,35 @@
 ---
-import { NAVIGATION } from '../../config/site';
-import Monogram from '../ui/Monogram.astro';
+import { getUI } from '../../i18n/ui';
+import { getAlternateUrl, getLocaleFromUrl } from '../../i18n/utils';
 
 export interface Props {
   currentPath?: string;
 }
 
 const { currentPath = '/' } = Astro.props;
+const locale = getLocaleFromUrl(Astro.url);
+const t = getUI(locale);
+const altUrl = getAlternateUrl(currentPath, locale);
+
+const NAV = [
+  { label: t.nav.projects, href: locale === 'es' ? '/es/projects' : '/projects' },
+  { label: t.nav.approach, href: locale === 'es' ? '/es/approach' : '/approach' },
+  { label: t.nav.about, href: locale === 'es' ? '/es/about' : '/about' },
+];
 
 function isActive(href: string): boolean {
-  if (href === '/') return currentPath === '/';
+  if (href === '/' || href === '/es') return currentPath === href;
   return currentPath === href || currentPath.startsWith(`${href}/`);
 }
 ---
 
 <header class="header">
   <nav class="nav" aria-label="Main">
-<a href="/" class="logo">
-  <Monogram size={24} />
-  <span>juandelaf1</span>
-</a>
+    <a href={locale === 'es' ? '/es' : '/'} class="logo">
+      <img src="/logo.svg" alt="Juan de la Fuente" width="160" height="36" class="logo-img" />
+    </a>
     <div class="links">
-      {NAVIGATION.map((item) => (
+      {NAV.map((item) => (
         <a
           href={item.href}
           class:list={{ link: true, active: isActive(item.href) }}
@@ -30,6 +38,9 @@ function isActive(href: string): boolean {
           {item.label}
         </a>
       ))}
+      <a href={altUrl} class="lang-switch" aria-label={t.language.label}>
+        {t.language.switch}
+      </a>
     </div>
   </nav>
 </header>
@@ -50,23 +61,20 @@ function isActive(href: string): boolean {
     justify-content: space-between;
     max-width: var(--max-width);
     margin: 0 auto;
-    padding: 16px var(--content-padding);
+    padding: 12px var(--content-padding);
   }
   .logo {
-    font-family: var(--font-mono);
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: var(--text-primary);
-    text-decoration: none;
     display: flex;
     align-items: center;
-    gap: 8px;
+    text-decoration: none;
   }
-  .logo:hover {
-    color: var(--accent);
+  .logo-img {
+    height: 36px;
+    width: auto;
   }
   .links {
     display: flex;
+    align-items: center;
     gap: 28px;
   }
   .link {
@@ -82,6 +90,21 @@ function isActive(href: string): boolean {
   .active {
     color: var(--text-primary);
   }
+  .lang-switch {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--accent);
+    text-decoration: none;
+    border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+    border-radius: 999px;
+    padding: 4px 12px;
+    transition: border-color var(--transition), background var(--transition);
+  }
+  .lang-switch:hover {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
   @media (max-width: 640px) {
     .links {
       gap: 16px;
@@ -89,8 +112,8 @@ function isActive(href: string): boolean {
     .link {
       font-size: 0.8125rem;
     }
-    .logo span {
-      display: none;
+    .logo-img {
+      height: 28px;
     }
   }
 </style>

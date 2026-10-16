@@ -1,21 +1,26 @@
 ---
-import { SITE, NAVIGATION } from '../../config/site';
+import { getUI } from '../../i18n/ui';
+import { getLocaleFromUrl } from '../../i18n/utils';
+
+const locale = getLocaleFromUrl(Astro.url);
+const t = getUI(locale);
 
 const year = new Date().getFullYear();
+const base = locale === 'es' ? '/es' : '';
 ---
 
 <footer class="footer">
   <div class="inner">
     <div class="bio">
-      <p class="bio-role">Analytics Engineer</p>
-      <p class="bio-tagline">Building reliable data systems close to business decisions.</p>
+      <p class="bio-role">{t.footer.role}</p>
+      <p class="bio-tagline">{t.footer.tagline}</p>
     </div>
     <div class="links" aria-label="Footer">
-      {NAVIGATION.map((item) => (
-        <a href={item.href}>{item.label}</a>
-      ))}
-      <a href="/experiments">Experiments</a>
-      <a href="/resume.pdf" target="_blank" rel="noopener noreferrer">Resume (PDF)</a>
+      <a href={`${base}/projects`}>{t.nav.projects}</a>
+      <a href={`${base}/approach`}>{t.nav.approach}</a>
+      <a href={`${base}/about`}>{t.nav.about}</a>
+      <a href={`${base}/experiments`}>{t.nav.experiments}</a>
+      <a href="/resume.pdf" target="_blank" rel="noopener noreferrer">{t.footer.resume}</a>
     </div>
     <p class="copyright">&copy; {year} Juan de la Fuente Larrocca</p>
   </div>

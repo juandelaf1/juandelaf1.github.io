@@ -1,0 +1,130 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import Container from '../../../components/ui/Container.astro';
+import { SITE } from '../../../config/site';
+import { getCollection } from 'astro:content';
+
+const experiments = await getCollection('experiments');
+const sorted = [...experiments].sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+---
+
+<BaseLayout
+  title={`Experimentos — ${SITE.author}`}
+  description="Trabajo exploratorio: análisis de datos, prototipos y pruebas de concepto."
+  path="/es/experiments"
+  currentPath="/es/experiments"
+>
+  <Container>
+    <section class="experiments-index">
+      <header class="page-header">
+        <h1>Experimentos</h1>
+        <p class="lede">
+          Trabajo exploratorio. Prototipos, análisis y pruebas de concepto que alimentan proyectos mayores.
+        </p>
+      </header>
+
+      <div class="list">
+        {sorted.map((exp) => (
+          <article class="item">
+            <div class="item-meta">
+              <time datetime={exp.data.date.toISOString()}>
+                {exp.data.date.toLocaleDateString('es-ES', { year: 'numeric', month: 'short', day: 'numeric' })}
+              </time>
+              <span class="status">{exp.data.status}</span>
+            </div>
+            <h2 class="item-title">
+              <a href={`/es/experiments/${exp.id}`}>{exp.data.title}</a>
+            </h2>
+            <p class="item-desc">{exp.data.description}</p>
+            <div class="tags">
+              {exp.data.tech.map((t) => (
+                <span class="tag">{t}</span>
+              ))}
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+  </Container>
+</BaseLayout>
+
+<style>
+  .experiments-index {
+    padding: 48px 0 96px;
+  }
+  .page-header {
+    margin-bottom: 48px;
+  }
+  .page-header h1 {
+    font-size: 2rem;
+    font-weight: 800;
+    margin-bottom: 12px;
+  }
+  .lede {
+    color: var(--text-secondary);
+    max-width: 560px;
+  }
+  .list {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .item {
+    padding: 28px 32px;
+    background: var(--bg-primary);
+  }
+  .item-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+  .status {
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .item-title {
+    font-size: 1.1875rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .item-title a {
+    color: var(--text-primary);
+    text-decoration: none;
+  }
+  .item-title a:hover {
+    color: var(--accent);
+  }
+  .item-desc {
+    font-size: 0.9375rem;
+    color: var(--text-secondary);
+    line-height: 1.55;
+    max-width: 640px;
+    margin-bottom: 12px;
+  }
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .tag {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 3px 10px;
+  }
+  @media (max-width: 768px) {
+    .item {
+      padding: 24px;
+    }
+  }
+</style>

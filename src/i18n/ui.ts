@@ -1,0 +1,171 @@
+export const UI = {
+  en: {
+    nav: {
+      projects: 'Projects',
+      approach: 'Approach',
+      about: 'About',
+      engineering: 'Engineering',
+      experiments: 'Experiments',
+      building: 'Building',
+      resume: 'Resume (PDF)',
+    },
+    footer: {
+      role: 'Analytics Engineer',
+      tagline: 'Building reliable data systems close to business decisions.',
+      resume: 'Resume (PDF)',
+    },
+    hero: {
+      position: 'Analytics Engineer · Data Products',
+      tagline: 'I design and build production data systems. Pipelines, APIs, models, and interactive products that turn data into decisions.',
+      differentiator: 'Before engineering data, I ran a business. That experience shapes every system I build — from understanding the real problem to shipping something that works.',
+      ctaProjects: 'Explore projects',
+      ctaResume: 'Resume (PDF)',
+      ctaGithub: 'GitHub',
+    },
+    home: {
+      selectedWork: 'Selected work',
+      viewAll: 'View all projects →',
+      evidenceHeading: 'Engineering evidence',
+      evidence: {
+        tests: 'SkyCast automated tests (documented in project repository)',
+        ci: 'workflows on SkyCast and GeoRisk_Finder — lint, tests, containers',
+        pypi: 'RASPAL published as raspa (0.6.1, trusted publishing)',
+        docker: 'reproducible environments for API, dashboard, and pipeline workloads',
+      },
+      approachHeading: 'How I work',
+      steps: {
+        understand: { title: 'Understand', desc: 'Map the business context and the decision that needs better information.' },
+        model: { title: 'Model', desc: 'Design ingestion, transformation, storage, and access patterns before production code.' },
+        build: { title: 'Build', desc: 'Ship pipelines, APIs, and interfaces with tests at every layer and validation at every boundary.' },
+        measure: { title: 'Measure', desc: 'Validate output against the original business problem — not just that it runs.' },
+      },
+      backgroundNote: 'I ran a business before I built data systems. Managing inventory, costs, logistics, and margins taught me that data is only valuable when it helps someone make a better decision.',
+      backgroundLink: 'More about my background →',
+      ctaHeading: 'Interested in building reliable data systems close to business decisions?',
+      ctaText: "I'm open to Analytics Engineer opportunities where engineering quality and business context matter.",
+      ctaContact: 'Contact me',
+      ctaLinkedin: 'LinkedIn',
+    },
+    projects: {
+      title: 'Projects',
+      lede: 'Case studies with architecture, trade-offs, and verified results. Each link opens a full write-up or the public repository.',
+      caseStudies: 'Case studies',
+      featured: 'Featured',
+      caseStudyLink: 'Case study →',
+      repository: 'Repository',
+      note: 'Also see experiments for exploratory work, building for in-progress products, and engineering notes for production patterns.',
+      noteExperiments: 'experiments',
+      noteBuilding: 'building',
+      noteEngineering: 'engineering notes',
+    },
+    approach: {
+      title: 'Approach',
+      lede: 'Five principles that shape every data system I build. Each one is grounded in a real project — not theory.',
+      principle: 'Principle',
+    },
+    about: {
+      title: 'About',
+      sections: {
+        beforeData: 'Before data engineering',
+        today: 'Today',
+        lookingFor: "What I'm looking for",
+      },
+    },
+    resume: {
+      print: 'Print / Save as PDF',
+      backToSite: 'Back to portfolio',
+    },
+    language: {
+      switch: 'Español',
+      label: 'Language',
+    },
+  },
+  es: {
+    nav: {
+      projects: 'Proyectos',
+      approach: 'Enfoque',
+      about: 'Sobre mí',
+      engineering: 'Ingeniería',
+      experiments: 'Experimentos',
+      building: 'En construcción',
+      resume: 'CV (PDF)',
+    },
+    footer: {
+      role: 'Ingeniero de Analítica',
+      tagline: 'Construyendo sistemas de datos fiables cerca de las decisiones de negocio.',
+      resume: 'CV (PDF)',
+    },
+    hero: {
+      position: 'Ingeniero de Analítica · Productos de Datos',
+      tagline: 'Diseño y construyo sistemas de datos en producción. Pipelines, APIs, modelos y productos interactivos que convierten datos en decisiones.',
+      differentiator: 'Antes de ingeniería de datos, gestioné un negocio. Esa experiencia moldea cada sistema que construyo — desde entender el problema real hasta entregar algo que funciona.',
+      ctaProjects: 'Explorar proyectos',
+      ctaResume: 'CV (PDF)',
+      ctaGithub: 'GitHub',
+    },
+    home: {
+      selectedWork: 'Proyectos seleccionados',
+      viewAll: 'Ver todos los proyectos →',
+      evidenceHeading: 'Evidencia de ingeniería',
+      evidence: {
+        tests: 'tests automatizados de SkyCast (documentados en el repositorio del proyecto)',
+        ci: 'workflows en SkyCast y GeoRisk_Finder — lint, tests, containers',
+        pypi: 'RASPAL publicado como raspa (0.6.1, trusted publishing)',
+        docker: 'entornos reproducibles para API, dashboard y pipelines',
+      },
+      approachHeading: 'Cómo trabajo',
+      steps: {
+        understand: { title: 'Entender', desc: 'Mapear el contexto de negocio y la decisión que necesita mejor información.' },
+        model: { title: 'Modelar', desc: 'Diseñar ingestión, transformación, almacenamiento y patrones de acceso antes del código de producción.' },
+        build: { title: 'Construir', desc: 'Entregar pipelines, APIs e interfaces con tests en cada capa y validación en cada frontera.' },
+        measure: { title: 'Medir', desc: 'Validar el resultado contra el problema de negocio original — no solo que funcione.' },
+      },
+      backgroundNote: 'Gestioné un negocio antes de construir sistemas de datos. Manejar inventario, costes, logística y márgenes me enseñó que los datos solo son valiosos cuando ayudan a alguien a tomar una mejor decisión.',
+      backgroundLink: 'Más sobre mi trayectoria →',
+      ctaHeading: '¿Interesado en construir sistemas de datos fiables cerca de las decisiones de negocio?',
+      ctaText: 'Estoy abierto a oportunidades como Ingeniero de Analítica donde la calidad de ingeniería y el contexto de negocio importan.',
+      ctaContact: 'Contactar',
+      ctaLinkedin: 'LinkedIn',
+    },
+    projects: {
+      title: 'Proyectos',
+      lede: 'Casos de estudio con arquitectura, trade-offs y resultados verificados. Cada enlace abre un análisis completo o el repositorio público.',
+      caseStudies: 'Casos de estudio',
+      featured: 'Destacado',
+      caseStudyLink: 'Caso de estudio →',
+      repository: 'Repositorio',
+      note: 'Ver también experimentos para trabajo exploratorio, en construcción para productos en desarrollo, y notas de ingeniería para patrones de producción.',
+      noteExperiments: 'experimentos',
+      noteBuilding: 'en construcción',
+      noteEngineering: 'notas de ingeniería',
+    },
+    approach: {
+      title: 'Enfoque',
+      lede: 'Cinco principios que moldean cada sistema de datos que construyo. Cada uno está basado en un proyecto real — no en teoría.',
+      principle: 'Principio',
+    },
+    about: {
+      title: 'Sobre mí',
+      sections: {
+        beforeData: 'Antes de la ingeniería de datos',
+        today: 'Hoy',
+        lookingFor: 'Lo que busco',
+      },
+    },
+    resume: {
+      print: 'Imprimir / Guardar como PDF',
+      backToSite: 'Volver al portfolio',
+    },
+    language: {
+      switch: 'English',
+      label: 'Idioma',
+    },
+  },
+} as const;
+
+export type Locale = keyof typeof UI;
+export type UIStrings = typeof UI.en;
+
+export function getUI(locale: Locale): UIStrings {
+  return UI[locale] as UIStrings;
+}

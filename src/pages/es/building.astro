@@ -1,0 +1,69 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Container from '../../components/ui/Container.astro';
+import BuildingCard from '../../components/building/BuildingCard.astro';
+import { SITE } from '../../config/site';
+import { getCollection } from 'astro:content';
+
+const projects = await getCollection('building');
+const sorted = [...projects].sort((a, b) => b.data.started.getTime() - a.data.started.getTime());
+---
+
+<BaseLayout
+  title={`En Construcción — ${SITE.author}`}
+  description="Productos en desarrollo. Estado actual, milestones y próximos pasos."
+  path="/es/building"
+  currentPath="/es/building"
+>
+  <Container>
+    <section class="building-index">
+      <header class="page-header">
+        <h1>En Construcción</h1>
+        <p class="lede">
+          Productos que están tomando forma. Estado actual, milestones y próximos pasos.
+        </p>
+      </header>
+
+      <div class="grid">
+        {sorted.map((project) => (
+          <BuildingCard
+            title={project.data.title}
+            description={project.data.description}
+            status={project.data.status}
+            milestones={project.data.milestones}
+            nextMilestone={project.data.nextMilestone}
+            repo={project.data.repo}
+          />
+        ))}
+      </div>
+    </section>
+  </Container>
+</BaseLayout>
+
+<style>
+  .building-index {
+    padding: 48px 0 96px;
+  }
+  .page-header {
+    margin-bottom: 48px;
+  }
+  .page-header h1 {
+    font-size: 2rem;
+    font-weight: 800;
+    margin-bottom: 12px;
+  }
+  .lede {
+    color: var(--text-secondary);
+    max-width: 560px;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+  }
+  @media (max-width: 768px) {
+    .grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

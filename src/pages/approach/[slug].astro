@@ -3,28 +3,37 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import Container from '../../components/ui/Container.astro';
 import { SITE } from '../../config/site';
 import { getCollection, render } from 'astro:content';
+import { getUI } from '../../i18n/ui';
+import { getLocaleFromUrl } from '../../i18n/utils';
 
 export async function getStaticPaths() {
   const entries = await getCollection('approach');
-  return entries.map((entry) => ({
-    params: { slug: entry.id },
-    props: { entry },
-  }));
+  return entries.map((entry) => {
+    const parts = entry.id.split('/');
+    const locale = parts[0] as 'en' | 'es';
+    const slug = parts.slice(1).join('/');
+    return {
+      params: { locale: locale === 'es' ? 'es' : undefined, slug },
+      props: { entry, locale },
+    };
+  });
 }
 
-const { entry } = Astro.props;
+const { entry, locale } = Astro.props;
+const t = getUI(locale);
 const { Content } = await render(entry);
+const basePath = locale === 'es' ? '/es/approach' : '/approach';
 ---
 
 <BaseLayout
   title={`${entry.data.title} — ${SITE.author}`}
   description={entry.data.description}
-  path={`/approach/${entry.id}`}
+  path={`${basePath}/${entry.id.split('/').slice(1).join('/')}`}
 >
   <Container>
     <article class="principle-article">
       <header class="article-header">
-        <p class="principle-label">Principle</p>
+        <p class="principle-label">{t.approach.principle}</p>
         <h1>{entry.data.title}</h1>
         <p class="principle-statement">{entry.data.principle}</p>
       </header>

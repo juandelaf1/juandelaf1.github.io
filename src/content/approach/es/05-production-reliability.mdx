@@ -1,0 +1,33 @@
+---
+title: "Fiabilidad en Producción"
+description: "Tests en cada capa. CI en cada push. Monitorización que detecta problemas antes que los usuarios. Despliegues aburridos."
+date: 2025-01-01
+principle: "Entregar con tests en cada capa, integración continua en cada push, y monitorización que detecta fallos antes de que lleguen al tomador de decisiones."
+relatedProjects: ["sky-cast", "raspal-scraper", "georisk-finder"]
+---
+
+## Principio
+
+Un sistema de datos en producción es un sistema vivo. Encontrará entrada incorrecta, fallos de red, cambios de esquema, presión de disco y el inevitable caso edge de las 3 AM. La fiabilidad no es una función añadida al final — es una propiedad de cómo se construye el sistema desde el primer commit.
+
+Esto significa: tests de unidad e integración en cada capa, integración continua que ejecuta la suite completa en cada push, implementaciones contenedorizadas reproducibles, y monitorización que alerta sobre frescura y calidad — no solo uptime.
+
+## Cómo Funciona
+
+1. **Testear cada capa.** Los tests de ingesta validan el manejo de datos externos. Los tests de transformación verifican la corrección de la salida. Los tests de API verifican contratos de respuesta. Los tests de interfaz comprueban el renderizado. Cada capa captura una clase diferente de bug.
+2. **Ejecutar CI en cada push.** Lint, type-check, test y containerizar. Un build verde significa que el sistema es implementable. Un build rojo bloquea el merge.
+3. **Containerizar.** Docker proporciona un entorno consistente desde desarrollo hasta producción. docker-compose orquesta sistemas multi-servicio localmente y en CI.
+4. **Monitorizar frescura y calidad.** Rastrear la edad del registro más reciente por fuente. Alertar sobre datos obsoletos, validaciones fallidas y viajes de circuit breaker. Uptime no es lo mismo que corrección.
+
+## Evidencia
+
+- **SkyCast**: 180 tests automatizados cubriendo ingesta, validación, API y dashboard. GitHub Actions ejecuta la suite completa en cada push. Docker Compose proporciona un entorno de test similar a producción. Circuit breaker en API de AEMET con registro de alertas.
+- **RASPAL**: 82 tests definidos, 81 pasando en CI (Python 3.11 y 3.12). El workflow de Docker produce una imagen contenedor en cada push. Automatización de navegador Patchright con lógica de reintentos.
+- **GeoRisk_Finder**: CI de GitHub Actions con jobs de lint y test. Contenedor Docker para implementación reproducible.
+
+## Cuándo Aplicar
+
+- Primer commit de cualquier nuevo servicio o pipeline
+- Antes de declarar un sistema "listo para producción"
+- Cuando se añade un nuevo consumidor o punto de integración
+- Cuando incidentes de fiabilidad revelan gaps en testing o monitorización

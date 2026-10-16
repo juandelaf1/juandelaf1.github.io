@@ -12,9 +12,3 @@ export const SITE = {
     email: 'mailto:juandelafuentelarrocca@gmail.com',
   },
 } as const;
-
-export const NAVIGATION = [
-  { label: 'Projects', href: '/projects' },
-  { label: 'Approach', href: '/approach' },
-  { label: 'About', href: '/about' },
-] as const;

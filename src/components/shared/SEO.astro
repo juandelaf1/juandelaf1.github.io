@@ -1,4 +1,6 @@
 ---
+import { getLocaleFromUrl } from '../../i18n/utils';
+
 export interface Props {
   title: string;
   description: string;
@@ -9,16 +11,33 @@ export interface Props {
 
 const { title, description, image, path = '', type = 'website' } = Astro.props;
 const canonical = new URL(path, 'https://juandelaf1.github.io').href;
+const locale = getLocaleFromUrl(Astro.url);
+
+// Generate alternate URL for hreflang
+let altPath = path;
+if (locale === 'es') {
+  altPath = path.replace(/^\/es/, '') || '/';
+} else {
+  altPath = path === '/' ? '/es' : `/es${path}`;
+}
+const alternate = new URL(altPath, 'https://juandelaf1.github.io').href;
 ---
 
 <title>{title}</title>
 <meta name="description" content={description} />
 <link rel="canonical" href={canonical} />
 
+<!-- hreflang for bilingual SEO -->
+<link rel="alternate" hreflang="en" href={locale === 'es' ? alternate : canonical} />
+<link rel="alternate" hreflang="es" href={locale === 'es' ? canonical : alternate} />
+<link rel="alternate" hreflang="x-default" href={locale === 'es' ? alternate : canonical} />
+
 <meta property="og:title" content={title} />
 <meta property="og:description" content={description} />
 <meta property="og:url" content={canonical} />
 <meta property="og:type" content={type} />
+<meta property="og:locale" content={locale === 'es' ? 'es_ES' : 'en_US'} />
+<meta property="og:locale:alternate" content={locale === 'es' ? 'en_US' : 'es_ES'} />
 {image && <meta property="og:image" content={new URL(image, 'https://juandelaf1.github.io').href} />}
 
 <meta name="twitter:card" content="summary_large_image" />

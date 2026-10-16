@@ -1,0 +1,35 @@
+---
+title: "Arquitectura y Almacenamiento"
+description: "Elegir almacenamiento y arquitectura según patrones de acceso, no por moda. Separar preocupaciones. Hacer el sistema entendible en seis meses."
+date: 2025-01-01
+principle: "Diseñar almacenamiento y arquitectura alrededor de patrones de consulta y restricciones operativas — no alrededor de lo que está de moda en Hacker News."
+relatedProjects: ["sky-cast", "georisk-finder", "net-tension"]
+---
+
+## Principio
+
+Las decisiones de almacenamiento y arquitectura deben basarse en cómo se accede realmente a los datos, las restricciones operativas del equipo, y el volumen de datos esperado — no en lo que está tendiendo en la comunidad de ingeniería de datos.
+
+Una base de datos de series temporales es la elección correcta cuando consultas por rango de tiempo a alta frecuencia. PostgreSQL con particionado es la elección correcta cuando tu volumen es moderado y tu equipo ya conoce SQL. La elección incorrecta es la que no puedes operar.
+
+La separación de preocupaciones — ingesta, transformación, almacenamiento, API e interfaz como capas distintas — hace el sistema depurable. Cuando algo falla, sabes en qué capa buscar.
+
+## Cómo Funciona
+
+1. **Mapear patrones de acceso.** Cómo se consultan los datos? Por rango de tiempo? Por entidad? Por región geográfica? Búsqueda de texto completo? El patrón de acceso determina el motor de almacenamiento.
+2. **Estimar volumen.** Registros por día, tasa de crecimiento, requisitos de retención. Esto determina si se necesita particionado, archivado o una base de datos especializada.
+3. **Separar capas.** Ingesta, transformación, almacenamiento, API e interfaz se comunican a través de interfaces bien definidas. Cada una puede modificarse, testearse e implementarse independientemente.
+4. **Diseñar para el equipo.** Un sistema que el equipo puede operar es más valioso que un sistema teóricamente óptimo que nadie entiende. PostgreSQL con particionado manual supera a TimescaleDB si el equipo solo conoce PostgreSQL.
+
+## Evidencia
+
+- **SkyCast**: PostgreSQL con particionado manual de series temporales en lugar de TimescaleDB — el equipo conoce PostgreSQL, el volumen es ~100K registros/día, y el trade-off es aceptable. Con 10x volumen, la migración estaría justificada.
+- **GeoRisk_Finder**: Datos geoespaciales almacenados en PostgreSQL con PostGIS. El patrón de acceso es consultas bounding-box por región — los índices de PostGIS manejan esto nativamente.
+- **Net Tension**: SQLite para datos locales. La decisión fue "los ingenieros de campo necesitan acceso offline" — no "queremos una base de datos en la nube". SQLite es la elección correcta cuando el consumidor es un solo dispositivo.
+
+## Cuándo Aplicar
+
+- Nuevo pipeline o servicio de datos
+- Migración de almacenamiento o decisión de escalado
+- Añadir un nuevo patrón de consulta a un sistema existente
+- Evaluar una nueva tecnología de base de datos o infraestructura

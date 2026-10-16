@@ -1,0 +1,33 @@
+---
+title: "Enmarcar el Problema"
+description: "Empezar por la decisión de negocio, no por los datos. Cada pipeline, modelo e interfaz existe para mejorar un resultado específico."
+date: 2025-01-01
+principle: "Mapear el contexto de negocio y la decisión que necesita mejor información antes de diseñar el sistema."
+relatedProjects: ["sky-cast", "dash-logistics", "case"]
+---
+
+## Principio
+
+Los datos solo son valiosos cuando ayudan a alguien a tomar una mejor decisión. Antes de escribir una sola línea de código de ingesta, la primera pregunta es siempre: qué decisión necesita mejorar, quién actúa sobre ella, y qué información cambiaría esa acción.
+
+Esto no es un paso de analista de negocio — es una restricción de ingeniería. La decisión determina qué latencia es aceptable, qué precisión se requiere, qué formato debe tener la salida, y cómo el sistema se integra en los flujos de trabajo existentes.
+
+## Cómo Funciona
+
+1. **Identificar la decisión.** No "necesitamos un dashboard" — sino "el coordinador logístico necesita elegir el transportista más barato el lunes por la mañana, y actualmente compara tres hojas de cálculo."
+2. **Identificar al actor.** Quién ve la salida? Qué ya sabe? Qué herramientas usa a diario?
+3. **Identificar el modo de fallo.** Qué pasa si los datos son incorrectos, obsoletos o están ausentes? El coste de una mala decisión es reversible?
+4. **Definir el contrato de salida.** Qué formato, frecuencia y precisión requiere la decisión?
+
+## Evidencia
+
+- **SkyCast**: La decisión fue "los gestores de emergencias necesitan datos meteorológicos en tiempo real para emitir alertas" — no "queremos un dashboard del tiempo". Esto determinó el ciclo de ingesta de 15 minutos y los umbrales de alerta.
+- **RASPAL**: La decisión fue "los compradores necesitan precios actuales del mercado antes de fijar un precio" — no "queremos datos raspados". Esto determinó el formato de salida JSON y las garantías de frescura.
+- **DASH Logistics**: La decisión fue "los gerentes de operaciones necesitan comparar costes de transportistas antes del despacho del lunes" — no "queremos un dashboard logístico". Esto determinó la actualización semanal y la métrica de coste por envío.
+
+## Cuándo Aplicar
+
+- Nueva fuente de datos o pipeline — siempre empezar aquí
+- Solicitud de dashboard o reporting — preguntar qué decisión sirve
+- Entrenamiento de modelos — definir qué cambia la predicción en el flujo de trabajo
+- Diseño de APIs — definir qué hace el consumidor con la respuesta

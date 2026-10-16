@@ -1,0 +1,74 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Container from '../../components/ui/Container.astro';
+import GitHubActivity from '../../components/shared/GitHubActivity.astro';
+import { SITE } from '../../config/site';
+import { getUI } from '../../i18n/ui';
+
+const t = getUI('es');
+---
+
+<BaseLayout
+  title={`Sobre mí — ${SITE.author}`}
+  description="Trayectoria de negocio encontrada con ingeniería de datos. Cómo gestionar una empresa moldeó la forma en que construyo productos de datos."
+  path="/es/about"
+  currentPath="/es/about"
+>
+  <Container>
+    <article style="padding: 64px 0 96px; max-width: 640px;">
+      <h1 style="font-size: 2rem; font-weight: 800; margin-bottom: 48px;">{t.about.title}</h1>
+
+      <section style="margin-bottom: 48px;">
+        <h2 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 12px;">
+          <span style="font-family: var(--font-mono); font-size: 0.875rem; color: var(--accent);">01</span>
+          {t.about.sections.beforeData}
+        </h2>
+        <p style="color: var(--text-secondary); line-height: 1.7; margin-bottom: 16px;">
+          Pasé años gestionando un negocio antes de escribir mi primer pipeline de datos. Planificación de inventario, análisis de costes, previsión de ventas, optimización de márgenes, coordinación logística, decisiones de clientes — cada día significaba trabajar con información incompleta y tomar la mejor decisión posible con lo que había disponible.
+        </p>
+        <p style="color: var(--text-secondary); line-height: 1.7; margin-bottom: 16px;">
+          Esa experiencia me enseñó algo que ningún bootcamp cubre: los datos solo son valiosos cuando ayudan a alguien a tomar una mejor decisión. Todo lo demás es infraestructura buscando un propósito.
+        </p>
+        <p style="color: var(--text-secondary); line-height: 1.7;">
+          Cuando después aprendí a construir pipelines, escribir APIs y entrenar modelos, ya sabía qué forma debía tener el resultado — sistemas que entregan claridad, no solo dashboards que muestran números.
+        </p>
+      </section>
+
+      <section style="margin-bottom: 48px;">
+        <h2 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 12px;">
+          <span style="font-family: var(--font-mono); font-size: 0.875rem; color: var(--accent);">02</span>
+          {t.about.sections.today}
+        </h2>
+        <p style="color: var(--text-secondary); line-height: 1.7; margin-bottom: 16px;">
+          Diseño y construyo sistemas de datos en producción. Pipelines que ingieren y transforman datos de múltiples fuentes. APIs que sirven datos limpios y fiables a consumidores downstream. Modelos que convierten patrones históricos en predicciones. Interfaces que hacen que los datos sean accionables para quienes los necesitan.
+        </p>
+        <p style="color: var(--text-secondary); line-height: 1.7;">
+          Cada proyecto que entrego está moldeado por entender el contexto de negocio primero — qué decisión necesita mejorar, quién actuará con la información, y qué nivel de calidad debe alcanzar el sistema para ser de confianza.
+        </p>
+        <p style="color: var(--text-secondary); line-height: 1.7;">
+          Trabajo en toda la pila de productos de datos: desde definir el modelo de datos y construir la capa de ingesta hasta desplegar la API y diseñar la interfaz de usuario.
+        </p>
+      </section>
+
+      <section style="margin-bottom: 48px;">
+        <h2 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 12px;">
+          <span style="font-family: var(--font-mono); font-size: 0.875rem; color: var(--accent);">03</span>
+          {t.about.sections.lookingFor}
+        </h2>
+        <p style="color: var(--text-secondary); line-height: 1.7; margin-bottom: 16px;">
+          Equipos donde los datos son un producto, no un subproducto. Organizaciones de ingeniería que invierten en infraestructura de datos, tratan los pipelines como sistemas de producción, y esperan que sus profesionales de datos entiendan tanto el problema de negocio como la solución técnica.
+        </p>
+        <p style="color: var(--text-secondary); line-height: 1.7;">
+          Soy más efectivo en entornos donde puedo trabajar en la frontera entre el contexto de negocio y la implementación técnica — entendiendo lo que la empresa necesita, y construyendo los sistemas que lo entregan.
+        </p>
+      </section>
+
+      <div style="display: flex; gap: 16px; padding-top: 32px; border-top: 1px solid var(--border); margin-bottom: 48px;">
+        <a href={SITE.links.linkedin} target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 8px; background: var(--accent); color: white; text-decoration: none; font-size: 0.875rem; font-weight: 500;">LinkedIn</a>
+        <a href={SITE.links.github} target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 8px; border: 1px solid var(--border); color: var(--text-secondary); text-decoration: none; font-size: 0.875rem; font-weight: 500;">GitHub</a>
+      </div>
+
+      <GitHubActivity />
+    </article>
+  </Container>
+</BaseLayout>
