@@ -91,6 +91,10 @@ export const UI = {
         lessons: 'Lessons Learned',
       },
     },
+    building: {
+      milestones: 'Milestones',
+      next: 'Next',
+    },
     language: {
       switch: 'Español',
       label: 'Language',
@@ -182,11 +186,15 @@ export const UI = {
         challenges: 'Desafíos',
         solution: 'Solución',
         implementation: 'Implementación',
-        tradeOffs: 'Trade-offs',
+        tradeOffs: 'Compromisos',
         reliability: 'Fiabilidad',
         results: 'Resultados',
         lessons: 'Lecciones aprendidas',
       },
+    },
+    building: {
+      milestones: 'Hitos',
+      next: 'Siguiente',
     },
     language: {
       switch: 'English',

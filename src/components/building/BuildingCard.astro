@@ -1,5 +1,7 @@
 ---
 import Badge from '../ui/Badge.astro';
+import { getLocaleFromUrl } from '../../i18n/utils';
+import { getUI } from '../../i18n/ui';
 
 export interface Props {
   title: string;
@@ -9,6 +11,9 @@ export interface Props {
   nextMilestone: string;
   repo?: string;
 }
+
+const locale = getLocaleFromUrl(Astro.url);
+const t = getUI(locale);
 ---
 
 <article class="building-card">
@@ -21,7 +26,7 @@ export interface Props {
   <p class="description">{Astro.props.description}</p>
 
   <div class="milestones">
-    <h4 class="milestones-heading">Milestones</h4>
+    <h4 class="milestones-heading">{t.building.milestones}</h4>
     <ul class="milestone-list">
       {Astro.props.milestones.map((m) => (
         <li class:list={{ milestone: true, completed: m.completed }}>
@@ -33,13 +38,13 @@ export interface Props {
   </div>
 
   <div class="next">
-    <span class="next-label">Next:</span>
+    <span class="next-label">{t.building.next}:</span>
     <span class="next-value">{Astro.props.nextMilestone}</span>
   </div>
 
   {Astro.props.repo && (
     <a href={Astro.props.repo} target="_blank" rel="noopener noreferrer" class="repo-link">
-      View Repository &rarr;
+      {t.caseStudy.viewRepository} &rarr;
     </a>
   )}
 </article>
