@@ -1,4 +1,5 @@
 ---
+import Logo from '../ui/Logo.astro';
 import { getUI } from '../../i18n/ui';
 import { getAlternateUrl, getLocaleFromUrl } from '../../i18n/utils';
 
@@ -25,8 +26,8 @@ function isActive(href: string): boolean {
 
 <header class="header">
   <nav class="nav" aria-label="Main">
-    <a href={locale === 'es' ? '/es' : '/'} class="logo">
-      <img src="/logo.svg" alt="Juan de la Fuente" width="160" height="36" class="logo-img" />
+    <a href={locale === 'es' ? '/es' : '/'} class="logo-link">
+      <Logo size={36} showText={true} />
     </a>
     <div class="links">
       {NAV.map((item) => (
@@ -50,7 +51,7 @@ function isActive(href: string): boolean {
     position: sticky;
     top: 0;
     z-index: 100;
-    background: color-mix(in srgb, var(--bg-primary) 88%, transparent);
+    background: color-mix(in srgb, var(--bg-primary) 92%, transparent);
     border-bottom: 1px solid var(--border);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
@@ -61,16 +62,12 @@ function isActive(href: string): boolean {
     justify-content: space-between;
     max-width: var(--max-width);
     margin: 0 auto;
-    padding: 12px var(--content-padding);
+    padding: 10px var(--content-padding);
   }
-  .logo {
+  .logo-link {
     display: flex;
     align-items: center;
     text-decoration: none;
-  }
-  .logo-img {
-    height: 36px;
-    width: auto;
   }
   .links {
     display: flex;
@@ -95,7 +92,7 @@ function isActive(href: string): boolean {
     font-size: 0.75rem;
     color: var(--accent);
     text-decoration: none;
-    border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+    border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
     border-radius: 999px;
     padding: 4px 12px;
     transition: border-color var(--transition), background var(--transition);
@@ -107,13 +104,14 @@ function isActive(href: string): boolean {
   }
   @media (max-width: 640px) {
     .links {
-      gap: 16px;
+      gap: 14px;
     }
     .link {
       font-size: 0.8125rem;
     }
-    .logo-img {
-      height: 28px;
+    .lang-switch {
+      font-size: 0.6875rem;
+      padding: 3px 10px;
     }
   }
 </style>

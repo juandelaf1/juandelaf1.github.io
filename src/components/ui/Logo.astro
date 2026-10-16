@@ -1,0 +1,44 @@
+---
+export interface Props {
+  size?: number;
+  showText?: boolean;
+}
+
+const { size = 32, showText = true } = Astro.props;
+---
+
+<svg
+  width={showText ? 180 : size}
+  height={size}
+  viewBox={showText ? "0 0 180 40" : "0 0 32 32"}
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+  class="logo-svg"
+  aria-hidden="true"
+>
+  <!-- Mark -->
+  <rect x="0" y={showText ? "4" : "0"} width="32" height="32" rx="8" fill="#0D1B2A"/>
+  <rect x="0.75" y={showText ? "4.75" : "0.75"} width="30.5" height="30.5" rx="7.25" stroke="#5EEAD4" stroke-width="1.5" stroke-opacity="0.35"/>
+  <!-- J -->
+  <path d="M13 {showText ? '11' : '7'}v13.5c0 2.5-1.8 4.5-4.25 4.5S4.5 {showText ? '27' : '23'} 4.5 {showText ? '24.5' : '20.5'}" stroke="#5EEAD4" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- d -->
+  <path d="M18 {showText ? '16.5' : '12.5'}V{showText ? '29' : '25'}" stroke="#5EEAD4" stroke-width="2.4" stroke-linecap="round"/>
+  <path d="M18 {showText ? '20.2' : '16.2'}c0-2.1 1.7-3.7 3.8-3.7s3.8 1.6 3.8 3.7V{showText ? '29' : '25'}" stroke="#5EEAD4" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- F -->
+  <path d="M27 {showText ? '11' : '7'}h-4.5" stroke="#5EEAD4" stroke-width="2.4" stroke-linecap="round"/>
+  <path d="M27 {showText ? '17.5' : '13.5'}h-3.5" stroke="#5EEAD4" stroke-width="2.4" stroke-linecap="round"/>
+  <path d="M24.5 {showText ? '11' : '7'}v8" stroke="#5EEAD4" stroke-width="2.4" stroke-linecap="round"/>
+
+  {showText && (
+    <>
+      <text x="44" y="20" fill="#e8eef5" font-family="Inter, -apple-system, BlinkMacSystemFont, sans-serif" font-size="15" font-weight="700" letter-spacing="-0.02em">Juan de la Fuente</text>
+      <text x="44" y="33" fill="#a8b8cc" font-family="'JetBrains Mono', 'Fira Code', monospace" font-size="8.5" font-weight="500" letter-spacing="0.08em">ANALYTICS ENGINEER</text>
+    </>
+  )}
+</svg>
+
+<style>
+  .logo-svg {
+    flex-shrink: 0;
+  }
+</style>
