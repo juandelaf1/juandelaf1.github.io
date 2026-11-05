@@ -19,7 +19,7 @@ export interface Props {
 
 const { title, description, category, date, tech, links, image } = Astro.props;
 const techList = tech.map((t) => t.name);
-const locale = getLocaleFromUrl(Astro.url);
+const locale = ((Astro.currentLocale as 'en' | 'es') ?? getLocaleFromUrl(Astro.url));
 const t = getUI(locale);
 ---
 
@@ -27,7 +27,8 @@ const t = getUI(locale);
   title={`${title} — ${SITE.author}`}
   {description}
   image={image}
-  path={`/projects/${Astro.params.slug}`}
+  path={locale === 'es' ? `/es/projects/${Astro.params.slug}` : `/projects/${Astro.params.slug}`}
+  currentPath={locale === 'es' ? `/es/projects/${Astro.params.slug}` : `/projects/${Astro.params.slug}`}
 >
   <Container>
     <article class="case-study">
@@ -41,6 +42,11 @@ const t = getUI(locale);
         </div>
         <h1 class="title">{title}</h1>
         <p class="description">{description}</p>
+        {image && (
+          <figure class="hero-image">
+            <img src={image} alt={`${title} — architecture / dashboard`} loading="lazy" />
+          </figure>
+        )}
         <div class="actions">
           {links.github && (
             <Button href={links.github} variant="primary" external>{t.caseStudy.viewRepository}</Button>
@@ -120,6 +126,18 @@ const t = getUI(locale);
     color: var(--text-secondary);
     max-width: 640px;
     margin-bottom: 32px;
+  }
+  .hero-image {
+    margin: 0 0 32px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--bg-tertiary);
+  }
+  .hero-image img {
+    display: block;
+    width: 100%;
+    height: auto;
   }
   .actions {
     display: flex;

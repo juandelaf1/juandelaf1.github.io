@@ -2,6 +2,8 @@
 import BaseLayout from './BaseLayout.astro';
 import Container from '../components/ui/Container.astro';
 import { SITE } from '../config/site';
+import { getLocaleFromUrl } from '../i18n/utils';
+import { getUI } from '../i18n/ui';
 
 export interface Props {
   title: string;
@@ -9,20 +11,27 @@ export interface Props {
   date: Date;
   tags: string[];
   path?: string;
+  currentPath?: string;
 }
+
+const locale = ((Astro.currentLocale as 'en' | 'es') ?? getLocaleFromUrl(Astro.url));
+const label = locale === 'es' ? 'Ingeniería' : 'Engineering';
+const backHref = locale === 'es' ? '/es/engineering' : '/engineering';
+const dateLocale = locale === 'es' ? 'es-ES' : 'en-US';
 ---
 
 <BaseLayout
-  title={`${Astro.props.title} — Engineering — ${SITE.author}`}
+  title={`${Astro.props.title} - ${label} - ${SITE.author}`}
   description={Astro.props.description}
   path={Astro.props.path}
+  currentPath={Astro.props.currentPath}
 >
   <Container>
     <article class="engineering">
       <header class="header">
-        <a href="/engineering" class="back">&larr; Engineering</a>
+        <a href={backHref} class="back">&larr; {label}</a>
         <time datetime={Astro.props.date.toISOString()} class="date">
-          {new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'long', day: 'numeric' }).format(Astro.props.date)}
+          {new Intl.DateTimeFormat(dateLocale, { year: 'numeric', month: 'long', day: 'numeric' }).format(Astro.props.date)}
         </time>
         <h1 class="title">{Astro.props.title}</h1>
         <p class="description">{Astro.props.description}</p>

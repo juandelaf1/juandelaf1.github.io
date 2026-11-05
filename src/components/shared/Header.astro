@@ -1,16 +1,16 @@
 ---
 import Logo from '../ui/Logo.astro';
 import { getUI } from '../../i18n/ui';
-import { getAlternateUrl, getLocaleFromUrl } from '../../i18n/utils';
+import { getAlternateHref, getLocaleFromUrl } from '../../i18n/utils';
 
 export interface Props {
   currentPath?: string;
 }
 
 const { currentPath = '/' } = Astro.props;
-const locale = getLocaleFromUrl(Astro.url);
+const locale = ((Astro.currentLocale as 'en' | 'es') ?? getLocaleFromUrl(Astro.url));
 const t = getUI(locale);
-const altUrl = getAlternateUrl(currentPath, locale);
+const altUrl = getAlternateHref(currentPath, locale);
 
 const NAV = [
   { label: t.nav.projects, href: locale === 'es' ? '/es/projects' : '/projects' },
@@ -26,7 +26,7 @@ function isActive(href: string): boolean {
 
 <header class="header">
   <nav class="nav" aria-label="Main">
-    <a href={locale === 'es' ? '/es' : '/'} class="logo-link">
+    <a href={locale === 'es' ? '/es' : '/'} class="logo-link" aria-label="Juan de la Fuente — Home">
       <Logo size={36} showText={true} />
     </a>
     <div class="links">
@@ -90,17 +90,17 @@ function isActive(href: string): boolean {
   .lang-switch {
     font-family: var(--font-mono);
     font-size: 0.75rem;
-    color: var(--accent);
+    color: var(--accent-solid);
     text-decoration: none;
-    border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+    border: 1px solid color-mix(in srgb, var(--accent-solid) 40%, transparent);
     border-radius: 999px;
     padding: 4px 12px;
     transition: border-color var(--transition), background var(--transition);
   }
   .lang-switch:hover {
-    border-color: var(--accent);
+    border-color: var(--accent-solid);
     background: var(--accent-soft);
-    color: var(--accent);
+    color: var(--accent-solid);
   }
   @media (max-width: 640px) {
     .links {

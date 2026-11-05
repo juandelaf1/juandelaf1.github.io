@@ -2,13 +2,21 @@
 import type { CollectionEntry } from 'astro:content';
 import Metric from '../ui/Metric.astro';
 import MiniFlow from '../projects/MiniFlow.astro';
+import { getUI } from '../../i18n/ui';
+import { getLocaleFromUrl } from '../../i18n/utils';
 
 export interface Props {
   projects: CollectionEntry<'projects'>[];
 }
 
 const { projects } = Astro.props;
+const locale = ((Astro.currentLocale as 'en' | 'es') ?? getLocaleFromUrl(Astro.url));
+const t = getUI(locale);
 const sorted = [...projects].sort((a, b) => (a.data.order ?? 99) - (b.data.order ?? 99));
+
+function slugOf(id: string): string {
+  return id.replace(/^(en|es)\//, '');
+}
 
 const flowMap: Record<string, string[]> = {
   case: ['Input', 'Prompt', 'LLM', 'Validate', 'Decide'],
@@ -20,34 +28,44 @@ const flowMap: Record<string, string[]> = {
 
 <section class="selected-work" aria-labelledby="selected-heading">
   <div class="section-head">
-    <h2 id="selected-heading" class="heading">Selected work</h2>
-    <a href="/projects" class="view-all">View all projects &rarr;</a>
+    <h2 id="selected-heading" class="heading">{t.home.selectedWork}</h2>
+    <a href={locale === 'es' ? '/es/projects' : '/projects'} class="view-all">
+      {t.home.viewAll}
+    </a>
   </div>
   <div class="grid">
-    {sorted.map((project) => (
-      <a href={`/projects/${project.id}`} class="card">
-        <div class="card-content">
-          <div class="card-header">
-            <span class="category">{project.data.category}</span>
-            <span class="status">{project.data.status}</span>
+    {sorted.map((project) => {
+      const slug = slugOf(project.id);
+      return (
+        <a href={locale === 'es' ? `/es/projects/${slug}` : `/projects/${slug}`} class="card">
+          <div class="card-content">
+            {project.data.image && (
+              <div class="card-thumb">
+                <img src={project.data.image} alt={project.data.title} loading="lazy" />
+              </div>
+            )}
+            <div class="card-header">
+              <span class="category">{project.data.category}</span>
+              <span class="status">{project.data.status}</span>
+            </div>
+            {flowMap[slug] && (
+              <div class="card-flow">
+                <MiniFlow nodes={flowMap[slug]} />
+              </div>
+            )}
+            <h3 class="card-title">{project.data.title}</h3>
+            <p class="card-description">{project.data.description}</p>
+            {project.data.metrics.length > 0 && (
+              <div class="card-metrics">
+                {project.data.metrics.slice(0, 2).map((m) => (
+                  <Metric value={m.value} label={m.label} />
+                ))}
+              </div>
+            )}
           </div>
-          {flowMap[project.id] && (
-            <div class="card-flow">
-              <MiniFlow nodes={flowMap[project.id]} />
-            </div>
-          )}
-          <h3 class="card-title">{project.data.title}</h3>
-          <p class="card-description">{project.data.description}</p>
-          {project.data.metrics.length > 0 && (
-            <div class="card-metrics">
-              {project.data.metrics.slice(0, 2).map((m) => (
-                <Metric value={m.value} label={m.label} />
-              ))}
-            </div>
-          )}
-        </div>
-      </a>
-    ))}
+        </a>
+      );
+    })}
   </div>
 </section>
 
@@ -93,6 +111,18 @@ const flowMap: Record<string, string[]> = {
     padding: 28px 32px;
     text-decoration: none;
     transition: background var(--transition);
+  }
+  .card-thumb {
+    margin: -28px -32px 16px;
+    border-bottom: 1px solid var(--border);
+    overflow: hidden;
+    max-height: 160px;
+  }
+  .card-thumb img {
+    display: block;
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
   }
   .card:hover {
     background: var(--bg-secondary);

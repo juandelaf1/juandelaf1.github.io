@@ -9,7 +9,7 @@ import { getUI } from '../../i18n/ui';
 
 const t = getUI('es');
 const projects = await getCollection('projects');
-const featured = projects.filter((p) => p.data.featured);
+const featured = projects.filter((p) => p.data.featured && p.id.startsWith('es/'));
 const personSchema = {
   '@context': 'https://schema.org',
   '@type': 'Person',
@@ -17,7 +17,14 @@ const personSchema = {
   url: SITE.url,
   jobTitle: 'Ingeniero de Analítica',
   sameAs: [SITE.links.github, SITE.links.linkedin],
-  knowsAbout: ['Ingeniería de Analítica', 'Ingeniería de Datos', 'Productos de Datos', 'Arquitectura de Datos', 'ETL Pipelines', 'Business Intelligence'],
+  knowsAbout: [
+    'Ingeniería de Analítica',
+    'Ingeniería de Datos',
+    'Productos de Datos',
+    'Arquitectura de Datos',
+    'ETL Pipelines',
+    'Business Intelligence',
+  ],
 };
 const websiteSchema = {
   '@context': 'https://schema.org',
@@ -91,7 +98,7 @@ const websiteSchema = {
       </div>
       <p class="background-note">
         {t.home.backgroundNote}
-        <a href="/es/about"> {t.home.backgroundLink}</a>
+        <a href="/es/about">{t.home.backgroundLink}</a>
       </p>
     </section>
 

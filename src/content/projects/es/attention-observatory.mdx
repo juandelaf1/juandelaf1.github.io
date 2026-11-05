@@ -1,0 +1,189 @@
+﻿---
+title: "Modelado de la Atención Digital como Recurso Ecológico Finito"
+description: "Estudio empírico de la concentración de la atención en 6 plataformas: power law, Gini 0.983, pipeline ELT reproducible con NLP."
+featured: false
+order: 9
+category: "Analytics"
+date: 2026-06-05
+status: "development"
+image: "/images/projects/attention-observatory-banner.png"
+metrics:
+  - value: "0.983"
+    label: "Coeficiente de Gini (concentración de atención)"
+  - value: "alpha = 2.19"
+    label: "Exponente power law (ajuste global)"
+  - value: "4.136"
+    label: "Actores en 6 plataformas"
+  - value: "8.136"
+    label: "Posts procesados"
+tech:
+  - name: "Python"
+  - name: "Polars"
+  - name: "Transformers"
+  - name: "Streamlit"
+  - name: "Parquet"
+  - name: "SciPy"
+links:
+  github: "https://github.com/juandelaf1/attention-observatory"
+---
+
+## Contexto
+
+La atención es finita. Cada persona tiene 24 horas y un presupuesto cognitivo limitado. Las plataformas digitales no crean más atención; compiten por un conjunto fijo y lo redistribuyen de forma desigual. Este proyecto trata esa redistribución como un problema ecológico, no moral: describe la estructura de la distribución de la atención con matemática y estadística, sin etiquetar personas, intenciones ni contenido.
+
+La pregunta de investigación se enuncia fácil y responde difícil: **¿cómo se distribuye la atención humana entre plataformas digitales y qué implica esa distribución sobre los sistemas que la median?** Las sub-preguntas incluyen si la atención sigue una power law, si el tono del contenido predice el engagement, si las plataformas difieren en su desigualdad y si el lenguaje de prestigio se correlaciona con la presión de producción.
+
+El proyecto es un estudio empírico, no un producto. Entrega un pipeline ELT reproducible, un espacio de features, una capa estadística y un dashboard Streamlit. No entrega recomendaciones, rankings de personas ni prescripciones.
+
+## Desafíos
+
+- **El engagement significa cosas distintas en cada plataforma.** HackerNews tiene upvotes, Wikipedia revisiones, HuggingFace descargas. Una métrica única (Engagement Rate) no se puede comparar ingenuamente entre ellas.
+- **La heterogeneidad de plataformas domina el volumen.** HuggingFace aporta el 72.5% de los actores pero cero señal de engagement. Tratar a todos los actores como una sola población ocultaría la estructura real.
+- **El sentiment está polarizado.** Un clasificador binario (distilbert) empuja casi todo texto a un extremo, comprimiendo la varianza y debilitando correlaciones.
+- **La feature de "prestigio" (AFI) empezó muerta.** El 99.7% de los actores tenían AFI = 0 hasta que se reconstruyó el conjunto de keywords; la métrica sigue siendo un proxy tosco.
+- **El engagement de Bluesky está inflado** por un suelo de 1 seguidor, lo que empuja ER hacia 147 en una plataforma con pocos seguidores por cuenta.
+- **Reproducibilidad vs. APIs en vivo.** Seis fuentes, límites de tasa y tokens ausentes (Reddit bloqueado, Telegram pendiente) hacen que las ejecuciones completas no sean triviales.
+
+## Solución
+
+### Arquitectura
+
+El sistema es un pipeline ELT de tres capas con una capa de análisis estadístico y un dashboard encima.
+
+![Curva de Lorenz: concentración acumulada de atención, Gini 0.983](/images/projects/attention-observatory-lorenz.png)
+
+**Bronze (crudo).** Ingesta desde 6 fuentes a archivos Parquet particionados, sin transformación: HackerNews API, Wikipedia API, HuggingFace Datasets, Bluesky AT Protocol, Mastodon API, GitHub API. Cada conector está aislado y limitado por tasa.
+
+**Silver (limpio).** Tipado, manejo de nulos, normalización de timestamps y un esquema diagonal unificado entre plataformas con Polars. Calcula `followers_at_post` desde la tabla de actores.
+
+**Gold (espacio de features).** Cada actor se convierte en un vector:
+
+`X_i = [ER_i, PPI_i, Sentiment_i, AFI_i]`
+
+- **ER (Engagement Rate):** interacciones / seguidores x 100. Normaliza por tamaño del nodo.
+- **PPI (Production Pressure Index):** 1 / ln(intervalo_horas + 1.01). Proxy de urgencia de publicación.
+- **Sentiment:** [-1, 1] desde distilbert-base-uncased-finetuned-sst-2.
+- **AFI (Aspirational Framing Index):** densidad de keywords de prestigio (luxury, gala, premiere, academy, curated, ...).
+
+### Capa estadística
+
+- **Coeficiente de Gini** y **curva de Lorenz** para concentración.
+- **Ajuste power law** por máxima verosimilitud (Clauset et al.), con comparación contra lognormal/exponencial por razón de verosimilitud.
+- **Distancia de Cook** para nodos de alto apalancamiento (D_i > 4/n).
+- **Z-score** para detección de super-hubs (Z > 3).
+- **Correlaciones de Spearman** entre features.
+
+### Flujo del pipeline
+
+Fuentes crudas -> Bronze Parquet -> Silver (Polars) -> Gold (vectores de features) -> análisis estadístico -> dashboard Streamlit (4 vistas: System Overview, Attention Inequality, State Space Exploration, Actor Explorer).
+
+## Resultados
+
+Los números provienen de una sola ejecución reproducible del 5 de junio de 2026 (6 fuentes, post-fix de Bluesky). Son preliminares: describen una instantánea, no una tendencia.
+
+**Concentración (hallazgo validado, con sensibilidad).**
+
+- Coeficiente de Gini: **0.9828** sobre la población completa (4.136 actores). Esta cifra **incluye 3.000 actores de HuggingFace con ER = 0**, lo que infla la concentración. Excluyendo HuggingFace: **0.9730**. De cualquier forma la concentración es extrema, pero la cifra principal no es portable sin la nota de composición.
+- Exponente power law: **alpha = 2.1856** (ajuste global sobre valores ER > 0). Es un agregado ponderado dominado por HackerNews y Bluesky. Por plataforma el ajuste difiere: HackerNews 2.69, Bluesky 2.29, Mastodon 1.56. Mastodon **no** sigue una power law. "La atención sigue una power law" es dependiente de la plataforma, no universal.
+
+![Ajuste power law sobre la distribución de atención, alpha = 2.19](/images/projects/attention-observatory-powerlaw.png)
+
+**Escala del dataset.**
+
+- 4.136 actores, 8.136 posts, 6 plataformas.
+- HuggingFace domina por volumen (72.5% de los actores) pero aporta cero señal de engagement.
+
+**Relaciones entre features (validadas, con matiz de subconjunto).**
+
+Las correlaciones siguientes corresponden al subconjunto sin HuggingFace (n = 1.136), que es la población más limpia. Incluir HuggingFace (3.000 actores con ER = 0, PPI = 50.1 constante, AFI aprox 0) infla varios coeficientes: ER-PPI pasa de -0.12 a -0.36 y AFI-PPI de -0.09 a -0.28. Las cifras con HuggingFace se reportan por tanto como cota superior, no como resultado principal.
+
+- ER a PPI: Spearman rho = **-0.115** (p < 0.001, sin HF). Correlación negativa débil pero significativa: mayor presión de publicación, ligeramente menor engagement. Dataset completo rho = -0.355 (inflado por el PPI constante de HuggingFace).
+- ER a Sentiment: rho = **0.045** (p = 0.130, sin HF). **No significativo.** El tono del contenido no predice el engagement. Consistente con la hipótesis de que el engagement está determinado por la arquitectura de la red, no por el contenido. Dataset completo rho = -0.024 (p = 0.124), tampoco significativo.
+- AFI a PPI: rho = **-0.088** (p = 0.003, sin HF; tamaño del efecto pequeño). Débil pero estadísticamente significativo: mayor presión de producción, menor lenguaje de prestigio. Dataset completo rho = -0.285 (inflado). El efecto es real en dirección pero pequeño en magnitud; no debe exagerarse.
+
+**Power law por plataforma (validada donde N lo permite).**
+
+| Plataforma | N | Actores con ER>0 | alpha | ¿Power law? |
+|---|---|---|---|---|
+| HackerNews | 295 | 34 | 2.69 | Sí |
+| Bluesky | 392 | 155 | 2.29 | Sí |
+| Mastodon | 129 | 64 | 1.56 | No (más distribuida) |
+| GitHub | 52 | 2 | n/a | Datos insuficientes |
+| Wikipedia | 268 | 0 | n/a | Sin ER tradicional |
+| HuggingFace | 3.000 | 0 | n/a | Sin señal de engagement |
+
+**Desigualdad por plataforma (validada).**
+
+| Plataforma | Gini |
+|---|---|
+| Mastodon | 0.968 |
+| GitHub | 0.962 |
+| HackerNews | 0.903 |
+| Bluesky | 0.869 |
+
+Todas las plataformas con datos de engagement muestran Gini > 0.85. La concentración no es un artefacto de una sola plataforma. Nota sobre los intervalos de confianza: GitHub (n = 52, solo 2 actores con ER > 0) tiene un IC de [0.00, 0.98]: la estimación puntual no es fiable para esa plataforma. Bluesky, HackerNews y Mastodon tienen IC estrechos y sostienen la conclusión.
+
+**Super-hubs (preliminar).** El conteo verificado es **7** nodos con Z > 3, todos en Bluesky, con ER medio 4.486, PPI 0.19, sentiment -0.16 y AFI 0.20. Un resumen anterior mencionaba "10 hubs / 2.28% de la atención"; esa cifra no se reproduce en el informe de investigación (p6_superhubs.json) y se ha eliminado. El perfil es consistente con la hipótesis de que los super-hubs convierten alcance cuantitativo en prestigio cualitativo, pero está dominado por el suelo de seguidores de Bluesky (suelo de 1 seguidor infla ER) y necesita refinamiento antes de tratarse como hallazgo.
+
+**No replicado (importante).** Una ejecución anterior marcó "saturación sistémica" (churn 312.75). Tras corregir los datos faltantes de Bluesky, la saturación **no se detectó**. El indicador era un artefacto de datos incompletos, no un colapso real. Se reporta como no-resultado, no se oculta.
+
+![Espacio de features: ER x PPI x Sentiment, coloreado por AFI](/images/projects/attention-observatory-featurespace.png)
+
+![Coeficiente de Gini por plataforma](/images/projects/attention-observatory-gini.png)
+
+## Sensibilidad y comparabilidad
+
+Resumen de qué sostienen y qué no los números, para no sobreleer una sola instantánea:
+
+| Afirmación | Estado | Base |
+|---|---|---|
+| La atención está muy concentrada (Gini ~0.98) | Observado | Gini 0.9828 completo, 0.9730 sin HuggingFace; todas las plataformas con ER > 0.85 |
+| La concentración no es artefacto de una sola plataforma | Sostenido | Gini > 0.85 en Bluesky, HackerNews, Mastodon, GitHub |
+| La atención sigue una power law | Parcialmente sostenido | HN alpha=2.69, Bluesky alpha=2.29 (ajuste); Mastodon alpha=1.56 (no ajusta) |
+| El tono del contenido no predice el engagement | Sostenido | rho=0.045, p=0.13 (sin HF); dataset completo rho=-0.024, p=0.12 |
+| Mayor presión de publicación conduce a menor engagement | Sostenido (débil) | rho=-0.115 (sin HF), -0.355 (completo, inflado por HF) |
+| Mayor presión de producción conduce a menos lenguaje de prestigio | Sostenido (débil, efecto pequeño) | rho=-0.088 (sin HF), -0.285 (completo, inflado) |
+| Los super-hubs convierten alcance en prestigio | Hipótesis, preliminar | 7 nodos Bluesky, Z>3; dominado por el suelo de seguidores |
+| Saturación / colapso sistémico | No replicado | Artefacto de datos faltantes de Bluesky |
+| La atención en ciencia refleja la de las redes sociales | Pendiente | OpenAlex aún no en la ejecución principal |
+
+Limitaciones que aplican a todos los números anteriores: instantánea única (5 jun 2026); el engagement no es comparable entre plataformas por construcción; HuggingFace aporta el 72.5% de los actores con cero señal; el sentiment es un clasificador binario con salida polarizada; AFI es un proxy de keywords; la detección de super-hubs depende de un suelo de seguidores.
+
+## Implementación
+
+El pipeline está escrito en Python con Polars para transformación, Parquet para almacenamiento y transformers para NLP. El ajuste estadístico usa SciPy y el paquete `powerlaw`. El dashboard es Streamlit con 4 vistas. Cada transformación es trazable a un documento de especificación (los manifiestos), y las hipótesis se mapean a métricas y archivos de código.
+
+Decisiones clave de implementación:
+- **Unificación por esquema diagonal** entre plataformas para combinar fuentes heterogéneas sin forzar una forma común.
+- **HuggingFace marcado, no descartado** (`is_huggingface`), para que los actores con mucho volumen y cero señal se puedan filtrar en el análisis sin perder procedencia.
+- **AFI reconstruido** con un conjunto de keywords ampliado tras la versión inicial que devolvía 99.7% de ceros. Nueva media fuera de HuggingFace: 0.173, 29% de actores con AFI > 0.
+- **NLP dentro del pipeline**, no como paso separado, para que el sentiment forme parte de la capa gold reproducible.
+
+## Lecciones Aprendidas
+
+- **El engagement no es portable.** Una métrica que funciona en HackerNews es inútil en Wikipedia. Se necesitan proxies nativos de plataforma (revisiones, commits) y las comparaciones cross-plataforma deben explicitar qué se compara.
+- **El volumen puede mentir.** El 72.5% del dataset aportó cero señal. Sin el flag de HuggingFace, el Gini habría sido 0.9926 en vez de 0.9730: una distorsión pequeña pero real.
+- **Los no-resultados son resultados.** Que el hallazgo de saturación desapareciera tras corregir datos es el output más honesto del proyecto. Reportarlo como "no replicado" vale más que presentarlo como descubrimiento.
+- **Los hallazgos preliminares necesitan etiqueta.** Power law y Gini son robustos entre ejecuciones. Los perfiles de super-hubs no lo son, porque dependen de un suelo de seguidores que infla el ER de Bluesky.
+
+## Trabajo Futuro
+
+- **Integración con OpenAlex (en curso).** Se está añadiendo un conector para obras científicas, autores y citas (nueva fuente: red de conocimiento). Permitirá probar si la concentración de la atención en ciencia refleja la de las redes sociales. Estado: el código existe, los tests pasan, aún no está integrado en la ejecución principal del pipeline.
+- **Reddit y Telegram.** Reddit está bloqueado por cambios de API; Telegram necesita un token de bot. Ambos añadirían plataformas con mucho texto.
+- **Refinar ER para plataformas con pocos seguidores.** Normalización por mediana de seguidores en vez de suelo de 1.
+- **Granularidad del sentiment.** Pasar de clasificación binaria a un modelo de regresión u ordinal.
+- **Tracking longitudinal.** Múltiples ejecuciones del pipeline para detectar transiciones de fase en Gini y alpha a lo largo del tiempo.
+- **Proxy de engagement para Wikipedia.** Usar conteo de revisiones como engagement intra-plataforma en vez de forzar ER.
+
+## Estado de los hallazgos (léelo antes de citar cifras)
+
+**Validados en la ejecución actual:** power law (HN, Bluesky), Gini por plataforma, correlaciones entre features, comparación de desigualdad entre plataformas.
+
+**Preliminares, necesitan refinamiento:** perfiles de super-hubs (suelo de seguidores de Bluesky), AFI (proxy de keywords tosco), sentiment (clasificador polarizado).
+
+**No replicado / reportado como no-resultado:** saturación sistémica.
+
+**Pendiente (aún no en el pipeline):** capa científica de OpenAlex, Reddit, Telegram, ejecuciones longitudinales.
+
+Esta página es un case study de investigación, no un producto terminado. El pipeline funciona y el dashboard también, pero el análisis es una investigación en curso. Las cifras provienen de una sola instantánea y deben leerse como evidencia de método y dirección, no como conclusiones finales.
+---

@@ -4,31 +4,26 @@ import Container from '../../components/ui/Container.astro';
 import { SITE } from '../../config/site';
 import { getCollection, render } from 'astro:content';
 import { getUI } from '../../i18n/ui';
-import { getLocaleFromUrl } from '../../i18n/utils';
 
 export async function getStaticPaths() {
-  const entries = await getCollection('approach');
-  return entries.map((entry) => {
-    const parts = entry.id.split('/');
-    const locale = parts[0] as 'en' | 'es';
-    const slug = parts.slice(1).join('/');
-    return {
-      params: { locale: locale === 'es' ? 'es' : undefined, slug },
-      props: { entry, locale },
-    };
-  });
+  const entries = await getCollection('approach', (entry) => entry.id.startsWith('en/'));
+  return entries.map((entry) => ({
+    params: { slug: entry.id.replace(/^en\//, '') },
+    props: { entry },
+  }));
 }
 
-const { entry, locale } = Astro.props;
-const t = getUI(locale);
+const { entry } = Astro.props;
+const t = getUI('en');
 const { Content } = await render(entry);
-const basePath = locale === 'es' ? '/es/approach' : '/approach';
+const slug = entry.id.replace(/^en\//, '');
 ---
 
 <BaseLayout
-  title={`${entry.data.title} — ${SITE.author}`}
+  title={`${entry.data.title} - ${SITE.author}`}
   description={entry.data.description}
-  path={`${basePath}/${entry.id.split('/').slice(1).join('/')}`}
+  path={`/approach/${slug}`}
+  currentPath={`/approach/${slug}`}
 >
   <Container>
     <article class="principle-article">

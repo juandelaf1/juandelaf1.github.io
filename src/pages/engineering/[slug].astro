@@ -20,6 +20,7 @@ const { Content } = await render(note);
   date={note.data.date}
   tags={note.data.tags}
   path={`/engineering/${note.id.replace(/^en\//, '')}`}
+  currentPath={`/engineering/${note.id.replace(/^en\//, '')}`}
 >
   <Content />
 </EngineeringLayout>

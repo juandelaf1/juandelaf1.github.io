@@ -21,8 +21,8 @@ const { Content } = await render(experiment);
 <BaseLayout
   title={`${experiment.data.title} — ${SITE.author}`}
   description={experiment.data.description}
-  path={`/experiments/${experiment.id}`}
-  currentPath={`/experiments/${experiment.id}`}
+  path={`/experiments/${experiment.id.replace(/^en\//, '')}`}
+  currentPath={`/experiments/${experiment.id.replace(/^en\//, '')}`}
 >
   <Container>
     <article style="padding:48px 0 96px;max-width:720px;">

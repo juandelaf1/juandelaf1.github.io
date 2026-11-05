@@ -17,9 +17,10 @@ const { Content } = await render(exp);
 ---
 
 <BaseLayout
-  title={`${exp.data.title} — ${SITE.author}`}
+  title={`${exp.data.title} - ${SITE.author}`}
   description={exp.data.description}
   path={`/es/experiments/${exp.id.replace(/^es\//, '')}`}
+  currentPath={`/es/experiments/${exp.id.replace(/^es\//, '')}`}
 >
   <Container>
     <article class="experiment-article">

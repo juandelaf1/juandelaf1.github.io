@@ -12,7 +12,7 @@ export interface Props {
   repo?: string;
 }
 
-const locale = getLocaleFromUrl(Astro.url);
+const locale = ((Astro.currentLocale as 'en' | 'es') ?? getLocaleFromUrl(Astro.url));
 const t = getUI(locale);
 ---
 

@@ -7,7 +7,7 @@ import { SITE } from '../config/site';
 import { getCollection } from 'astro:content';
 
 const projects = await getCollection('projects');
-const featured = projects.filter((p) => p.data.featured);
+const featured = projects.filter((p) => p.data.featured && p.id.startsWith('en/'));
 const personSchema = {
   '@context': 'https://schema.org',
   '@type': 'Person',
@@ -15,7 +15,14 @@ const personSchema = {
   url: SITE.url,
   jobTitle: 'Analytics Engineer',
   sameAs: [SITE.links.github, SITE.links.linkedin],
-  knowsAbout: ['Analytics Engineering', 'Data Engineering', 'Data Products', 'Data Architecture', 'ETL Pipelines', 'Business Intelligence'],
+  knowsAbout: [
+    'Analytics Engineering',
+    'Data Engineering',
+    'Data Products',
+    'Data Architecture',
+    'ETL Pipelines',
+    'Business Intelligence',
+  ],
 };
 const websiteSchema = {
   '@context': 'https://schema.org',
@@ -50,15 +57,15 @@ const websiteSchema = {
         </div>
         <div class="evidence-item">
           <span class="evidence-value">CI</span>
-          <span class="evidence-label">workflows on SkyCast and GeoRisk_Finder — lint, tests, containers</span>
+          <span class="evidence-label">Workflows on SkyCast and GeoRisk_Finder — lint, tests, containers</span>
         </div>
         <div class="evidence-item">
           <span class="evidence-value">PyPI</span>
-          <span class="evidence-label">RASPAL published as <code>raspal</code> (0.6.1, trusted publishing)</span>
+          <span class="evidence-label">RASPAL published as raspa (0.6.1, trusted publishing)</span>
         </div>
         <div class="evidence-item">
           <span class="evidence-value">Docker</span>
-          <span class="evidence-label">reproducible environments for API, dashboard, and pipeline workloads</span>
+          <span class="evidence-label">Reproducible environments for API, dashboard, and pipeline workloads</span>
         </div>
       </div>
     </section>
@@ -89,7 +96,7 @@ const websiteSchema = {
       </div>
       <p class="background-note">
         I ran a business before I built data systems. Managing inventory, costs, logistics, and margins taught me that data is only valuable when it helps someone make a better decision.
-        <a href="/about"> More about my background &rarr;</a>
+        <a href="/about"> More about my background →</a>
       </p>
     </section>
 

@@ -14,7 +14,7 @@ export interface Props {
 }
 
 const { title, description, image, path, currentPath } = Astro.props;
-const locale = getLocaleFromUrl(Astro.url);
+const locale = ((Astro.currentLocale as 'en' | 'es') ?? getLocaleFromUrl(Astro.url));
 const htmlLang = locale === 'es' ? 'es' : 'en';
 const skipText = locale === 'es' ? 'Saltar al contenido' : 'Skip to content';
 ---

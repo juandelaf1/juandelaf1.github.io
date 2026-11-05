@@ -6,12 +6,12 @@ export interface Props {
   class?: string;
 }
 
-const { href, variant = 'ghost', external = false } = Astro.props;
+const { href, variant = 'ghost', external = false, class: className } = Astro.props;
 ---
 
 <a
   href={href}
-  class:list={['button', variant]}
+  class={`button ${variant} ${className ?? ''}`}
   {...(external && { target: '_blank', rel: 'noopener noreferrer' })}
 >
   <slot />

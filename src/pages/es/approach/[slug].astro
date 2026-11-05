@@ -20,9 +20,10 @@ const { Content } = await render(entry);
 ---
 
 <BaseLayout
-  title={`${entry.data.title} — ${SITE.author}`}
+  title={`${entry.data.title} - ${SITE.author}`}
   description={entry.data.description}
   path={`/es/approach/${entry.id.replace(/^es\//, '')}`}
+  currentPath={`/es/approach/${entry.id.replace(/^es\//, '')}`}
 >
   <Container>
     <article class="principle-article">

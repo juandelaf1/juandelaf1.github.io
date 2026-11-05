@@ -11,7 +11,7 @@ export interface Props {
 
 const { title, description, image, path = '', type = 'website' } = Astro.props;
 const canonical = new URL(path, 'https://juandelaf1.github.io').href;
-const locale = getLocaleFromUrl(Astro.url);
+const locale = ((Astro.currentLocale as 'en' | 'es') ?? getLocaleFromUrl(Astro.url));
 
 // Generate alternate URL for hreflang
 let altPath = path;

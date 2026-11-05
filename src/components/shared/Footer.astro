@@ -2,7 +2,7 @@
 import { getUI } from '../../i18n/ui';
 import { getLocaleFromUrl } from '../../i18n/utils';
 
-const locale = getLocaleFromUrl(Astro.url);
+const locale = ((Astro.currentLocale as 'en' | 'es') ?? getLocaleFromUrl(Astro.url));
 const t = getUI(locale);
 
 const year = new Date().getFullYear();

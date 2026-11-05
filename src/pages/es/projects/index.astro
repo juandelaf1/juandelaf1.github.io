@@ -41,7 +41,7 @@ const sorted = [...all].sort((a, b) => {
                   {project.data.featured && <span class="badge">{t.projects.featured}</span>}
                 </div>
                 <h3 class="item-title">
-                  <a href={`/projects/${project.id.replace(/^es\//, '')}`}>{project.data.title}</a>
+                  <a href={`/es/projects/${project.id.replace(/^es\//, '')}`}>{project.data.title}</a>
                 </h3>
                 <p class="item-desc">{project.data.description}</p>
                 <div class="tech-row">
@@ -55,7 +55,7 @@ const sorted = [...all].sort((a, b) => {
                   <Metric value={m.value} label={m.label} class="compact" />
                 ))}
                 <div class="item-links">
-                  <a href={`/projects/${project.id.replace(/^es\//, '')}`}>{t.projects.caseStudyLink}</a>
+                  <a href={`/es/projects/${project.id.replace(/^es\//, '')}`}>{t.projects.caseStudyLink}</a>
                   {project.data.links.github && (
                     <a href={project.data.links.github} target="_blank" rel="noopener noreferrer">{t.projects.repository}</a>
                   )}

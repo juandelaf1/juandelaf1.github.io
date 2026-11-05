@@ -19,9 +19,10 @@ const { Content } = await render(note);
 ---
 
 <BaseLayout
-  title={`${note.data.title} — ${SITE.author}`}
+  title={`${note.data.title} - ${SITE.author}`}
   description={note.data.description}
   path={`/es/engineering/${note.id.replace(/^es\//, '')}`}
+  currentPath={`/es/engineering/${note.id.replace(/^es\//, '')}`}
 >
   <Container>
     <article class="note-article">
