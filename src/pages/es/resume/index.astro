@@ -42,31 +42,61 @@ import { SITE } from '../../config/site';
       display: flex;
       justify-content: space-between;
       align-items: center;
+      gap: 12px;
       z-index: 100;
       border-bottom: 1px solid #243b55;
     }
+    .toolbar-left, .toolbar-right { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
     .toolbar a {
       color: #5eead4;
       text-decoration: none;
       font-size: 13px;
     }
-    .toolbar button {
-      background: #5eead4;
-      color: #0D1B2A;
-      border: none;
-      padding: 8px 20px;
+    .toolbar a:hover { color: #99f6e4; }
+    .toolbar .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 14px;
       border-radius: 6px;
       font-size: 13px;
       font-weight: 600;
-      cursor: pointer;
       font-family: inherit;
+      cursor: pointer;
+      text-decoration: none;
+      border: 1px solid transparent;
+      transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
     }
-    .toolbar button:hover { background: #99f6e4; }
+    .toolbar .btn-primary {
+      background: #5eead4;
+      color: #0D1B2A;
+      border-color: #5eead4;
+    }
+    .toolbar .btn-primary:hover { background: #99f6e4; color: #0D1B2A; }
+    .toolbar .btn-secondary {
+      background: transparent;
+      color: #5eead4;
+      border-color: rgba(94, 234, 212, 0.4);
+    }
+    .toolbar .btn-secondary:hover { border-color: #5eead4; color: #99f6e4; }
+    .toolbar button.btn { font: inherit; }
+    @media (max-width: 640px) {
+      .toolbar { padding: 10px 14px; align-items: flex-start; }
+      .toolbar-left, .toolbar-right { gap: 8px; }
+      .toolbar .btn { padding: 7px 10px; font-size: 12px; }
+    }
 
     .page {
       max-width: 800px;
       margin: 0 auto;
-      padding: 72px 48px 48px;
+      padding: 84px 48px 56px;
+    }
+
+    @media (max-width: 640px) {
+      .page { padding: 120px 20px 40px; }
+      .skills-grid { grid-template-columns: 1fr; }
+      .exp-header, .project-header { flex-direction: column; align-items: flex-start; gap: 2px; }
+      .resume-contact { gap: 8px 14px; }
     }
 
     @media print {
@@ -272,9 +302,14 @@ import { SITE } from '../../config/site';
 </head>
 <body>
   <div class="toolbar">
-    <a href="/es">← Volver al portfolio</a>
-    <a href="/es/cv/juan-de-la-fuente-larroucca.pdf" target="_blank" rel="noopener noreferrer" class="button primary">Descargar CV (PDF)</a>
-    <button onclick="window.print()">Imprimir / Guardar como PDF</button>
+    <div class="toolbar-left">
+      <a href="/es">← Volver al portfolio</a>
+    </div>
+    <div class="toolbar-right">
+      <a href="/resume" class="btn btn-secondary" aria-label="View resume in English">EN</a>
+      <a href="/cv/juan-de-la-fuente-larroucca.pdf" target="_blank" rel="noopener noreferrer" class="btn btn-primary">Descargar CV (PDF)</a>
+      <button onclick="window.print()" class="btn btn-secondary">Imprimir / Guardar como PDF</button>
+    </div>
   </div>
 
   <div class="page">
@@ -335,7 +370,7 @@ import { SITE } from '../../config/site';
           <span class="project-tech">Python · LangChain · Groq · ChromaDB · Chainlit</span>
         </div>
         <p class="project-desc">
-          Asistente fiscal conversacional RAG para autónomos españoles. Responde preguntas fiscales exclusivamente a partir de 7 documentos oficiales (2.847 páginas) con citas exactas y abstención honesta. Evaluated con benchmark de 40 preguntas y LLM-as-judge en MLflow.
+          Asistente fiscal conversacional RAG para autónomos españoles. Responde preguntas fiscales exclusivamente a partir de 7 documentos oficiales (2.847 páginas) con citas exactas y abstención honesta. Evaluado con un benchmark de 40 preguntas y LLM-as-judge en MLflow.
         </p>
         <div class="project-metrics">
           <span class="project-metric"><span class="metric-value">584</span> <span class="metric-label">tests pasando</span></span>
