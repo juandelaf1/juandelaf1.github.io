@@ -1,7 +1,5 @@
 ---
 import type { CollectionEntry } from 'astro:content';
-import fs from 'node:fs';
-import path from 'node:path';
 import Metric from '../ui/Metric.astro';
 import MiniFlow from '../projects/MiniFlow.astro';
 import { getUI } from '../../i18n/ui';
@@ -26,13 +24,6 @@ const flowMap: Record<string, string[]> = {
   'raspal-scraper': ['URL', 'Scrape', 'Extract', 'Validate', 'JSON'],
   'dash-logistics': ['Sources', 'ETL', 'Model', 'KPIs', 'Dashboard'],
 };
-
-function thumbFor(imagePath?: string): string | undefined {
-  if (!imagePath) return undefined;
-  const thumbPath = imagePath.replace(/(\.[^.]+)$/, '-thumb$1');
-  const publicFile = path.join(process.cwd(), 'public', thumbPath.replace(/^\//, ''));
-  return fs.existsSync(publicFile) ? thumbPath : imagePath;
-}
 ---
 
 <section class="selected-work" aria-labelledby="selected-heading">
@@ -50,7 +41,7 @@ function thumbFor(imagePath?: string): string | undefined {
           {project.data.image && (
             <div class="card-thumb">
               <img
-                src={thumbFor(project.data.image)}
+                src={project.data.image}
                 alt={project.data.title}
                 loading="lazy"
               />
