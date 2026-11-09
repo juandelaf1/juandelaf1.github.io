@@ -118,6 +118,9 @@ function thumbFor(imagePath?: string): string | undefined {
     border-radius: 12px;
     overflow: hidden;
   }
+  .grid > .card:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
   .card {
     display: flex;
     flex-direction: column;

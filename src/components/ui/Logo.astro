@@ -5,6 +5,19 @@ export interface Props {
 }
 
 const { size = 32, showText = true } = Astro.props;
+
+const y = showText ? 4 : 0;
+const yBorder = showText ? 0.75 : 0.75;
+const j = showText
+  ? 'M13 11v13.5c0 2.5-1.8 4.5-4.25 4.5S4.5 27 4.5 24.5'
+  : 'M13 7v13.5c0 2.5-1.8 4.5-4.25 4.5S4.5 23 4.5 20.5';
+const dStem = showText ? 'M18 16.5V29' : 'M18 12.5V25';
+const dBowl = showText
+  ? 'M18 20.2c0-2.1 1.7-3.7 3.8-3.7s3.8 1.6 3.8 3.7V29'
+  : 'M18 16.2c0-2.1 1.7-3.7 3.8-3.7s3.8 1.6 3.8 3.7V25';
+const fTop = showText ? 'M27 11h-4.5' : 'M27 7h-4.5';
+const fMid = showText ? 'M27 17.5h-3.5' : 'M27 13.5h-3.5';
+const fStem = showText ? 'M24.5 11v8' : 'M24.5 7v8';
 ---
 
 <svg
@@ -19,17 +32,17 @@ const { size = 32, showText = true } = Astro.props;
 >
   <title>Juan de la Fuente — Analytics Engineer</title>
   <!-- Mark -->
-  <rect x="0" y={showText ? "4" : "0"} width="32" height="32" rx="8" fill="#0D1B2A"/>
-  <rect x="0.75" y={showText ? "4.75" : "0.75"} width="30.5" height="30.5" rx="7.25" stroke="#5EEAD4" stroke-width="1.5" stroke-opacity="0.35"/>
+  <rect x="0" y={y} width="32" height="32" rx="8" fill="#0D1B2A"/>
+  <rect x="0.75" y={showText ? 4.75 : 0.75} width="30.5" height="30.5" rx="7.25" stroke="#5EEAD4" stroke-width="1.5" stroke-opacity="0.35"/>
   <!-- J -->
-  <path d="M13 {showText ? '11' : '7'}v13.5c0 2.5-1.8 4.5-4.25 4.5S4.5 {showText ? '27' : '23'} 4.5 {showText ? '24.5' : '20.5'}" stroke="#5EEAD4" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d={j} stroke="#5EEAD4" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
   <!-- d -->
-  <path d="M18 {showText ? '16.5' : '12.5'}V{showText ? '29' : '25'}" stroke="#5EEAD4" stroke-width="2.4" stroke-linecap="round"/>
-  <path d="M18 {showText ? '20.2' : '16.2'}c0-2.1 1.7-3.7 3.8-3.7s3.8 1.6 3.8 3.7V{showText ? '29' : '25'}" stroke="#5EEAD4" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d={dStem} stroke="#5EEAD4" stroke-width="2.4" stroke-linecap="round"/>
+  <path d={dBowl} stroke="#5EEAD4" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
   <!-- F -->
-  <path d="M27 {showText ? '11' : '7'}h-4.5" stroke="#5EEAD4" stroke-width="2.4" stroke-linecap="round"/>
-  <path d="M27 {showText ? '17.5' : '13.5'}h-3.5" stroke="#5EEAD4" stroke-width="2.4" stroke-linecap="round"/>
-  <path d="M24.5 {showText ? '11' : '7'}v8" stroke="#5EEAD4" stroke-width="2.4" stroke-linecap="round"/>
+  <path d={fTop} stroke="#5EEAD4" stroke-width="2.4" stroke-linecap="round"/>
+  <path d={fMid} stroke="#5EEAD4" stroke-width="2.4" stroke-linecap="round"/>
+  <path d={fStem} stroke="#5EEAD4" stroke-width="2.4" stroke-linecap="round"/>
 
   {showText && (
     <>
@@ -42,5 +55,6 @@ const { size = 32, showText = true } = Astro.props;
 <style>
   .logo-svg {
     flex-shrink: 0;
+    display: block;
   }
 </style>
