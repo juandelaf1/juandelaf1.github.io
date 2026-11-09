@@ -1,0 +1,89 @@
+---
+title: "Poolar: Governance-First Infrastructure for Collective Coordination"
+description: "Prototype coordination platform with HITL approvals, fail-closed governance, idempotent execution, and multi-tenant scoping. Synthetic pilot data."
+featured: false
+order: 10
+category: "Decision"
+date: 2026-11-09
+status: "development"
+image: "/images/projects/poolar-banner.jpg"
+metrics:
+  - value: "172"
+    label: "tests passed (repo suite, SQLite, documented run)"
+  - value: "1/1"
+    label: "Postgres race: 1 effect, no duplicate (documented)"
+  - value: "v0.6-mvp"
+    label: "prototype version (not production)"
+  - value: "synthetic"
+    label: "pilot data scope (synthetic_pilot)"
+tech:
+  - name: "Python"
+  - name: "FastAPI"
+  - name: "SQLAlchemy"
+  - name: "Alembic"
+  - name: "React"
+  - name: "TypeScript"
+  - name: "Vite"
+  - name: "PostgreSQL"
+links:
+  github: "https://github.com/juandelaf1/poolar"
+---
+
+## Context
+
+Poolar is a prototype **coordination infrastructure**: it connects needs, capacities, and resources so collective problems and initiatives can be organized with traceability. A core constraint shapes the design: the system **does not make or execute sensitive actions on its own** — human approval (HITL) and explicit governance rules gate those transitions.
+
+This case study is presented as **work in progress**. It is not a production system, it has no verified public deployment in this snapshot, and it operates on **synthetic pilot data** (`synthetic_pilot`). The value here is the engineering approach to governed execution, not a finished product claim.
+
+## Challenges
+
+- **Safe decisions under ambiguity.** Cross-tenant or insufficiently scoped actions must fail closed, not “best effort”.
+- **Human-in-the-loop without bypass.** Approvals must be scoped (org/individual/personal/legacy contexts), prevent self-approval, and avoid third-party actions without explicit authority.
+- **Correctness under retries and concurrency.** Resumable handlers, idempotency/dedup, and atomic state transitions are required so retries or races do not create duplicate effects.
+- **Auditability.** Lifecycle events need to be recorded with sanitized payloads to support traceability.
+- **Modularity in a monolith.** The system is structured in layers (API/auth context, services/domain logic, core data/migrations, web UI) while governance remains a first-class concern.
+
+## Solution
+
+![Poolar high-level architecture (prototype)](/images/projects/poolar-architecture.svg)
+
+### Architecture (high level)
+
+- **Web UI (thin client, MVP):** React + Vite + TypeScript, intended to call the API rather than hold authority over governed actions.
+- **API & governance core:** FastAPI endpoints with actor/auth context propagation; HITL approval flows; fail-closed decision checks; tenant scoping; idempotency keys/dedup; resumable handlers with an atomic pattern (lock → `executando` → handler `commit=False` → single commit), plus rollback to retryable-failed states.
+- **Data & audit:** SQLAlchemy models and Alembic migrations persist state and sanitized audit events.
+- **Database:** runs on SQLite for local/test workflows; **real Postgres concurrency behavior** has been exercised separately (documented).
+
+### Governed execution model
+
+Sensitive state changes flow through approval requests and registered handlers. Policies and guardrails are expressed declaratively (with observable warnings), and missing/unsafe paths are designed to fail closed. This is an infrastructure pattern for coordination/decision workflows, not an autonomous agent.
+
+## Results (documented evidence, not production metrics)
+
+The figures below come from the project’s own test/result documentation in the audited repository state (development). They indicate engineering progress, not product adoption or production reliability.
+
+- **172 passed, 14 skipped, 1 xfailed** in the full repo test suite on SQLite (documented run). A focused Phase 0/governance set reported **104 passed**.
+- **Postgres (real, disposable) concurrency check:** with migrations applied (including idempotency uniqueness) and competing approvers, the documented run produced **1 effect and no duplicate** record (`test_fase0_p04_concurrency_pg.py` passed). Credentials/environments are treated as local/temporary.
+- **Scope:** **synthetic pilot data** only; prototype **v0.6-mvp**; **Phase 0 not formally closed** (external gates / full matrices still pending per project docs).
+
+## Implementation Notes
+
+- **Stack:** Python (FastAPI, SQLAlchemy, Alembic), React + Vite + TypeScript, PostgreSQL/SQLite.
+- **Key design choices:** fail-closed governance, HITL scoping (including personal/legacy contexts with explicit authority constraints), idempotent/resumable execution, and sanitized audit trails.
+- **Honest boundaries:** analytics/monitoring and external effects (e.g., outbox) are treated as separate concerns; external integrations are not claimed complete where gates remain open.
+
+## Lessons Learned (so far)
+
+- **Governance is a product feature.** “Who can approve/execute, in which scope, and with what evidence” must be encoded and tested, not assumed.
+- **Idempotency and atomicity pay off early.** Retries and races are normal in workflow systems; proving “one effect” under contention is more valuable than optimistic demos.
+- **Documentation of evidence matters.** Recording what was validated (and where: SQLite vs real Postgres) prevents overclaiming during prototyping.
+
+## Next Milestones (intended)
+
+- Close remaining Phase 0 gates/matrices (scope/authorization, handler path coverage, external-effect recovery where applicable).
+- Provide a verifiable demo or tightly scoped end-to-end flow (still synthetic) with clear operator UX for approvals.
+- Keep governance fail-closed as the system evolves; avoid integrating external/real data until controls and evidence are complete.
+
+## Status
+
+**Development / prototype.** Poolar demonstrates a governance-first approach to collective coordination workflows. Claims on this page are limited to audited, documented repository evidence; it should not be read as a production-ready or deployed product.

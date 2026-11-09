@@ -1,0 +1,89 @@
+---
+title: "Poolar: infraestructura de coordinación con gobernanza primero"
+description: "Prototipo de coordinación con aprobaciones HITL, gobernanza fail-closed, ejecución idempotente y alcance multi-tenant. Datos piloto sintéticos."
+featured: false
+order: 10
+category: "Decision"
+date: 2026-11-09
+status: "development"
+image: "/images/projects/poolar-banner.jpg"
+metrics:
+  - value: "172"
+    label: "tests aprobados (suite del repo, SQLite, ejecución documentada)"
+  - value: "1/1"
+    label: "Carrera en Postgres: 1 efecto, sin duplicado (documentado)"
+  - value: "v0.6-mvp"
+    label: "versión prototipo (no producción)"
+  - value: "sintético"
+    label: "alcance de datos piloto (synthetic_pilot)"
+tech:
+  - name: "Python"
+  - name: "FastAPI"
+  - name: "SQLAlchemy"
+  - name: "Alembic"
+  - name: "React"
+  - name: "TypeScript"
+  - name: "Vite"
+  - name: "PostgreSQL"
+links:
+  github: "https://github.com/juandelaf1/poolar"
+---
+
+## Contexto
+
+Poolar es un prototipo de **infraestructura de coordinación**: conecta necesidades, capacidades y recursos para organizar problemas e iniciativas colectivas con trazabilidad. Una restricción central define el diseño: el sistema **no toma ni ejecuta por sí solo acciones sensibles**; esas transiciones se controlan mediante aprobación humana (HITL) y reglas explícitas de gobernanza.
+
+Este caso se presenta como **trabajo en curso**. No es un sistema en producción, en esta instantánea no hay un despliegue público verificado y opera con **datos piloto sintéticos** (`synthetic_pilot`). El valor aquí está en el enfoque de ingeniería para ejecución gobernada, no en afirmar un producto terminado.
+
+## Desafíos
+
+- **Decisiones seguras ante ambigüedad.** Acciones cross-tenant o con alcance insuficiente deben fallar en cerrado (*fail-closed*), no “hacer lo posible”.
+- **HITL sin atajos.** Las aprobaciones deben tener alcance (contextos org/individuo/personal/legacy), evitar la autoaprobación y bloquear acciones de terceros sin autoridad explícita.
+- **Corrección con reintentos y concurrencia.** Handlers reanudables, idempotencia/deduplicación y transiciones atómicas evitan efectos duplicados ante reintentos o carreras.
+- **Auditabilidad.** Registrar el ciclo de vida con payloads saneados para sostener la trazabilidad.
+- **Modularidad en un monolito.** Capas separadas (API/contexto de actor, servicios/dominio, núcleo de datos/migraciones, UI web) manteniendo la gobernanza como preocupación de primer nivel.
+
+## Solución
+
+![Arquitectura de alto nivel de Poolar (prototipo)](/images/projects/poolar-architecture.svg)
+
+### Arquitectura (alto nivel)
+
+- **UI web (cliente fino, MVP):** React + Vite + TypeScript, orientada a consumir la API sin concentrar autoridad sobre acciones gobernadas.
+- **Núcleo de API y gobernanza:** endpoints FastAPI con propagación de contexto de actor/auth; flujos de aprobación HITL; verificaciones *fail-closed*; alcance por tenant; claves de idempotencia/dedup; handlers reanudables con patrón atómico (lock → `ejecutando` → handler con `commit=False` → commit único) y rollback a estados reintentables.
+- **Datos y auditoría:** modelos SQLAlchemy y migraciones Alembic persisten estado y eventos de auditoría saneados.
+- **Base de datos:** SQLite para flujos locales/pruebas; el **comportamiento de concurrencia en Postgres real** se ejercitó por separado (documentado).
+
+### Modelo de ejecución gobernada
+
+Los cambios sensibles pasan por solicitudes de aprobación y handlers registrados. Políticas y guardrails se expresan de forma declarativa (con advertencias observables) y los caminos faltantes/inseguros se diseñan para fallar en cerrado. Es un patrón de infraestructura para flujos de coordinación/decisión, no un agente autónomo.
+
+## Resultados (evidencia documentada, no métricas de producción)
+
+Las cifras provienen de la documentación de pruebas/resultados del estado auditado del repositorio (desarrollo). Indican avance de ingeniería, no adopción del producto ni confiabilidad en producción.
+
+- **172 aprobados, 14 omitidos, 1 xfailed** en la suite completa del repo sobre SQLite (ejecución documentada). Un conjunto focal de Fase 0/gobernanza reportó **104 aprobados**.
+- **Chequeo de concurrencia en Postgres (real, desechable):** con migraciones aplicadas (incluida unicidad de idempotencia) y aprobadores compitiendo, la ejecución documentada produjo **1 efecto y ningún duplicado** (`test_fase0_p04_concurrency_pg.py` aprobado). Credenciales/entornos se tratan como locales/temporales.
+- **Alcance:** solo **datos piloto sintéticos**; prototipo **v0.6-mvp**; **Fase 0 no cerrada formalmente** (gates externos / matrices completas aún pendientes según docs del proyecto).
+
+## Notas de implementación
+
+- **Stack:** Python (FastAPI, SQLAlchemy, Alembic), React + Vite + TypeScript, PostgreSQL/SQLite.
+- **Decisiones clave:** gobernanza *fail-closed*, alcance HITL (incluidos contextos personal/legacy con restricciones explícitas de autoridad), ejecución idempotente/reanudable y auditoría saneada.
+- **Límites honestos:** analítica/monitoreo y efectos externos (p. ej., outbox) se tratan como preocupaciones separadas; no se afirman integraciones externas completas donde siguen abiertos los gates.
+
+## Lecciones aprendidas (hasta ahora)
+
+- **La gobernanza es una funcionalidad.** “Quién puede aprobar/ejecutar, en qué alcance y con qué evidencia” debe codificarse y probarse, no asumirse.
+- **Idempotencia y atomicidad rinden temprano.** Reintentos y carreras son normales en sistemas de workflow; demostrar “un solo efecto” bajo contención vale más que una demo optimista.
+- **Documentar la evidencia importa.** Registrar qué se validó (y dónde: SQLite vs Postgres real) evita sobreafirmar durante el prototipado.
+
+## Próximos hitos (intención)
+
+- Cerrar gates/matrices pendientes de Fase 0 (alcance/autorización, cobertura de caminos de handlers, recuperación de efectos externos cuando aplique).
+- Ofrecer una demo verificable o un flujo E2E acotado (aún sintético) con UX clara para aprobaciones.
+- Mantener la gobernanza *fail-closed* al evolucionar; evitar integrar datos externos/reales hasta completar controles y evidencia.
+
+## Estado
+
+**Desarrollo / prototipo.** Poolar demuestra un enfoque *governance-first* para flujos de coordinación colectiva. Las afirmaciones de esta página se limitan a evidencia auditada y documentada del repositorio; no debe leerse como un producto desplegado ni listo para producción.
