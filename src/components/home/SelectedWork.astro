@@ -47,16 +47,16 @@ function thumbFor(imagePath?: string): string | undefined {
       const slug = slugOf(project.id);
       return (
         <a href={locale === 'es' ? `/es/projects/${slug}` : `/projects/${slug}`} class="card">
+          {project.data.image && (
+            <div class="card-thumb">
+              <img
+                src={thumbFor(project.data.image)}
+                alt={project.data.title}
+                loading="lazy"
+              />
+            </div>
+          )}
           <div class="card-content">
-            {project.data.image && (
-              <div class="card-thumb">
-                <img
-                  src={thumbFor(project.data.image)}
-                  alt={project.data.title}
-                  loading="lazy"
-                />
-              </div>
-            )}
             <div class="card-header">
               <span class="category">{project.data.category}</span>
               <span class="status">{project.data.status}</span>
@@ -119,20 +119,22 @@ function thumbFor(imagePath?: string): string | undefined {
     overflow: hidden;
   }
   .card {
-    display: block;
+    display: flex;
+    flex-direction: column;
     background: var(--bg-primary);
-    padding: 28px 32px;
+    padding: 0;
     text-decoration: none;
     transition: background var(--transition);
     overflow: hidden;
   }
   .card-thumb {
-    margin: -28px -32px 16px;
+    margin: 0;
     border-bottom: 1px solid var(--border);
     overflow: hidden;
     background: var(--bg-tertiary);
     aspect-ratio: 16 / 9;
     line-height: 0;
+    flex-shrink: 0;
   }
   .card-thumb img {
     display: block;
@@ -154,7 +156,8 @@ function thumbFor(imagePath?: string): string | undefined {
     display: flex;
     flex-direction: column;
     gap: 10px;
-    height: 100%;
+    flex: 1;
+    padding: 24px 28px 28px;
   }
   .card-header {
     display: flex;
@@ -196,12 +199,8 @@ function thumbFor(imagePath?: string): string | undefined {
     .grid {
       grid-template-columns: 1fr;
     }
-    .card {
-      padding: 24px;
-      overflow: hidden;
-    }
-    .card-thumb {
-      margin: -24px -24px 16px;
+    .card-content {
+      padding: 20px;
     }
   }
 </style>
