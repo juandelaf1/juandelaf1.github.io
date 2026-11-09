@@ -1,6 +1,6 @@
 ---
 title: "SkyCast"
-description: "Plataforma de inteligencia climática que integra AEMET OpenData y fuentes auxiliares con ingestión programada, FastAPI y monitoreo mediante Streamlit."
+description: "Plataforma de datos climáticos: ingestión AEMET, pipelines validados, FastAPI y monitoreo — diseñada para seguir operativa si falla una fuente."
 featured: true
 order: 0
 category: "Climate"
@@ -44,7 +44,7 @@ El problema de negocio es claro: los equipos de gestión de emergencias necesita
 ## Desafíos
 
 - **Fragmentación de datos**: AEMET OpenData utiliza diferentes endpoints con esquemas inconsistentes entre estaciones
-- **Requisitos de tiempo real**: El clima cambia rápidamente; los datos obsoletos son peligrosos para los sistemas de alertas
+- **Frescura y oportunidad**: El clima cambia rápido; los datos obsoletos son un riesgo para las alertas, así que la ingestión y el caché deben equilibrar frescura y límites de la fuente
 - **Escalabilidad**: El sistema debe manejar solicitudes concurrentes de múltiples municipios
 - **Calidad de datos**: Los informes de origen colectivo requieren validación antes de utilizarse en la toma de decisiones
 - **Infraestructura**: Debe ejecutarse en recursos mínimos en la nube sin soporte operativo dedicado
@@ -66,7 +66,7 @@ Origen colectivo → Validación                     → Motor de alertas → We
 
 ### Pipeline
 
-1. **Ingestión**: Un trabajo programado obtiene datos de AEMET OpenData cada 15 minutos. Las solicitudes concurrentes se agrupan para respetar los límites de tasa de la API.
+1. **Ingestión**: Un trabajo programado obtiene datos de AEMET OpenData en un intervalo configurable (por defecto 120 minutos en esta implementación). Las solicitudes concurrentes se agrupan para respetar los límites de tasa de la API.
 2. **Validación**: Los informes de origen colectivo pasan por una capa de validación de Pydantic. Los datos mal formados se rechazan con mensajes de error estructurados.
 3. **Almacenamiento**: PostgreSQL almacena datos históricos con particionado por series temporales. Los datos recientes se almacenan en caché en memoria para consultas rápidas en el dashboard.
 4. **API**: Los endpoints de FastAPI sirven datos filtrados por municipio, rango de fechas y tipo de métrica. Autenticación JWT para los endpoints protegidos.

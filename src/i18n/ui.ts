@@ -17,9 +17,9 @@ export const UI = {
     hero: {
       position: 'Analytics Engineer · Data Products',
       tagline:
-        'I design and build production data systems. Pipelines, APIs, models, and interactive products that turn data into decisions.',
+        'I build reliable data systems that turn messy, real-world data into decisions teams can trust.',
       differentiator:
-        'Before engineering data, I ran a business. That experience shapes every system I build — from understanding the real problem to shipping something that works.',
+        'Pipelines, APIs, models, and data products — designed from the business problem out, with tests, validation, and clear trade-offs. Business background informs every build.',
       ctaProjects: 'Explore projects',
       ctaResume: 'Resume (PDF)',
       ctaGithub: 'GitHub',
@@ -138,9 +138,9 @@ export const UI = {
     hero: {
       position: 'Ingeniero de Analítica · Productos de Datos',
       tagline:
-        'Diseño y construyo sistemas de datos en producción. Pipelines, APIs, modelos y productos interactivos que convierten datos en decisiones.',
+        'Construyo sistemas de datos fiables que convierten datos reales y complejos en decisiones en las que los equipos pueden confiar.',
       differentiator:
-        'Antes de ingeniería de datos, gestioné un negocio. Esa experiencia moldea cada sistema que construyo — desde entender el problema real hasta entregar algo que funciona.',
+        'Pipelines, APIs, modelos y productos de datos — diseñados desde el problema de negocio, con tests, validación y trade-offs claros. Mi experiencia de negocio guía cada sistema.',
       ctaProjects: 'Explorar proyectos',
       ctaResume: 'CV (PDF)',
       ctaGithub: 'GitHub',
