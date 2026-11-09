@@ -191,15 +191,18 @@ const t = getUI(locale);
     margin-bottom: 16px;
     padding-top: 16px;
     border-top: 1px solid var(--border);
+    scroll-margin-top: 96px;
   }
   .body :global(h3) {
     margin-top: 32px;
     margin-bottom: 12px;
+    scroll-margin-top: 96px;
   }
   .body :global(p) {
     margin-bottom: 16px;
   }
-  .body :global(ul) {
+  .body :global(ul),
+  .body :global(ol) {
     margin-bottom: 16px;
     padding-left: 20px;
   }
@@ -208,6 +211,7 @@ const t = getUI(locale);
   }
   .body :global(pre) {
     margin: 24px 0;
+    max-width: 100%;
   }
   .body :global(blockquote) {
     border-left: 2px solid var(--accent);
@@ -215,6 +219,63 @@ const t = getUI(locale);
     margin: 24px 0;
     color: var(--text-secondary);
     font-style: normal;
+  }
+  .body :global(table) {
+    width: 100%;
+    max-width: 100%;
+    border-collapse: collapse;
+    margin: 24px 0;
+    font-size: 0.9375rem;
+    display: block;
+    overflow-x: auto;
+  }
+  .body :global(thead),
+  .body :global(tbody),
+  .body :global(tr) {
+    width: 100%;
+  }
+  .body :global(th),
+  .body :global(td) {
+    border: 1px solid var(--border);
+    padding: 10px 12px;
+    text-align: left;
+    vertical-align: top;
+  }
+  .body :global(th) {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    font-weight: 600;
+  }
+  .body :global(td) {
+    color: var(--text-secondary);
+  }
+  .body :global(hr) {
+    border: 0;
+    border-top: 1px solid var(--border);
+    margin: 32px 0;
+  }
+  .body :global(a) {
+    color: var(--accent);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .body :global(a:hover) {
+    color: var(--accent-hover);
+  }
+  .body :global(img) {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin: 20px 0;
+  }
+  .body :global(strong) {
+    color: var(--text-primary);
+    font-weight: 600;
+  }
+  .body :global(code) {
+    word-break: break-word;
   }
   @media (max-width: 768px) {
     .title {
