@@ -114,8 +114,10 @@ pre code {
   border: none;
 }
 
-img {
+img, svg, video, canvas {
   max-width: 100%;
+}
+img {
   height: auto;
   border-radius: 8px;
 }

@@ -133,11 +133,16 @@ const t = getUI(locale);
     border-radius: 12px;
     overflow: hidden;
     background: var(--bg-tertiary);
+    max-width: 100%;
+    box-sizing: border-box;
   }
   .hero-image img {
     display: block;
-    width: 100%;
-    height: auto;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
   }
   .actions {
     display: flex;
