@@ -206,6 +206,16 @@ function thumbFor(imagePath?: string): string | undefined {
   }
   .card-flow {
     margin: 2px 0;
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+  }
+  .card-flow :global(svg),
+  .card-flow :global(.mini-flow) {
+    display: block;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
   }
   .card-title {
     font-size: 1.1875rem;

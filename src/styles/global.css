@@ -47,6 +47,7 @@ html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+  overflow-x: clip;
 }
 
 body {
@@ -55,6 +56,11 @@ body {
   color: var(--text-primary);
   line-height: 1.6;
   min-height: 100vh;
+  overflow-x: clip;
+}
+
+main, header, footer, section, article, figure {
+  max-width: 100%;
 }
 
 a {
